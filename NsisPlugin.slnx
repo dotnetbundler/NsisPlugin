@@ -1,0 +1,10 @@
+<Solution>
+    <Folder Name="/files/">
+        <File Path=".gitignore"/>
+        <File Path=".editorconfig"/>
+        <File Path="Directory.Build.props"/>
+        <File Path="README.md"/>
+    </Folder>
+
+  <Project Path="src/NsisPlugin.csproj" />
+</Solution>
