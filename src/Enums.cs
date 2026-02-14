@@ -23,6 +23,9 @@ public enum Nspim
 /// </summary>
 public enum NsVariable
 {
+    /// <summary>$0</summary>
+    Inst0,
+
     /// <summary>$1</summary>
     Inst1,
 
