@@ -3,18 +3,18 @@ using NsisPlugin.NsisApi;
 
 namespace NsisPlugin;
 
-public unsafe class ExtraParameters(extra_parameters* extraParameters)
+public unsafe class ExtraParameters(IntPtr extraParameters)
 {
     // 这里记录回调函数的委托实例和函数指针
     // 防止它们被垃圾回收掉导致回调失效
     private static NsisPluginCallback? _callback;
     private static IntPtr _callbackPtr;
 
-    public extra_parameters* Raw => extraParameters;
+    public extra_parameters* Raw { get; } = (extra_parameters*)extraParameters;
 
-    public ExecFlags ExecFlags { get => *extraParameters->exec_flags; set => *extraParameters->exec_flags = value; }
+    public ExecFlags ExecFlags { get => *Raw->exec_flags; set => *Raw->exec_flags = value; }
 
-    public int ExecuteCodeSegment(int code) => extraParameters->ExecuteCodeSegment(code, PluginApi.HwndParent);
+    public int ExecuteCodeSegment(int code) => Raw->ExecuteCodeSegment(code, PluginApi.HwndParent);
 
     public void ValidateFilename(ref string filename)
     {
@@ -23,7 +23,7 @@ public unsafe class ExtraParameters(extra_parameters* extraParameters)
         {
             var bytes = PluginEncoding.Encoding.GetBytes(filename);
             Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, PluginApi.MaxStringBytes - PluginEncoding.CharSize));
-            extraParameters->validate_filename(buffer);
+            Raw->validate_filename(buffer);
             filename = PluginEncoding.PtrToString(buffer)!;
         }
         finally
@@ -39,7 +39,7 @@ public unsafe class ExtraParameters(extra_parameters* extraParameters)
 
         // 注册回调函数
         var callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
-        var res = extraParameters->RegisterPluginCallback(PluginApi.ModuleHandle, callbackPtr);
+        var res = Raw->RegisterPluginCallback(PluginApi.ModuleHandle, callbackPtr);
         if (res != 0) return res;
 
         // 成功记录

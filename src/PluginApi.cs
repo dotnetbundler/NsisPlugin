@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using NsisPlugin.NsisApi;
 
 namespace NsisPlugin;
 
-public static unsafe class PluginApi
+public static class PluginApi
 {
     public static IntPtr ModuleHandle { get; private set; }
 
@@ -31,7 +30,7 @@ public static unsafe class PluginApi
         static extern IntPtr GetModuleHandle(string lpModuleName);
     }
 
-    public static void Init(IntPtr hwndParent, int stringSize, IntPtr variables, stack_t** stacktop, extra_parameters* extraParameters)
+    public static void Init(IntPtr hwndParent, int stringSize, IntPtr variables, IntPtr stacktop, IntPtr extraParameters)
     {
         HwndParent = hwndParent;
         StringSize = stringSize;
