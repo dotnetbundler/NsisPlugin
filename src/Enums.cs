@@ -1,24 +1,24 @@
-namespace NsisPlugin.NsisApi;
+namespace NsisPlugin;
 
 /// <summary>
-/// NSIS Plug-In Callback Messages
+/// NSIS 插件回调消息
 ///<seealso href="https://github.com/NSIS-Dev/nsis/blob/691211035c2aaaebe8fbca48ee02d4de93594a52/Source/exehead/api.h#L27-L32">NSPIM Source</seealso>
 /// </summary>
 public enum Nspim
 {
     /// <summary>
-    /// This is the last message a plugin gets, do final cleanup
+    /// 这是插件收到的最后一条消息，请进行最终清理
     /// </summary>
     NspimUnload,
 
     /// <summary>
-    /// Called after .onGUIEnd
+    /// 在.onGUIEnd之后调用
     /// </summary>
     NspimGuiunload
 }
 
 /// <summary>
-/// NSIS Plug-In Variables
+/// NSIS 插件变量
 /// <seealso href="https://github.com/NSIS-Dev/nsis/blob/691211035c2aaaebe8fbca48ee02d4de93594a52/Contrib/ExDLL/pluginapi.h#L29-L57">NsVariable Source</seealso>
 /// </summary>
 public enum NsVariable
@@ -95,6 +95,6 @@ public enum NsVariable
     /// <summary>$LANGUAGE</summary>
     InstLang,
 
-    /// <summary>last variable, used for bounds checking</summary>
+    /// <summary>最后一个变量，用于边界检查</summary>
     InstLast
 }

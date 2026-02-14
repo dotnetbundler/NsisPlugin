@@ -1,85 +1,84 @@
 using System.Runtime.InteropServices;
 
-namespace NsisPlugin.NsisApi;
+namespace NsisPlugin;
 
 /// <summary>
-/// NSIS exec_flags_t Structure
-/// All fields are 32-bit integers: when used as a boolean flag, they follow the convention 0 = false, non-zero = true
+/// NSIS 执行标志
+/// int 当用作布尔标志时，它们遵循0表示false，非0表示true的约定
 /// <seealso href="https://github.com/NSIS-Dev/nsis/blob/691211035c2aaaebe8fbca48ee02d4de93594a52/Source/exehead/api.h#L39-L57">exec_flags_t Source</seealso>
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct ExecFlags
 {
     /// <summary>
-    /// Auto-close flag
+    /// 自动关闭标志
     /// </summary>
     public int Autoclose;
 
     /// <summary>
-    /// Variable scope: User context = 0, Machine context = 1
+    /// 变量作用域
+    /// 用户上下文 = 0，机器上下文 = 1
     /// </summary>
     public int AllUserVar;
 
     /// <summary>
-    /// Execution error flag
+    /// 执行错误标志
     /// </summary>
     public int ExecError;
 
     /// <summary>
-    /// Abort flag
+    /// 中止标志
     /// </summary>
     public int Abort;
 
     /// <summary>
-    /// Indicates whether a reboot is required
+    /// 指示是否需要重启
     /// </summary>
     public int ExecReboot;
 
     /// <summary>
-    /// Indicates whether reboot has been invoked
+    /// 指示是否已调用重启
     /// </summary>
     public int RebootCalled;
 
     /// <summary>
-    /// Deprecated; retained for backward ABI/layout compatibility
+    /// 已弃用；保留以支持向后兼容的ABI/布局
     /// </summary>
     public int XxxCurInsttype;
 
     /// <summary>
-    /// Plugin API/ABI version
+    /// 插件API/ABI版本
     /// <seealso href="https://github.com/NSIS-Dev/nsis/blob/691211035c2aaaebe8fbca48ee02d4de93594a52/Source/exehead/api.h#L24-L25">NSISPIAPIVER_CURR</seealso>
     /// </summary>
     public int PluginApiVersion;
 
     /// <summary>
-    /// Silent mode flag
+    /// 静默模式标志
     /// </summary>
     public int Silent;
 
     /// <summary>
-    /// Install directory error flag
+    /// 安装目录错误标志
     /// </summary>
     public int InstdirError;
 
     /// <summary>
-    /// Indicates whether the language is right-to-left (RTL); 1 means RTL
+    /// 表示语言是否为从右到左（RTL）；1 表示 RTL
     /// </summary>
     public int Rtl;
 
     /// <summary>
-    /// Error level or error code.
+    /// 错误级别或错误代码
     /// </summary>
     public int Errlvl;
 
     /// <summary>
-    /// Specifies the registry view. Default view = 0; the alternative view depends on pointer size:
-    /// on 64-bit processes (sizeof(void*) &gt; 4) the alternate view is typically KEY_WOW64_32KEY,
-    /// otherwise KEY_WOW64_64KEY. The field stores the corresponding Windows registry view flag as an integer
+    /// 指定注册表视图
     /// </summary>
     public int AlterRegView;
 
     /// <summary>
-    /// Enable status update / details printing
+    /// 启用状态更新 / 详细信息打印
     /// </summary>
     public int StatusUpdate;
 }
