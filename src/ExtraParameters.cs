@@ -11,8 +11,7 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
     private static IntPtr _callbackPtr;
 
     public extra_parameters* Raw { get; } = (extra_parameters*)extraParameters;
-
-    public ExecFlags ExecFlags { get => *Raw->exec_flags; set => *Raw->exec_flags = value; }
+    public ref ExecFlags ExecFlags => ref *Raw->exec_flags;
 
     public int ExecuteCodeSegment(int code) => Raw->ExecuteCodeSegment(code, PluginApi.HwndParent);
 
