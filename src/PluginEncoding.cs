@@ -15,15 +15,15 @@ public static class PluginEncoding
     public static bool IsGlobalUnicode { get; set; }
 
     /// <summary>
-    /// 线程本地编码设置，默认为 null，表示使用全局设置
-    /// 如果设置为 true，则该线程使用 Unicode 编码；如果设置为 false，则该线程使用 ANSI 编码
+    /// 范围编码设置，默认为 null，表示使用全局设置
+    /// 如果设置为 true，则该范围使用 Unicode 编码；如果设置为 false，则该线程使用 ANSI 编码
     /// </summary>
-    [field: ThreadStatic] public static bool? IsThreadUnicode { get; set; }
+    [field: ThreadStatic] public static bool? IsScopeUnicode { get; set; }
 
     /// <summary>
     /// 获取是否使用 Unicode 编码
     /// </summary>
-    public static bool IsUnicode => IsThreadUnicode ?? IsGlobalUnicode;
+    public static bool IsUnicode => IsScopeUnicode ?? IsGlobalUnicode;
 
     /// <summary>
     /// 获取每个字符的字节数，取决于当前编码
@@ -41,4 +41,24 @@ public static class PluginEncoding
     /// <param name="ptr">字符串指针</param>
     /// <returns>字符串</returns>
     public static string? PtrToString(IntPtr ptr) => IsUnicode ? Marshal.PtrToStringUni(ptr) : Marshal.PtrToStringAnsi(ptr);
+
+    /// <summary>
+    /// 创建编码作用域，在 using 块内临时切换编码设置，离开块后恢复之前的设置
+    /// </summary>
+    /// <param name="isUnicode">是否使用 Unicode 编码，如果为 null 则使用全局设置</param>
+    /// <returns>编码作用域对象</returns>
+    public static IDisposable CreateEncodingScope(bool? isUnicode) => new PluginEncodingScope(isUnicode);
+}
+
+/// <summary>
+/// 编码作用域管理类
+/// 用于在 code block 范围内临时切换编码设置
+/// </summary>
+public sealed class PluginEncodingScope : IDisposable
+{
+    private readonly bool? _previousValue = PluginEncoding.IsScopeUnicode;
+
+    public PluginEncodingScope(bool? isUnicode) => PluginEncoding.IsScopeUnicode = isUnicode;
+
+    public void Dispose() => PluginEncoding.IsScopeUnicode = _previousValue;
 }
