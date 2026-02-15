@@ -18,7 +18,7 @@ public static class NsPluginEnc
     /// 范围编码设置，默认为 null，表示使用全局设置
     /// 如果设置为 true，则该范围使用 Unicode 编码；如果设置为 false，则该线程使用 ANSI 编码
     /// </summary>
-    [field: ThreadStatic] public static bool? IsScopeUnicode { get; set; }
+    [field: ThreadStatic] public static bool? IsScopeUnicode { get; internal set; }
 
     /// <summary>
     /// 获取是否使用 Unicode 编码
