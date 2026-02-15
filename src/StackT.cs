@@ -9,7 +9,7 @@ public unsafe class StackT(IntPtr stackTop)
 {
     public stack_t** Raw { get; } = (stack_t**)stackTop;
 
-    public bool PopString([NotNullWhen(true)] out string? str)
+    public bool Pop([NotNullWhen(true)] out string? str)
     {
         if (Raw is null || *Raw is null)
         {
@@ -24,7 +24,7 @@ public unsafe class StackT(IntPtr stackTop)
         return true;
     }
 
-    public bool PushString(string str)
+    public bool Push(string str)
     {
         if (Raw is null) return false;
 
