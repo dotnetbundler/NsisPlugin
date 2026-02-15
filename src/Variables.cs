@@ -15,7 +15,7 @@ public class Variables(IntPtr variables)
             return false;
         }
 
-        var variablePtr = variables + ((int)variable * PluginApi.MaxStringBytes);
+        var variablePtr = variables + ((int)variable * NsPlugin.MaxStringBytes);
         value = PluginEncoding.PtrToString(variablePtr)!;
         return true;
     }
@@ -25,8 +25,8 @@ public class Variables(IntPtr variables)
         if (variables == IntPtr.Zero || variable is < NsVariable.Inst0 or >= NsVariable.InstLast) return false;
 
         var bytes = PluginEncoding.Encoding.GetBytes(value);
-        var variablePtr = variables + ((int)variable * PluginApi.MaxStringBytes);
-        Marshal.Copy(bytes, 0, variablePtr, Math.Min(bytes.Length, PluginApi.MaxStringBytes - PluginEncoding.CharSize));
+        var variablePtr = variables + ((int)variable * NsPlugin.MaxStringBytes);
+        Marshal.Copy(bytes, 0, variablePtr, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - PluginEncoding.CharSize));
         return true;
     }
 }

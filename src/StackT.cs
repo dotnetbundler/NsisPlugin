@@ -28,8 +28,8 @@ public unsafe class StackT(IntPtr stackTop)
         if (Raw is null) return false;
 
         var bytes = PluginEncoding.Encoding.GetBytes(str);
-        var stackNode = (stack_t*)NativeMemory.AllocZeroed((nuint)(sizeof(IntPtr) + PluginApi.MaxStringBytes));
-        Marshal.Copy(bytes, 0, (IntPtr)(&stackNode->text), Math.Min(bytes.Length, PluginApi.MaxStringBytes - PluginEncoding.CharSize));
+        var stackNode = (stack_t*)NativeMemory.AllocZeroed((nuint)(sizeof(IntPtr) + NsPlugin.MaxStringBytes));
+        Marshal.Copy(bytes, 0, (IntPtr)(&stackNode->text), Math.Min(bytes.Length, NsPlugin.MaxStringBytes - PluginEncoding.CharSize));
         stackNode->next = *Raw;
         *Raw = stackNode;
         return true;

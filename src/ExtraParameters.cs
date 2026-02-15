@@ -13,15 +13,15 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
     public extra_parameters* Raw { get; } = (extra_parameters*)extraParameters;
     public ref ExecFlags ExecFlags => ref *Raw->exec_flags;
 
-    public int ExecuteCodeSegment(int code) => Raw->ExecuteCodeSegment(code, PluginApi.HwndParent);
+    public int ExecuteCodeSegment(int code) => Raw->ExecuteCodeSegment(code, NsPlugin.HwndParent);
 
     public void ValidateFilename(ref string filename)
     {
-        var buffer = (IntPtr)NativeMemory.AllocZeroed((nuint)PluginApi.MaxStringBytes);
+        var buffer = (IntPtr)NativeMemory.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
         try
         {
             var bytes = PluginEncoding.Encoding.GetBytes(filename);
-            Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, PluginApi.MaxStringBytes - PluginEncoding.CharSize));
+            Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - PluginEncoding.CharSize));
             Raw->validate_filename(buffer);
             filename = PluginEncoding.PtrToString(buffer)!;
         }
@@ -38,7 +38,7 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
 
         // 注册回调函数
         var callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
-        var res = Raw->RegisterPluginCallback(PluginApi.ModuleHandle, callbackPtr);
+        var res = Raw->RegisterPluginCallback(NsPlugin.ModuleHandle, callbackPtr);
         if (res != 0) return res;
 
         // 成功记录

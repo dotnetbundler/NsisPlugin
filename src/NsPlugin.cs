@@ -2,7 +2,7 @@
 
 namespace NsisPlugin;
 
-public static class PluginApi
+public static class NsPlugin
 {
     public static IntPtr ModuleHandle { get; set; }
 
