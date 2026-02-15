@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="$([MSBuild]::NormalizePath($(EngDir),'generatorProjects.targets'))" Condition="'$(IsGeneratorProject)' == 'true'"/>
+
+  <!-- Import packaging targets -->
+  <!-- see:https://github.com/dotnet/runtime/blob/253a5c5911d9447ac19864a215408440228da2ed/Directory.Build.targets#L31 -->
+  <Import Project="$([MSBuild]::NormalizePath($(EngDir),'packaging.targets'))" Condition="'$(IsPackable)' == 'true' and '$(MSBuildProjectExtension)' != '.pkgproj'"/>
+</Project>
