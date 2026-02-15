@@ -3,8 +3,14 @@
         <File Path=".gitignore"/>
         <File Path=".editorconfig"/>
         <File Path="Directory.Build.props"/>
+        <File Path="Directory.Build.targets"/>
         <File Path="README.md"/>
     </Folder>
+    <Folder Name="/files/eng/">
+        <File Path="eng/packaging.targets"/>
+        <File Path="eng/generatorProjects.targets"/>
+    </Folder>
 
-  <Project Path="src/NsisPlugin.csproj" />
+    <Project Path="src/NsisPlugin.csproj"/>
+    <Project Path="gen/NsisPlugin.SourceGeneration.csproj"/>
 </Solution>

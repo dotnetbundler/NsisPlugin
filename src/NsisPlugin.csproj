@@ -6,4 +6,8 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\gen\NsisPlugin.SourceGeneration.csproj" ReferenceOutputAssembly="false" PackAsAnalyzer="true"/>
+  </ItemGroup>
 </Project>
