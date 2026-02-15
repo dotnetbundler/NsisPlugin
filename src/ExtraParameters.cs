@@ -7,7 +7,7 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
 {
     // 这里记录回调函数的委托实例和函数指针
     // 防止它们被垃圾回收掉导致回调失效
-    private static NsisPluginCallback? _callback;
+    private static NsPluginCallback? _callback;
     private static IntPtr _callbackPtr;
 
     public extra_parameters* Raw { get; } = (extra_parameters*)extraParameters;
@@ -31,7 +31,7 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
         }
     }
 
-    public int RegisterPluginCallback(NsisPluginCallback callback)
+    public int RegisterPluginCallback(NsPluginCallback callback)
     {
         // 如果已经注册过回调函数了，就直接返回 1，表示已经注册过了
         if (_callbackPtr != IntPtr.Zero) return 1;
