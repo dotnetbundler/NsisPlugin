@@ -16,7 +16,7 @@ public static class NsPlugin
 
     [field: ThreadStatic] public static ExtraParameters ExtraParameters { get; private set; }
 
-    public static int MaxStringBytes => StringSize * PluginEncoding.CharSize;
+    public static int MaxStringBytes => StringSize * NsPluginEnc.CharSize;
 
     public static void Init(IntPtr hwndParent, int stringSize, IntPtr variables, IntPtr stacktop, IntPtr extraParameters)
     {

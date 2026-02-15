@@ -20,10 +20,10 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
         var buffer = (IntPtr)NativeMemory.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
         try
         {
-            var bytes = PluginEncoding.Encoding.GetBytes(filename);
-            Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - PluginEncoding.CharSize));
+            var bytes = NsPluginEnc.Encoding.GetBytes(filename);
+            Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
             Raw->validate_filename(buffer);
-            filename = PluginEncoding.PtrToString(buffer)!;
+            filename = NsPluginEnc.PtrToString(buffer)!;
         }
         finally
         {

@@ -6,7 +6,7 @@ namespace NsisPlugin;
 /// <summary>
 /// 插件编码
 /// </summary>
-public static class PluginEncoding
+public static class NsPluginEnc
 {
     /// <summary>
     /// 全局编码设置，默认为 false（ANSI）
@@ -47,18 +47,16 @@ public static class PluginEncoding
     /// </summary>
     /// <param name="isUnicode">是否使用 Unicode 编码，如果为 null 则使用全局设置</param>
     /// <returns>编码作用域对象</returns>
-    public static IDisposable CreateEncodingScope(bool? isUnicode) => new PluginEncodingScope(isUnicode);
+    public static IDisposable CreateEncScope(bool? isUnicode) => new NsPluginEncScope(isUnicode);
 }
 
 /// <summary>
 /// 编码作用域管理类
 /// 用于在 code block 范围内临时切换编码设置
 /// </summary>
-public sealed class PluginEncodingScope : IDisposable
+public sealed class NsPluginEncScope : IDisposable
 {
-    private readonly bool? _previousValue = PluginEncoding.IsScopeUnicode;
-
-    public PluginEncodingScope(bool? isUnicode) => PluginEncoding.IsScopeUnicode = isUnicode;
-
-    public void Dispose() => PluginEncoding.IsScopeUnicode = _previousValue;
+    private readonly bool? _pre = NsPluginEnc.IsScopeUnicode;
+    public NsPluginEncScope(bool? isUnicode) => NsPluginEnc.IsScopeUnicode = isUnicode;
+    public void Dispose() => NsPluginEnc.IsScopeUnicode = _pre;
 }

@@ -17,7 +17,7 @@ public unsafe class StackT(IntPtr stackTop)
         }
 
         var stackNode = *Raw;
-        str = PluginEncoding.PtrToString((IntPtr)(&stackNode->text))!;
+        str = NsPluginEnc.PtrToString((IntPtr)(&stackNode->text))!;
         *Raw = stackNode->next;
         NativeMemory.Free(stackNode);
         return true;
@@ -27,9 +27,9 @@ public unsafe class StackT(IntPtr stackTop)
     {
         if (Raw is null) return false;
 
-        var bytes = PluginEncoding.Encoding.GetBytes(str);
+        var bytes = NsPluginEnc.Encoding.GetBytes(str);
         var stackNode = (stack_t*)NativeMemory.AllocZeroed((nuint)(sizeof(IntPtr) + NsPlugin.MaxStringBytes));
-        Marshal.Copy(bytes, 0, (IntPtr)(&stackNode->text), Math.Min(bytes.Length, NsPlugin.MaxStringBytes - PluginEncoding.CharSize));
+        Marshal.Copy(bytes, 0, (IntPtr)(&stackNode->text), Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
         stackNode->next = *Raw;
         *Raw = stackNode;
         return true;
