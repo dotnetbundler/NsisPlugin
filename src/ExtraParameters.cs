@@ -1,12 +1,11 @@
 using System.Runtime.InteropServices;
+using NsisPlugin.Compatibility;
 using NsisPlugin.NsisApi;
 
 namespace NsisPlugin;
 
 public unsafe class ExtraParameters(IntPtr extraParameters)
 {
-    // 这里记录回调函数的委托实例和函数指针
-    // 防止它们被垃圾回收掉导致回调失效
     private static NsPluginCallback? _callback;
     private static IntPtr _callbackPtr;
 
@@ -17,17 +16,18 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
 
     public void ValidateFilename(ref string filename)
     {
-        var buffer = (IntPtr)NativeMemory.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
+        var buffer = MemoryManager.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
         try
         {
+            var bufferPtr = (IntPtr)buffer;
             var bytes = NsPluginEnc.Encoding.GetBytes(filename);
-            Marshal.Copy(bytes, 0, buffer, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
-            Raw->validate_filename(buffer);
-            filename = NsPluginEnc.PtrToString(buffer)!;
+            Marshal.Copy(bytes, 0, bufferPtr, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
+            Raw->validate_filename(bufferPtr);
+            filename = NsPluginEnc.PtrToString(bufferPtr)!;
         }
         finally
         {
-            NativeMemory.Free((void*)buffer);
+            MemoryManager.Free(buffer);
         }
     }
 
@@ -41,7 +41,7 @@ public unsafe class ExtraParameters(IntPtr extraParameters)
         var res = Raw->RegisterPluginCallback(NsPlugin.ModuleHandle, callbackPtr);
         if (res != 0) return res;
 
-        // 成功记录
+        // 成功记录 _callback 保持引用以防止垃圾回收
         _callback = callback;
         _callbackPtr = callbackPtr;
         return res;
