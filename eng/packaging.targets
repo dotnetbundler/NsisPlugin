@@ -1,4 +1,4 @@
-<!-- 将 -->
+<!-- 自动将 PackAsAnalyzer=true 的解析器打包到解析器中 -->
 <!-- doc see:https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/libraries-packaging.md#analyzers- -source-generators -->
 <Project>
   <PropertyGroup>

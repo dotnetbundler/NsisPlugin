@@ -9,6 +9,8 @@
     <Folder Name="/files/eng/">
         <File Path="eng/packaging.targets"/>
         <File Path="eng/generatorProjects.targets"/>
+        <File Path="eng/packageInfo.props"/>
+        <File Path="eng/project.props"/>
     </Folder>
 
     <Project Path="src/NsisPlugin.csproj"/>
