@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -6,9 +5,6 @@ namespace NsisPlugin.SourceGeneration.Tests;
 
 public class Test
 {
-    [ModuleInitializer]
-    internal static void Init() => VerifySourceGenerators.Initialize();
-
     [Fact]
     public Task GeneratorTest()
     {
