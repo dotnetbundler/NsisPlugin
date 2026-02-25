@@ -1,17 +1,33 @@
-﻿using Xunit;
+using System.Runtime.CompilerServices;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace NsisPlugin.SourceGeneration.Tests;
 
-public class UnitTest1
+public class Test
 {
-    public static int Add(int x, int y) =>
-        x + y;
+    [ModuleInitializer]
+    internal static void Init() => VerifySourceGenerators.Initialize();
 
     [Fact]
-    public void Good() =>
-        Assert.Equal(4, Add(2, 2));
+    public Task GeneratorTest()
+    {
+        const string source = """
+                              using Test;
 
-    [Fact]
-    public void Bad() =>
-        Assert.Equal(5, Add(2, 2));
+                              public class Hello
+                              {
+                                    public void Say() => System.Console.WriteLine("Hello!");
+                              }
+                              """;
+
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, cancellationToken: TestContext.Current.CancellationToken);
+        var compilation = CSharpCompilation.Create("Tests", [syntaxTree]);
+
+        var generator = new NsisPluginSourceGenerator();
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
+
+        return Verify(driver);
+    }
 }

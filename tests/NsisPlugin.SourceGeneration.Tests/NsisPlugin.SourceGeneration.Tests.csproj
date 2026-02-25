@@ -17,4 +17,14 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Verify.XunitV3" Version="31.13.2"/>
+    <PackageReference Include="Verify.SourceGenerators" Version="2.5.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\gen\NsisPlugin.SourceGeneration.csproj"/>
+  </ItemGroup>
+
 </Project>
