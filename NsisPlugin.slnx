@@ -15,4 +15,5 @@
 
     <Project Path="src/NsisPlugin.csproj"/>
     <Project Path="gen/NsisPlugin.SourceGeneration.csproj"/>
+    <Project Path="tests/NsisPlugin.SourceGeneration.Tests/NsisPlugin.SourceGeneration.Tests.csproj"/>
 </Solution>
