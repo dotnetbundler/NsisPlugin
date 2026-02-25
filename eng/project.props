@@ -1,8 +1,9 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == 'true'">netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsTestProject)' != 'true'">$(TargetFrameworks);netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsGeneratorProject)' != 'true' And '$(IsTestProject)' != 'true'">$(TargetFrameworks);netstandard2.1</TargetFrameworks>
     <TargetFrameworks>$(TargetFrameworks);net8.0;net9.0;net10.0</TargetFrameworks>
-    
+
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseArtifactsOutput>true</UseArtifactsOutput>
