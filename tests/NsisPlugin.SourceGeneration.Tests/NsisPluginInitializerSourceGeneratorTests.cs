@@ -9,32 +9,55 @@ namespace NsisPlugin.SourceGeneration.Tests;
 public class NsisPluginInitializerSourceGeneratorTests
 {
     /// <summary>
-    /// 满足所有条件（C# 9.0，包含基础类库引用）<br/>
-    /// 成功生成代码
+    /// 满足条件（C# 9.0 及以上，包含基础类库引用）<br/>
+    /// 应该成功生成代码
     /// </summary>
-    [Fact]
-    public Task Should_GenerateCode_When_CSharp9AndReferencesExist()
+    /// <param name="languageVersion">语言版本</param>
+    /// <param name="hasReferences">是否包含基础类库引用</param>
+    [Theory]
+    [InlineData(LanguageVersion.CSharp9, true)]
+    [InlineData(LanguageVersion.CSharp10, true)]
+    [InlineData(LanguageVersion.CSharp12, true)]
+    [InlineData(LanguageVersion.CSharp14, true)]
+    [InlineData(LanguageVersion.Latest, true)]
+    public Task Should_GenerateCode(LanguageVersion languageVersion, bool hasReferences)
     {
-        var compilation = CreateCompilation(LanguageVersion.CSharp9, TestHelper.GetCurrentReferences());
+        // 创建编译环境
+        var compilation = CreateCompilation(languageVersion, hasReferences ? TestHelper.GetCurrentReferences() : null);
 
         // 运行源生成器
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new NsisPluginInitializerSourceGenerator());
+        var driver = TestHelper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
+
+        // 配置 Verify 以使用特定的目录和文件名存储快照
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        settings.UseFileName($"{nameof(NsisPluginInitializerSourceGeneratorTests)}.{nameof(Should_GenerateCode)}");
+        settings.DisableRequireUniquePrefix();
 
         // 验证生成了代码快照
-        return Verify(driver).UseDirectory("Snapshots");
+        return Verify(driver, settings);
     }
 
     /// <summary>
-    /// 不满足引用条件（C# 9.0，缺少基础类库引用）<br/>
-    /// 不生成代码
+    /// 不满足条件（语言版本过低，或缺少基础类库引用）<br/>
+    /// 不应该生成任何代码，并且没有报错或异常产生
     /// </summary>
-    [Fact]
-    public void Should_NotGenerateCode_When_CSharp9ButNoReferences()
+    /// <param name="languageVersion">语言版本</param>
+    /// <param name="hasReferences">是否包含基础类库引用</param>
+    [Theory]
+    [InlineData(LanguageVersion.CSharp9, false)]
+    [InlineData(LanguageVersion.CSharp10, false)]
+    [InlineData(LanguageVersion.CSharp12, false)]
+    [InlineData(LanguageVersion.CSharp14, false)]
+    [InlineData(LanguageVersion.Latest, false)]
+    [InlineData(LanguageVersion.CSharp8, true)]
+    [InlineData(LanguageVersion.CSharp7, true)]
+    [InlineData(LanguageVersion.CSharp6, true)]
+    public void Should_NotGenerateCode(LanguageVersion languageVersion, bool hasReferences)
     {
-        var compilation = CreateCompilation(LanguageVersion.CSharp9, null);
-
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new NsisPluginInitializerSourceGenerator());
+        var compilation = CreateCompilation(languageVersion, hasReferences ? TestHelper.GetCurrentReferences() : null);
+        var driver = TestHelper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         // 验证生成器没有输出任何代码文件
@@ -45,25 +68,6 @@ public class NsisPluginInitializerSourceGeneratorTests
         Assert.Empty(runResult.Diagnostics);
     }
 
-    /// <summary>
-    /// 不满足语言版本条件（C# 8.0，包含基础类库引用）<br/>
-    /// 不生成代码
-    /// </summary>
-    [Fact]
-    public void Should_NotGenerateCode_When_CSharp8EvenWithReferences()
-    {
-        var compilation = CreateCompilation(LanguageVersion.CSharp8, TestHelper.GetCurrentReferences());
-
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new NsisPluginInitializerSourceGenerator());
-        driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
-
-        // 验证生成器没有输出任何代码文件
-        var runResult = driver.GetRunResult();
-        Assert.Empty(runResult.GeneratedTrees);
-
-        // 验证没有报错或异常产生
-        Assert.Empty(runResult.Diagnostics);
-    }
 
     /// <summary>
     /// 辅助方法：根据指定的 C# 语言版本和额外的程序集引用创建编译环境
