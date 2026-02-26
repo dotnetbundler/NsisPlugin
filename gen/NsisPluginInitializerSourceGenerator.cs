@@ -41,9 +41,13 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
                         internal static void Initialize()
                         {
                             string currentModuleName = $"{Assembly.GetExecutingAssembly().GetName().Name}.dll";
-
-                            NsPluginEnc.IsGlobalUnicode = true;
                             NsPlugin.ModuleHandle = GetModuleHandle(currentModuleName);
+
+                #if NSIS_UNICODE
+                            NsPluginEnc.IsGlobalUnicode = true;
+                #else
+                            NsPluginEnc.IsGlobalUnicode = false;
+                #endif
 
                             [DllImport("kernel32.dll")]
                             static extern IntPtr GetModuleHandle(string lpModuleName);
