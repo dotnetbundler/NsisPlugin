@@ -10,17 +10,26 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // 创建一个增量节点：判断当前项目是否支持 ModuleInitializer
+        // 检查是否启用自动生成（通过 MSBuild 属性控制）
+        var isAutoGenerateProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
+        {
+            options.GlobalOptions.TryGetValue("build_property.AutoGenerateNsisPluginInitializer", out var value);
+            return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+        });
+
+        // 检查编译环境（C#版本和特性支持）
         var isSupportedProvider = context.CompilationProvider.Select((compilation, _) =>
         {
             // 检查 C# 语言版本是否满足最低要求 (C# 9.0)
             if (compilation is CSharpCompilation { LanguageVersion: < LanguageVersion.CSharp9 }) return false;
-
             // 检查目标框架（或引用的库）中是否存在 ModuleInitializerAttribute
             return compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.ModuleInitializerAttribute") is not null;
         });
 
-        context.RegisterSourceOutput(isSupportedProvider, static (spc, isSupported) =>
+        // 是否生成
+        var isGenerateProvider = isAutoGenerateProvider.Combine(isSupportedProvider).Select((p, _) => p is { Left: true, Right: true });
+
+        context.RegisterSourceOutput(isGenerateProvider, static (spc, isSupported) =>
         {
             if (!isSupported) return;
 

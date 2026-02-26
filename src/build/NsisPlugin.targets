@@ -2,4 +2,9 @@
   <PropertyGroup>
     <DefineConstants Condition="'$(NSISUnicode)' == 'true'">$(DefineConstants);NSIS_UNICODE</DefineConstants>
   </PropertyGroup>
+
+  <!-- 将属性暴露给 Source Generator -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AutoGenerateNsisPluginInitializer"/>
+  </ItemGroup>
 </Project>
