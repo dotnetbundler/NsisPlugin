@@ -10,4 +10,9 @@
   <ItemGroup>
     <ProjectReference Include="..\gen\NsisPlugin.SourceGeneration.csproj" ReferenceOutputAssembly="false" PackAsAnalyzer="true"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\NsisPlugin.props" Pack="true" PackagePath="build;buildTransitive"/>
+    <None Include="build\NsisPlugin.targets" Pack="true" PackagePath="build;buildTransitive"/>
+  </ItemGroup>
 </Project>

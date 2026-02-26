@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <DefineConstants Condition="'$(NSISUnicode)' == 'true'">$(DefineConstants);NSIS_UNICODE</DefineConstants>
+  </PropertyGroup>
+</Project>

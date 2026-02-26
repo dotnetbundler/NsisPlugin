@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Nsis 插件使用 Unicode 编码 -->
+    <NSISUnicode>false</NSISUnicode>
+  </PropertyGroup>
+</Project>
