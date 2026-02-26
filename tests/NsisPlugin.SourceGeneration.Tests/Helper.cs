@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace NsisPlugin.SourceGeneration.Tests;
 
-public static class TestHelper
+public static class Helper
 {
     /// <summary>
     /// 获取当前运行环境的所有基础程序集引用

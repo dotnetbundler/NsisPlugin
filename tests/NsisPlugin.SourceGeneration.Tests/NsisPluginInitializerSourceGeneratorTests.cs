@@ -23,10 +23,10 @@ public class NsisPluginInitializerSourceGeneratorTests
     public Task Should_GenerateCode(LanguageVersion languageVersion, bool hasReferences)
     {
         // 创建编译环境
-        var compilation = CreateCompilation(languageVersion, hasReferences ? TestHelper.GetCurrentReferences() : null);
+        var compilation = CreateCompilation(languageVersion, hasReferences ? Helper.GetCurrentReferences() : null);
 
         // 运行源生成器
-        var driver = TestHelper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
+        var driver = Helper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         // 配置 Verify 以使用特定的目录和文件名存储快照
@@ -56,8 +56,8 @@ public class NsisPluginInitializerSourceGeneratorTests
     [InlineData(LanguageVersion.CSharp6, true)]
     public void Should_NotGenerateCode(LanguageVersion languageVersion, bool hasReferences)
     {
-        var compilation = CreateCompilation(languageVersion, hasReferences ? TestHelper.GetCurrentReferences() : null);
-        var driver = TestHelper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
+        var compilation = CreateCompilation(languageVersion, hasReferences ? Helper.GetCurrentReferences() : null);
+        var driver = Helper.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         // 验证生成器没有输出任何代码文件
