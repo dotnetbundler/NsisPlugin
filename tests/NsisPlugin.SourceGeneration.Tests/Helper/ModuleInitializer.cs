@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace NsisPlugin.SourceGeneration.Tests;
+namespace NsisPlugin.SourceGeneration.Tests.Helper;
 
 public static class ModuleInitializer
 {

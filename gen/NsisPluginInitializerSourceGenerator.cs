@@ -29,6 +29,7 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
         // 是否生成
         var isGenerateProvider = isAutoGenerateProvider.Combine(isSupportedProvider).Select((p, _) => p is { Left: true, Right: true });
 
+        // 注册生成输出
         context.RegisterSourceOutput(isGenerateProvider, static (spc, isSupported) =>
         {
             if (!isSupported) return;
