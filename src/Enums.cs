@@ -101,3 +101,16 @@ public enum NsVariable
     /// <summary>最后一个变量，用于边界检查</summary>
     InstLast
 }
+
+/// <summary>
+/// 字符串编码
+/// </summary>
+public enum Encodings
+{
+    /// <summary>
+    /// 未定义，使用全局默认编码
+    /// </summary>
+    Undefined,
+    Ansi,
+    Unicode
+}

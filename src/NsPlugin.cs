@@ -18,12 +18,12 @@ public static class NsPlugin
 
     public static int MaxStringBytes => StringSize * NsPluginEnc.CharSize;
 
-    public static void Init(IntPtr hwndParent, int stringSize, IntPtr variables, IntPtr stacktop, IntPtr extraParameters)
+    public static void Init(IntPtr hwndParent, int stringSize, IntPtr variables, IntPtr stacktop, IntPtr extra)
     {
         HwndParent = hwndParent;
         StringSize = stringSize;
         Variables = new Variables(variables);
         StackTop = new StackT(stacktop);
-        ExtraParameters = new ExtraParameters(extraParameters);
+        ExtraParameters = new ExtraParameters(extra);
     }
 }
