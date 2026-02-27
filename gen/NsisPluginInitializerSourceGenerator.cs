@@ -46,11 +46,13 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
                 {
                     internal static class NsisPluginInitializer
                     {
+                        private static byte _moduleAnchor;
+
                         [ModuleInitializerAttribute]
                         internal static void Initialize()
                         {
-                            string currentModuleName = $"{Assembly.GetExecutingAssembly().GetName().Name}.dll";
-                            NsPlugin.ModuleHandle = GetModuleHandle(currentModuleName);
+                            const int GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS = 0x00000004;
+                            if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, ref _moduleAnchor, out IntPtr hModule)) NsPlugin.ModuleHandle = hModule;
 
                 #if NSIS_UNICODE
                             NsPluginEnc.IsGlobalUnicode = true;
@@ -59,7 +61,7 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
                 #endif
 
                             [DllImport("kernel32.dll")]
-                            static extern IntPtr GetModuleHandle(string lpModuleName);
+                            static extern bool GetModuleHandleEx(int dwFlags, ref byte lpModuleName, out IntPtr phModule);
                         }
                     }
                 }
