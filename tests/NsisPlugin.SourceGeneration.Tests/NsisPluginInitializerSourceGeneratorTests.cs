@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.CSharp;
 using NsisPlugin.SourceGeneration.Tests.Helper;
 
@@ -13,23 +13,23 @@ public class NsisPluginInitializerSourceGeneratorTests
     /// 该测试应成功生成，需要满足以下条件
     /// <list type="bullet">
     ///     <item>语言版本 C# 9.0 及以上</item>
-    ///     <item>编译环境包含基础类库引用（如 System.Runtime.CompilerServices.ModuleInitializerAttribute）</item>
+    ///     <item>编译环境包含 <see cref="ModuleInitializerAttribute">ModuleInitializer</see> 的定义</item>
     ///     <item>生成器属性配置启用自动生成（AutoGenerateNsisPluginInitializer=true）</item>
     /// </list>
     /// </summary>
     /// <param name="languageVersion">语言版本</param>
-    /// <param name="hasReferences">是否包含基础类库引用</param>
+    /// <param name="referenceTypes">需要包含的类型引用，用于满足生成器对特定类型定义的检查</param>
     /// <param name="properties">生成器属性配置</param>
     [Theory]
-    [InlineData(LanguageVersion.CSharp9, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp10, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp12, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp14, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.Latest, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    public Task Should_GenerateCode(LanguageVersion languageVersion, bool hasReferences, IEnumerable<string> properties)
+    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp10, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp12, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.Latest, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    public Task Should_GenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
         // 创建编译环境
-        var compilation = CreateCompilation(languageVersion, hasReferences ? Helpers.GetCurrentReferences() : null);
+        var compilation = Helpers.CreateCompilation("", languageVersion, Helpers.GetReferences(referenceTypes));
 
         // 运行源生成器
         var driver = Helpers.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion, properties);
@@ -53,17 +53,14 @@ public class NsisPluginInitializerSourceGeneratorTests
     ///     <item>生成器属性配置未启用自动生成（AutoGenerateNsisPluginInitializer=true）</item>
     /// </list>
     /// </summary>
-    /// <param name="languageVersion">语言版本</param>
-    /// <param name="hasReferences">是否包含基础类库引用</param>
-    /// <param name="properties">生成器属性配置</param>
     [Theory]
-    [InlineData(LanguageVersion.CSharp8, true, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp9, false, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp9, true, new[] { "AutoGenerateNsisPluginInitializer=false" })]
-    [InlineData(LanguageVersion.CSharp14, false, new[] { "AutoGenerateNsisPluginInitializer=false" })]
-    public void Should_NotGenerateCode(LanguageVersion languageVersion, bool hasReferences, IEnumerable<string> properties)
+    [InlineData(LanguageVersion.CSharp8, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp9, null, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=false" })]
+    [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" })]
+    public void Should_NotGenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
-        var compilation = CreateCompilation(languageVersion, hasReferences ? Helpers.GetCurrentReferences() : null);
+        var compilation = Helpers.CreateCompilation("", languageVersion, Helpers.GetReferences(referenceTypes));
         var driver = Helpers.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion, properties);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
@@ -73,23 +70,5 @@ public class NsisPluginInitializerSourceGeneratorTests
 
         // 验证没有报错或异常产生
         Assert.Empty(runResult.Diagnostics);
-    }
-
-
-    /// <summary>
-    /// 辅助方法：根据指定的 C# 语言版本和额外的程序集引用创建编译环境
-    /// </summary>
-    /// <param name="languageVersion">语言版本</param>
-    /// <param name="references">程序集引用</param>
-    private static CSharpCompilation CreateCompilation(LanguageVersion languageVersion, IEnumerable<MetadataReference>? references)
-    {
-        // 创建 C# 编译环境
-        // 这里我们不需要实际的源代码内容，因为 NsisPluginInitializerSourceGenerator 主要关注语言版本和引用
-        // 只有在满足一下条件时才会生成代码：
-        //  1. LanguageVersion >= C# 9.0
-        //  2. Compilation 中存在 System.Runtime.CompilerServices.ModuleInitializerAttribute 的定义
-        var syntaxTree = CSharpSyntaxTree.ParseText("", new CSharpParseOptions(languageVersion), cancellationToken: TestContext.Current.CancellationToken);
-
-        return CSharpCompilation.Create("Tests", [syntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
     }
 }
