@@ -9,4 +9,9 @@
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <LangVersion>14</LangVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsGeneratorProject)' == 'true'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsRoslynComponent>true</IsRoslynComponent>
+  </PropertyGroup>
 </Project>
