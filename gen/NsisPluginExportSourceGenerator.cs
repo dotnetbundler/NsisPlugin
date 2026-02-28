@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,6 +15,12 @@ namespace NsisPlugin.SourceGeneration;
 public class NsisPluginExportSourceGenerator : IIncrementalGenerator
 {
     private const string ActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
+    private const string FromVariableAttributeMetadataName = "NsisPlugin.FromVariableAttribute";
+    private const string ToVariableAttributeMetadataName = "NsisPlugin.ToVariableAttribute";
+
+    private const string VariablesTypeName = "global::NsisPlugin.Variables";
+    private const string StackTypeName = "global::NsisPlugin.StackT";
+    private const string ExtraParametersTypeName = "global::NsisPlugin.ExtraParameters";
 
     private static readonly SymbolDisplayFormat TypeDisplayFormat = SymbolDisplayFormat.FullyQualifiedFormat
         .WithMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
@@ -139,17 +146,37 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
             sb.AppendLine();
         }
 
+        var argumentExpressions = new List<string>(method.Parameters.Length);
         foreach (var parameter in method.Parameters)
         {
+            if (TryGetSpecialArgument(parameter, out var specialArgument))
+            {
+                argumentExpressions.Add(specialArgument);
+                continue;
+            }
+
             var localName = EscapeIdentifier(parameter.Name);
             var localType = GetLocalType(parameter.Type);
-            var failureMessage = SymbolDisplay.FormatLiteral($"Failed to pop {parameter.Name}", true);
+            var argument = GetArgumentExpression(parameter, localName);
 
-            sb.AppendLine($"{indent}            if (!NsPlugin.StackTop.Pop(out {localType} {localName})) throw new Exception({failureMessage});");
+            var fromVariableAttribute = GetFromVariableAttribute(parameter);
+            if (fromVariableAttribute is not null)
+            {
+                var variableExpr = GetVariableExpression(fromVariableAttribute, "Inst0");
+                var failureMessage = SymbolDisplay.FormatLiteral($"Failed to get {parameter.Name}", true);
+                sb.AppendLine($"{indent}            if (!NsPlugin.Variables.Get({variableExpr}, out {localType} {localName})) throw new Exception({failureMessage});");
+            }
+            else
+            {
+                var failureMessage = SymbolDisplay.FormatLiteral($"Failed to pop {parameter.Name}", true);
+                sb.AppendLine($"{indent}            if (!NsPlugin.StackTop.Pop(out {localType} {localName})) throw new Exception({failureMessage});");
+            }
+
+            argumentExpressions.Add(argument);
         }
 
         sb.AppendLine();
-        var arguments = string.Join(", ", method.Parameters.Select(p => GetArgumentExpression(p, EscapeIdentifier(p.Name))));
+        var arguments = string.Join(", ", argumentExpressions);
         var containingTypeName = method.ContainingType.ToDisplayString(TypeDisplayFormat);
         var invocation = $"{containingTypeName}.{method.Name}({arguments})";
 
@@ -162,7 +189,17 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
             var returnType = method.ReturnType.ToDisplayString(TypeDisplayFormat);
             sb.AppendLine($"{indent}            {returnType} result = {invocation};");
             sb.AppendLine();
-            sb.AppendLine($"{indent}            NsPlugin.StackTop.Push(result);");
+
+            var toVariableAttribute = GetToVariableAttribute(method);
+            if (toVariableAttribute is not null)
+            {
+                var variableExpr = GetVariableExpression(toVariableAttribute, "Inst0");
+                sb.AppendLine($"{indent}            NsPlugin.Variables.Set({variableExpr}, result);");
+            }
+            else
+            {
+                sb.AppendLine($"{indent}            NsPlugin.StackTop.Push(result);");
+            }
         }
 
         sb.AppendLine($"{indent}        }}");
@@ -176,8 +213,17 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
     private static string GetEntryPoint(AttributeData attribute, IMethodSymbol method)
     {
         var arg = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0] : default;
-        var entryPoint = arg.Value as string;
-        return string.IsNullOrWhiteSpace(entryPoint) ? method.Name : entryPoint!;
+        var format = arg.Value as string;
+        if (string.IsNullOrWhiteSpace(format)) return method.Name;
+
+        try
+        {
+            return string.Format(CultureInfo.InvariantCulture, format, method.Name);
+        }
+        catch (FormatException)
+        {
+            return format ?? method.Name;
+        }
     }
 
     private static string GetEncodingExpression(AttributeData attribute)
@@ -185,13 +231,71 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
         var encodingArg = attribute.NamedArguments.FirstOrDefault(arg => arg.Key == "Encoding").Value;
         if (encodingArg.Value is null || encodingArg.Type is null) return "global::NsisPlugin.Encodings.Undefined";
 
-        var enumType = (INamedTypeSymbol)encodingArg.Type;
-        var enumMember = enumType.GetMembers()
-            .OfType<IFieldSymbol>()
-            .FirstOrDefault(f => f.HasConstantValue && Equals(f.ConstantValue, encodingArg.Value));
+        return GetEnumValueExpression(encodingArg.Type, encodingArg.Value, "Undefined");
+    }
 
-        var enumName = enumMember?.Name ?? "Undefined";
-        return $"global::NsisPlugin.Encodings.{enumName}";
+    private static AttributeData? GetFromVariableAttribute(IParameterSymbol parameter) =>
+        parameter.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == FromVariableAttributeMetadataName);
+
+    private static AttributeData? GetToVariableAttribute(IMethodSymbol method) =>
+        method.GetReturnTypeAttributes().FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == ToVariableAttributeMetadataName);
+
+    private static string GetVariableExpression(AttributeData attribute, string fallbackMember)
+    {
+        var arg = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0] : default;
+        if (arg.Type is null) return $"global::NsisPlugin.NsVariable.{fallbackMember}";
+
+        return GetEnumValueExpression(arg.Type, arg.Value, fallbackMember);
+    }
+
+    private static string GetEnumValueExpression(ITypeSymbol enumType, object? value, string fallbackMember)
+    {
+        if (enumType is not INamedTypeSymbol namedType || value is null)
+        {
+            return $"{enumType.ToDisplayString(TypeDisplayFormat)}.{fallbackMember}";
+        }
+
+        var enumMember = namedType.GetMembers()
+            .OfType<IFieldSymbol>()
+            .FirstOrDefault(f => f.HasConstantValue && Equals(f.ConstantValue, value));
+
+        var memberName = enumMember?.Name ?? fallbackMember;
+        return $"{namedType.ToDisplayString(TypeDisplayFormat)}.{memberName}";
+    }
+
+    private static bool TryGetSpecialArgument(IParameterSymbol parameter, out string argumentExpression)
+    {
+        var typeName = GetNonNullableDisplayName(parameter.Type);
+        if (typeName == VariablesTypeName)
+        {
+            argumentExpression = "NsPlugin.Variables";
+            return true;
+        }
+
+        if (typeName == StackTypeName)
+        {
+            argumentExpression = "NsPlugin.StackTop";
+            return true;
+        }
+
+        if (typeName == ExtraParametersTypeName)
+        {
+            argumentExpression = "NsPlugin.ExtraParameters";
+            return true;
+        }
+
+        argumentExpression = string.Empty;
+        return false;
+    }
+
+    private static string GetNonNullableDisplayName(ITypeSymbol type)
+    {
+        if (type.NullableAnnotation != NullableAnnotation.None)
+        {
+            type = type.WithNullableAnnotation(NullableAnnotation.None);
+        }
+
+        return type.ToDisplayString(TypeDisplayFormat);
     }
 
     private static string GetLocalType(ITypeSymbol type)
