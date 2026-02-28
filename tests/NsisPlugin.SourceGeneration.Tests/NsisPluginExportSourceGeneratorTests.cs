@@ -13,6 +13,8 @@ public class NsisPluginExportSourceGeneratorTests
 
                               namespace NsisPluginTest
                               {
+                                  public static class AA
+                                  {
                                   public static class EntryPointCases
                                   {
                                       [NsisAction]
@@ -33,6 +35,7 @@ public class NsisPluginExportSourceGeneratorTests
                                       [NsisAction("   ")]
                                       public static int WhitespaceEntry(int value) => value;
                                   }
+                                  }
                               }
                               """;
 
@@ -46,6 +49,11 @@ public class NsisPluginExportSourceGeneratorTests
         settings.UseDirectory("Snapshots");
         settings.UseFileName($"{nameof(NsisPluginExportSourceGeneratorTests)}.{nameof(Should_Generate_EntryPoints_And_Wrappers)}");
         settings.DisableRequireUniquePrefix();
+
+        var generatedTrees = driver.GetRunResult().Results
+            .SelectMany(r => r.GeneratedSources)
+            .Select(s => s.SyntaxTree)
+            .ToList();
 
         return Verify(driver, settings);
     }

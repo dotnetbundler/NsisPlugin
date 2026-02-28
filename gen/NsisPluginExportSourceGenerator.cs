@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
-using System.Globalization;
-using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using NsMethodInfo = (Microsoft.CodeAnalysis.IMethodSymbol method, System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.AttributeData> attributes);
 
 namespace NsisPlugin.SourceGeneration;
 
@@ -14,386 +12,116 @@ namespace NsisPlugin.SourceGeneration;
 [Generator]
 public class NsisPluginExportSourceGenerator : IIncrementalGenerator
 {
-    private const string ActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
-    private const string FromVariableAttributeMetadataName = "NsisPlugin.FromVariableAttribute";
-    private const string ToVariableAttributeMetadataName = "NsisPlugin.ToVariableAttribute";
+    private const string NsisActionAttributeFullName = "NsisPlugin.NsisActionAttribute";
+    private const string FromVariableAttributeFullName = "NsisPlugin.FromVariableAttribute";
+    private const string ToVariableAttributeFullName = "NsisPlugin.ToVariableAttribute";
 
-    private const string VariablesTypeName = "global::NsisPlugin.Variables";
-    private const string StackTypeName = "global::NsisPlugin.StackT";
-    private const string ExtraParametersTypeName = "global::NsisPlugin.ExtraParameters";
-
-    private static readonly SymbolDisplayFormat TypeDisplayFormat = SymbolDisplayFormat.FullyQualifiedFormat
-        .WithMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+    // 生成后缀
+    private const string GeneratedSuffix = "_NsisPluginExports";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var methodProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
-                ActionAttributeMetadataName,
-                static (node, _) => node is MethodDeclarationSyntax,
-                static (ctx, _) => GetMethodInfo(ctx))
-            .Where(static info => info is not null);
+        // 过滤并拿到所有标记了 [NsisAction] 特性的方法信息
+        var nsActionProvider = context.SyntaxProvider.ForAttributeWithMetadataName(NsisActionAttributeFullName, static (n, _) => n is MethodDeclarationSyntax, GetMethodInfo).Where(static ma => ma is not null);
+        var collected = nsActionProvider.Collect();
 
-        var collected = methodProvider.Collect();
-
-        context.RegisterSourceOutput(collected, static (spc, items) =>
-        {
-            if (items.IsDefaultOrEmpty) return;
-            Emit(spc, items!);
-        });
+        // 注册生成输出
+        context.RegisterSourceOutput(collected, Emit);
     }
 
-    private static MethodActionInfo? GetMethodInfo(GeneratorAttributeSyntaxContext context)
+    /// <summary>
+    /// 获取方法信息和相关属性数据
+    /// </summary>
+    private static NsMethodInfo? GetMethodInfo(GeneratorAttributeSyntaxContext context, CancellationToken _)
     {
-        if (context.TargetSymbol is not IMethodSymbol method) return null;
-        if (!IsEligible(method)) return null;
+        if (context.TargetSymbol is not IMethodSymbol method || !IsEligible(method)) return null;
 
         var attributes = context.Attributes
-            .Where(a => a.AttributeClass?.ToDisplayString() == ActionAttributeMetadataName)
+            .Where(a => a.AttributeClass?.ToDisplayString() == NsisActionAttributeFullName)
             .ToImmutableArray();
 
-        return attributes.IsDefaultOrEmpty ? null : new MethodActionInfo(method, attributes);
+        return attributes.IsDefaultOrEmpty ? null : (method, attributes);
+
+        // 是否符合条件
+        static bool IsEligible(IMethodSymbol method)
+        {
+            // 不是静态方法 || 抽象方法 || 泛型方法
+            if (!method.IsStatic || method.IsAbstract || method.IsGenericMethod) return false;
+            // 没有包含类型 || 包含类型是泛型类型
+            if (method.ContainingType is null || method.ContainingType.IsGenericType) return false;
+            // 参数包含 ref/out/in 修饰符
+            if (method.Parameters.Any(p => p.RefKind != RefKind.None)) return false;
+
+            return method.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal;
+        }
     }
 
-    private static bool IsEligible(IMethodSymbol method)
+    /// <summary>
+    /// 生成源代码
+    /// </summary>
+    private static void Emit(SourceProductionContext context, ImmutableArray<NsMethodInfo?> items)
     {
-        if (!method.IsStatic || method.IsAbstract || method.IsGenericMethod) return false;
-        if (method.ContainingType is null || method.ContainingType.IsGenericType) return false;
-        if (method.Parameters.Any(p => p.RefKind != RefKind.None)) return false;
-
-        return method.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal;
-    }
-
-    private static void Emit(SourceProductionContext context, ImmutableArray<MethodActionInfo?> items)
-    {
-        var validItems = items.Where(i => i is not null).Cast<MethodActionInfo>().ToArray();
+        var validItems = items.Where(i => i is not null).Cast<NsMethodInfo>().ToArray();
         if (validItems.Length == 0) return;
 
-        foreach (var group in validItems.GroupBy(i => i.Method.ContainingType!, NamedTypeSymbolComparer.Instance))
+        foreach (var group in validItems.GroupBy(i => i.method.ContainingType, SymbolEqualityComparer.Default))
         {
-            var source = GenerateForType(group.Key, group);
-            if (string.IsNullOrWhiteSpace(source)) continue;
-
-            var hintName = $"{GetSafeFileName(group.Key)}.NsisExports.g.cs";
-            context.AddSource(hintName, SourceText.From(source, Encoding.UTF8));
+            var type = (INamedTypeSymbol)group.Key!;
+            var source = GenerateForType(type, group);
+            context.AddSource($"{type.ToDisplayString()}{GeneratedSuffix}.g.cs", source);
         }
     }
 
-    private static string GenerateForType(INamedTypeSymbol containingType, IEnumerable<MethodActionInfo> methods)
+    /// <summary>
+    /// 为指定类型生成源代码
+    /// </summary>
+    private static SourceText GenerateForType(INamedTypeSymbol type, IEnumerable<NsMethodInfo> methods)
     {
-        var namespaceName = containingType.ContainingNamespace?.ToDisplayString() ?? string.Empty;
-        var className = GetExportClassName(containingType);
+        var writer = new SourceWriter();
 
-        var sb = new StringBuilder();
-        sb.AppendLine("// <auto-generated/>");
-        sb.AppendLine("using System;");
-        sb.AppendLine("using System.Runtime.CompilerServices;");
-        sb.AppendLine("using System.Runtime.InteropServices;");
-        sb.AppendLine("using NsisPlugin;");
-        sb.AppendLine();
+        // 文件头
+        writer.WriteLine("// <auto-generated/>");
+        writer.WriteLine("using System;");
+        writer.WriteLine("using System.Runtime.CompilerServices;");
+        writer.WriteLine("using System.Runtime.InteropServices;");
+        writer.WriteLine("using NsisPlugin;");
+        writer.WriteLine();
 
-        if (!string.IsNullOrWhiteSpace(namespaceName))
+        // 生成命名空间声明（如果有）
+        if (!type.ContainingNamespace.IsGlobalNamespace)
         {
-            sb.AppendLine($"namespace {namespaceName}");
-            sb.AppendLine("{");
+            writer.WriteLine($"namespace {type.ContainingNamespace.ToDisplayString()};");
+            writer.WriteLine();
         }
 
-        var indent = string.IsNullOrWhiteSpace(namespaceName) ? "" : "    ";
-        sb.AppendLine($"{indent}public static class {className}");
-        sb.AppendLine($"{indent}{{");
+        // 生成类声明
+        writer.WriteLine($"public static class {GetExportClassName()}");
+        writer.WriteLine('{');
+        writer.Indentation++;
 
-        var usedNames = new HashSet<string>(StringComparer.Ordinal);
-        var isFirstMethod = true;
-        foreach (var info in methods.OrderBy(m => m.Method.Name, StringComparer.Ordinal))
+        // 生成方法
+        foreach (var method in methods) GenerateMethod(method);
+
+        writer.Indentation--;
+        writer.WriteLine('}');
+        return writer.ToSourceText();
+
+        // 获取生成类名
+        string GetExportClassName()
         {
-            var method = info.Method;
-            var attributes = info.Attributes;
-            var useEntryPointInName = attributes.Length > 1;
-
-            foreach (var attribute in attributes)
+            var parts = new Stack<string>();
+            var cur = type;
+            while (cur is not null)
             {
-                var entryPoint = GetEntryPoint(attribute, method);
-                var wrapperName = useEntryPointInName ? $"{method.Name}_{SanitizeIdentifier(entryPoint)}_Gen" : $"{method.Name}_Gen";
-
-                wrapperName = EnsureUniqueName(wrapperName, usedNames);
-                GenerateWrapperMethod(sb, indent, method, wrapperName, entryPoint, attribute, ref isFirstMethod);
+                parts.Push(cur.Name);
+                cur = cur.ContainingType;
             }
+            return string.Join("_", parts) + GeneratedSuffix;
         }
 
-        sb.AppendLine($"{indent}}}");
-        if (!string.IsNullOrWhiteSpace(namespaceName)) sb.AppendLine("}");
-
-        return sb.ToString();
-    }
-
-    private static void GenerateWrapperMethod(StringBuilder sb, string indent, IMethodSymbol method, string wrapperName, string entryPoint, AttributeData attribute, ref bool isFirstMethod)
-    {
-        if (!isFirstMethod) sb.AppendLine();
-        isFirstMethod = false;
-
-        var entryPointLiteral = SymbolDisplay.FormatLiteral(entryPoint, true);
-        var encodingExpr = GetEncodingExpression(attribute);
-
-        sb.AppendLine($"{indent}    [UnmanagedCallersOnly(EntryPoint = {entryPointLiteral}, CallConvs = new[] {{ typeof(CallConvCdecl) }})]");
-        sb.AppendLine($"{indent}    public static void {wrapperName}(IntPtr hwndParent, int string_size, IntPtr variables, IntPtr stacktop, IntPtr extra)");
-        sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        try");
-        sb.AppendLine($"{indent}        {{");
-        sb.AppendLine($"{indent}            using IDisposable _ = NsPluginEnc.CreateEncScope({encodingExpr});");
-        sb.AppendLine($"{indent}            NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);");
-
-        if (method.Parameters.Length > 0)
+        // 生成方法
+        void GenerateMethod(NsMethodInfo info)
         {
-            sb.AppendLine();
         }
-
-        var argumentExpressions = new List<string>(method.Parameters.Length);
-        foreach (var parameter in method.Parameters)
-        {
-            if (TryGetSpecialArgument(parameter, out var specialArgument))
-            {
-                argumentExpressions.Add(specialArgument);
-                continue;
-            }
-
-            var localName = EscapeIdentifier(parameter.Name);
-            var localType = GetLocalType(parameter.Type);
-            var argument = GetArgumentExpression(parameter, localName);
-
-            var fromVariableAttribute = GetFromVariableAttribute(parameter);
-            if (fromVariableAttribute is not null)
-            {
-                var variableExpr = GetVariableExpression(fromVariableAttribute, "Inst0");
-                var failureMessage = SymbolDisplay.FormatLiteral($"Failed to get {parameter.Name}", true);
-                sb.AppendLine($"{indent}            if (!NsPlugin.Variables.Get({variableExpr}, out {localType} {localName})) throw new Exception({failureMessage});");
-            }
-            else
-            {
-                var failureMessage = SymbolDisplay.FormatLiteral($"Failed to pop {parameter.Name}", true);
-                sb.AppendLine($"{indent}            if (!NsPlugin.StackTop.Pop(out {localType} {localName})) throw new Exception({failureMessage});");
-            }
-
-            argumentExpressions.Add(argument);
-        }
-
-        sb.AppendLine();
-        var arguments = string.Join(", ", argumentExpressions);
-        var containingTypeName = method.ContainingType.ToDisplayString(TypeDisplayFormat);
-        var invocation = $"{containingTypeName}.{method.Name}({arguments})";
-
-        if (method.ReturnsVoid)
-        {
-            sb.AppendLine($"{indent}            {invocation};");
-        }
-        else
-        {
-            var returnType = method.ReturnType.ToDisplayString(TypeDisplayFormat);
-            sb.AppendLine($"{indent}            {returnType} result = {invocation};");
-            sb.AppendLine();
-
-            var toVariableAttribute = GetToVariableAttribute(method);
-            if (toVariableAttribute is not null)
-            {
-                var variableExpr = GetVariableExpression(toVariableAttribute, "Inst0");
-                sb.AppendLine($"{indent}            NsPlugin.Variables.Set({variableExpr}, result);");
-            }
-            else
-            {
-                sb.AppendLine($"{indent}            NsPlugin.StackTop.Push(result);");
-            }
-        }
-
-        sb.AppendLine($"{indent}        }}");
-        sb.AppendLine($"{indent}        catch (Exception ex)");
-        sb.AppendLine($"{indent}        {{");
-        sb.AppendLine($"{indent}            NsPlugin.StackTop.Push($\"Exception in {wrapperName}: {{ex}}\");");
-        sb.AppendLine($"{indent}        }}");
-        sb.AppendLine($"{indent}    }}");
-    }
-
-    private static string GetEntryPoint(AttributeData attribute, IMethodSymbol method)
-    {
-        var arg = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0] : default;
-        var format = arg.Value as string;
-        if (string.IsNullOrWhiteSpace(format)) return method.Name;
-
-        try
-        {
-            return string.Format(CultureInfo.InvariantCulture, format, method.Name);
-        }
-        catch (FormatException)
-        {
-            return format ?? method.Name;
-        }
-    }
-
-    private static string GetEncodingExpression(AttributeData attribute)
-    {
-        var encodingArg = attribute.NamedArguments.FirstOrDefault(arg => arg.Key == "Encoding").Value;
-        if (encodingArg.Value is null || encodingArg.Type is null) return "global::NsisPlugin.Encodings.Undefined";
-
-        return GetEnumValueExpression(encodingArg.Type, encodingArg.Value, "Undefined");
-    }
-
-    private static AttributeData? GetFromVariableAttribute(IParameterSymbol parameter) =>
-        parameter.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == FromVariableAttributeMetadataName);
-
-    private static AttributeData? GetToVariableAttribute(IMethodSymbol method) =>
-        method.GetReturnTypeAttributes().FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == ToVariableAttributeMetadataName);
-
-    private static string GetVariableExpression(AttributeData attribute, string fallbackMember)
-    {
-        var arg = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0] : default;
-        if (arg.Type is null) return $"global::NsisPlugin.NsVariable.{fallbackMember}";
-
-        return GetEnumValueExpression(arg.Type, arg.Value, fallbackMember);
-    }
-
-    private static string GetEnumValueExpression(ITypeSymbol enumType, object? value, string fallbackMember)
-    {
-        if (enumType is not INamedTypeSymbol namedType || value is null)
-        {
-            return $"{enumType.ToDisplayString(TypeDisplayFormat)}.{fallbackMember}";
-        }
-
-        var enumMember = namedType.GetMembers()
-            .OfType<IFieldSymbol>()
-            .FirstOrDefault(f => f.HasConstantValue && Equals(f.ConstantValue, value));
-
-        var memberName = enumMember?.Name ?? fallbackMember;
-        return $"{namedType.ToDisplayString(TypeDisplayFormat)}.{memberName}";
-    }
-
-    private static bool TryGetSpecialArgument(IParameterSymbol parameter, out string argumentExpression)
-    {
-        var typeName = GetNonNullableDisplayName(parameter.Type);
-        if (typeName == VariablesTypeName)
-        {
-            argumentExpression = "NsPlugin.Variables";
-            return true;
-        }
-
-        if (typeName == StackTypeName)
-        {
-            argumentExpression = "NsPlugin.StackTop";
-            return true;
-        }
-
-        if (typeName == ExtraParametersTypeName)
-        {
-            argumentExpression = "NsPlugin.ExtraParameters";
-            return true;
-        }
-
-        argumentExpression = string.Empty;
-        return false;
-    }
-
-    private static string GetNonNullableDisplayName(ITypeSymbol type)
-    {
-        if (type.NullableAnnotation != NullableAnnotation.None)
-        {
-            type = type.WithNullableAnnotation(NullableAnnotation.None);
-        }
-
-        return type.ToDisplayString(TypeDisplayFormat);
-    }
-
-    private static string GetLocalType(ITypeSymbol type)
-    {
-        var display = type.ToDisplayString(TypeDisplayFormat);
-
-        if (type.IsReferenceType)
-        {
-            return display.EndsWith("?", StringComparison.Ordinal) ? display : display + "?";
-        }
-
-        return IsNullableValueType(type) ? display : display + "?";
-    }
-
-    private static string GetArgumentExpression(IParameterSymbol parameter, string localName)
-    {
-        if (parameter.Type.IsReferenceType)
-        {
-            return parameter.NullableAnnotation == NullableAnnotation.Annotated ? localName : localName + "!";
-        }
-
-        return IsNullableValueType(parameter.Type) ? localName : localName + ".Value";
-    }
-
-    private static bool IsNullableValueType(ITypeSymbol type) =>
-        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
-
-    private static string GetExportClassName(INamedTypeSymbol containingType)
-    {
-        var parts = new Stack<string>();
-        var current = containingType;
-        while (current is not null)
-        {
-            parts.Push(current.Name);
-            current = current.ContainingType;
-        }
-
-        return string.Join("_", parts) + "NsisExports";
-    }
-
-    private static string GetSafeFileName(INamedTypeSymbol containingType)
-    {
-        var fullName = containingType.ToDisplayString(TypeDisplayFormat);
-        return fullName.Replace("global::", "")
-            .Replace('.', '_')
-            .Replace('+', '_');
-    }
-
-    private static string SanitizeIdentifier(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return "Action";
-
-        var sb = new StringBuilder(value.Length);
-        for (var i = 0; i < value.Length; i++)
-        {
-            var ch = value[i];
-            if (i == 0)
-            {
-                sb.Append(SyntaxFacts.IsIdentifierStartCharacter(ch) ? ch : '_');
-            }
-            else
-            {
-                sb.Append(SyntaxFacts.IsIdentifierPartCharacter(ch) ? ch : '_');
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    private static string EnsureUniqueName(string baseName, HashSet<string> usedNames)
-    {
-        if (usedNames.Add(baseName)) return baseName;
-
-        var index = 1;
-        while (!usedNames.Add($"{baseName}_{index}")) index++;
-        return $"{baseName}_{index}";
-    }
-
-    private static string EscapeIdentifier(string name) => SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ? "@" + name : name;
-
-    private sealed class MethodActionInfo
-    {
-        public MethodActionInfo(IMethodSymbol method, ImmutableArray<AttributeData> attributes)
-        {
-            Method = method;
-            Attributes = attributes;
-        }
-
-        public IMethodSymbol Method { get; }
-        public ImmutableArray<AttributeData> Attributes { get; }
-    }
-
-    private sealed class NamedTypeSymbolComparer : IEqualityComparer<INamedTypeSymbol>
-    {
-        public static readonly NamedTypeSymbolComparer Instance = new();
-
-        public bool Equals(INamedTypeSymbol? x, INamedTypeSymbol? y) => SymbolEqualityComparer.Default.Equals(x, y);
-
-        public int GetHashCode(INamedTypeSymbol obj) => SymbolEqualityComparer.Default.GetHashCode(obj);
     }
 }
