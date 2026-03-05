@@ -12,18 +12,18 @@ public static class NsPluginEnc
     /// 全局编码设置，默认为 false（ANSI）
     /// 如果设置为 true，则所有线程默认使用 Unicode 编码，除非线程本地设置覆盖它
     /// </summary>
-    public static bool IsGlobalUnicode { get; set; }
+    public static bool UseUnicode { get; set; }
 
     /// <summary>
     /// 范围编码设置，默认为 null，表示使用全局设置
     /// 如果设置为 true，则该范围使用 Unicode 编码；如果设置为 false，则该线程使用 ANSI 编码
     /// </summary>
-    [field: ThreadStatic] public static bool? IsScopeUnicode { get; internal set; }
+    [field: ThreadStatic] public static bool? ScopeUseUnicode { get; internal set; }
 
     /// <summary>
     /// 获取是否使用 Unicode 编码
     /// </summary>
-    public static bool IsUnicode => IsScopeUnicode ?? IsGlobalUnicode;
+    public static bool IsUnicode => ScopeUseUnicode ?? UseUnicode;
 
     /// <summary>
     /// 获取每个字符的字节数，取决于当前编码
@@ -56,8 +56,8 @@ public static class NsPluginEnc
 /// </summary>
 public sealed class NsPluginEncScope : IDisposable
 {
-    private readonly bool? _pre = NsPluginEnc.IsScopeUnicode;
-    public NsPluginEncScope(Encodings encoding) => NsPluginEnc.IsScopeUnicode = encoding switch
+    private readonly bool? _pre = NsPluginEnc.ScopeUseUnicode;
+    public NsPluginEncScope(Encodings encoding) => NsPluginEnc.ScopeUseUnicode = encoding switch
     {
         Encodings.Undefined => null,
         Encodings.Ansi => false,
@@ -65,5 +65,5 @@ public sealed class NsPluginEncScope : IDisposable
         _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
     };
 
-    public void Dispose() => NsPluginEnc.IsScopeUnicode = _pre;
+    public void Dispose() => NsPluginEnc.ScopeUseUnicode = _pre;
 }

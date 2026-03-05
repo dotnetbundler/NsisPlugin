@@ -56,9 +56,9 @@ public class NsisPluginInitializerSourceGenerator : IIncrementalGenerator
                             if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, ref _moduleAnchor, out IntPtr hModule)) NsPlugin.ModuleHandle = hModule;
 
                 #if NSIS_UNICODE
-                            NsPluginEnc.IsGlobalUnicode = true;
+                            NsPluginEnc.UseUnicode = true;
                 #else
-                            NsPluginEnc.IsGlobalUnicode = false;
+                            NsPluginEnc.UseUnicode = false;
                 #endif
 
                             [DllImport("kernel32.dll")]
