@@ -1,8 +1,12 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using NsMethodInfo = (Microsoft.CodeAnalysis.IMethodSymbol method, System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.AttributeData> attributes);
+using NsMethodInfo = (Microsoft.CodeAnalysis.IMethodSymbol Method, System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.AttributeData> Attributes);
+using NsActionInfo = (string EntryPointFormat, NsisPlugin.Encodings Encoding);
 
 namespace NsisPlugin.SourceGeneration;
 
@@ -64,7 +68,7 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
         var validItems = items.Where(i => i is not null).Cast<NsMethodInfo>().ToArray();
         if (validItems.Length == 0) return;
 
-        foreach (var group in validItems.GroupBy(i => i.method.ContainingType, SymbolEqualityComparer.Default))
+        foreach (var group in validItems.GroupBy(i => i.Method.ContainingType, SymbolEqualityComparer.Default))
         {
             var type = (INamedTypeSymbol)group.Key!;
             var source = GenerateForType(type, group);
@@ -100,7 +104,8 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
         writer.Indentation++;
 
         // 生成方法
-        foreach (var method in methods) GenerateMethod(method);
+        var isFirstMethod = true;
+        foreach (var method in methods) GenerateMethod(writer, method, ref isFirstMethod);
 
         writer.Indentation--;
         writer.WriteLine('}');
@@ -118,10 +123,81 @@ public class NsisPluginExportSourceGenerator : IIncrementalGenerator
             }
             return string.Join("_", parts) + GeneratedSuffix;
         }
+    }
 
-        // 生成方法
-        void GenerateMethod(NsMethodInfo info)
+    /// <summary>
+    /// 为指定方法生成导出函数
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="info"></param>
+    /// <param name="isFirstMethod"></param>
+    private static void GenerateMethod(SourceWriter writer, NsMethodInfo info, ref bool isFirstMethod)
+    {
+        // 相同配置的特性只处理一次
+        var nsActionInfos = info.Attributes.Select(ParseNsisActionAttribute).Distinct();
+        foreach (var actionInfo in nsActionInfos)
         {
+            // 方法间隔
+            if (isFirstMethod) isFirstMethod = false;
+            else writer.WriteLine();
+
+            var entryPoint = GetEntryPoint(actionInfo.EntryPointFormat, info.Method);
+            writer.WriteLine($"[UnmanagedCallersOnly(EntryPoint = {entryPoint}, CallConvs = new[] {{ typeof(CallConvCdecl) }})]");
+            writer.WriteLine($"public static void {entryPoint}(IntPtr hwndParent, int string_size, IntPtr variables, IntPtr stacktop, IntPtr extra)");
+            writer.WriteLine('{');
+            writer.Indentation++;
+            {
+                writer.WriteLine("try");
+                writer.WriteLine('{');
+                writer.Indentation++;
+                {
+                    writer.WriteLine($"using IDisposable _ = NsPluginEnc.CreateEncScope({GetEnumMemberFullName(actionInfo.Encoding)});");
+                    writer.WriteLine("NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);");
+                }
+                writer.Indentation--;
+                writer.WriteLine('}');
+                writer.WriteLine("catch (Exception ex)");
+                writer.WriteLine('{');
+                writer.Indentation++;
+                {
+                    writer.WriteLine($"NsPlugin.StackTop.Push($\"Exception in {entryPoint}: {{ex}}\");");
+                }
+                writer.Indentation--;
+                writer.WriteLine('}');
+            }
+            // End of method body
+            writer.Indentation--;
+            writer.WriteLine('}');
+        }
+
+        // 获取方法入口点（带双引号）
+        static string GetEntryPoint(string format, IMethodSymbol method)
+        {
+            var entryPoint = string.Format(CultureInfo.InvariantCulture, format, method.Name);
+            if (string.IsNullOrWhiteSpace(entryPoint)) entryPoint = method.Name;
+            return SymbolDisplay.FormatLiteral(entryPoint, false);
         }
     }
+
+    private static NsActionInfo ParseNsisActionAttribute(AttributeData attribute)
+    {
+        Debug.Assert(attribute.ConstructorArguments.Length == 1);
+        var entryPointFormat = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? "{0}";
+        var encoding = (Encodings)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? Encodings.Undefined);
+        return (entryPointFormat, encoding);
+    }
+
+    private static NsVariable ParseFromVariableAttribute(AttributeData attribute)
+    {
+        Debug.Assert(attribute.ConstructorArguments.Length == 1);
+        return (NsVariable)attribute.ConstructorArguments.FirstOrDefault().Value!;
+    }
+
+    private static NsVariable ParseToVariableAttribute(AttributeData attribute)
+    {
+        Debug.Assert(attribute.ConstructorArguments.Length == 1);
+        return (NsVariable)attribute.ConstructorArguments.FirstOrDefault().Value!;
+    }
+
+    private static string GetEnumMemberFullName<TEnum>(TEnum value) where TEnum : struct, Enum => $"global::{typeof(TEnum).FullName}.{value}";
 }
