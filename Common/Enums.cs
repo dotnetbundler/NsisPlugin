@@ -108,7 +108,7 @@ public enum NsVariable
 public enum Encodings
 {
     /// <summary>
-    /// 未定义，使用全局默认编码
+    /// 未定义，使用默认编码
     /// </summary>
     Undefined,
     Ansi,
