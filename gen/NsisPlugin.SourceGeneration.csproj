@@ -9,4 +9,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Common\**\*.cs" Link="Common\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
 </Project>

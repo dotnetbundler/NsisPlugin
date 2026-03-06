@@ -9,8 +9,7 @@ namespace NsisPlugin;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class NsisActionAttribute(string entryPointFormat = "{0}") : Attribute
 {
-    public string EntryPointFormat { get; } = entryPointFormat;
-    public Encodings Encoding { get; set; } = Encodings.Undefined;
+    public Encodings Encoding { get; set; }
 }
 
 /// <summary>
@@ -19,10 +18,7 @@ public class NsisActionAttribute(string entryPointFormat = "{0}") : Attribute
 /// </summary>
 /// <param name="variable">要获取的变量</param>
 [AttributeUsage(AttributeTargets.Parameter)]
-public class FromVariableAttribute(NsVariable variable) : Attribute
-{
-    public NsVariable Variable { get; } = variable;
-}
+public class FromVariableAttribute(NsVariable variable) : Attribute { }
 
 /// <summary>
 /// NSIS 插件方法返回值特性
@@ -30,7 +26,4 @@ public class FromVariableAttribute(NsVariable variable) : Attribute
 /// </summary>
 /// <param name="variable">要设置的变量</param>
 [AttributeUsage(AttributeTargets.ReturnValue)]
-public class ToVariableAttribute(NsVariable variable) : Attribute
-{
-    public NsVariable Variable { get; } = variable;
-}
+public class ToVariableAttribute(NsVariable variable) : Attribute { }
