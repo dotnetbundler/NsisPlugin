@@ -1,5 +1,5 @@
-using Microsoft.CodeAnalysis.CSharp;
-using NsisPlugin.SourceGeneration.Tests.Helper;
+using Microsoft.CodeAnalysis;
+using static NsisPlugin.SourceGeneration.Tests.Helper.CompilationHelper;
 
 namespace NsisPlugin.SourceGeneration.Tests;
 
@@ -39,10 +39,8 @@ public class NsisPluginExportSourceGeneratorTests
                               }
                               """;
 
-        var dummy = typeof(NsisActionAttribute);
-
-        var compilation = Helpers.CreateCompilation(source, LanguageVersion.CSharp12, Helpers.GetCurrentReferences());
-        var driver = Helpers.CreateGeneratorDriver<NsisPluginExportSourceGenerator>(LanguageVersion.CSharp12);
+        var compilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)));
+        GeneratorDriver driver = CreateGeneratorDriver<NsisPluginExportSourceGenerator>(compilation);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         var settings = new VerifySettings();
@@ -93,10 +91,8 @@ public class NsisPluginExportSourceGeneratorTests
                               }
                               """;
 
-        var dummy = typeof(NsisActionAttribute);
-
-        var compilation = Helpers.CreateCompilation(source, LanguageVersion.CSharp12, Helpers.GetCurrentReferences());
-        var driver = Helpers.CreateGeneratorDriver<NsisPluginExportSourceGenerator>(LanguageVersion.CSharp12);
+        var compilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)));
+        GeneratorDriver driver = CreateGeneratorDriver<NsisPluginExportSourceGenerator>(compilation);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         var settings = new VerifySettings();
@@ -125,10 +121,8 @@ public class NsisPluginExportSourceGeneratorTests
                               }
                               """;
 
-        var dummy = typeof(NsisActionAttribute);
-
-        var compilation = Helpers.CreateCompilation(source, LanguageVersion.CSharp12, Helpers.GetCurrentReferences());
-        var driver = Helpers.CreateGeneratorDriver<NsisPluginExportSourceGenerator>(LanguageVersion.CSharp12);
+        var compilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)));
+        GeneratorDriver driver = CreateGeneratorDriver<NsisPluginExportSourceGenerator>(compilation);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         var settings = new VerifySettings();

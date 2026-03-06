@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NsisPlugin.SourceGeneration.Tests.Helper;
+using static NsisPlugin.SourceGeneration.Tests.Helper.CompilationHelper;
 
 namespace NsisPlugin.SourceGeneration.Tests;
 
@@ -29,10 +30,10 @@ public class NsisPluginInitializerSourceGeneratorTests
     public Task Should_GenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
         // 创建编译环境
-        var compilation = Helpers.CreateCompilation("", languageVersion, Helpers.GetReferences(referenceTypes));
+        var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
 
         // 运行源生成器
-        var driver = Helpers.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion, properties);
+        GeneratorDriver driver = CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(compilation, properties: properties);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         // 配置 Verify 以使用特定的目录和文件名存储快照
@@ -60,8 +61,8 @@ public class NsisPluginInitializerSourceGeneratorTests
     [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" })]
     public void Should_NotGenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
-        var compilation = Helpers.CreateCompilation("", languageVersion, Helpers.GetReferences(referenceTypes));
-        var driver = Helpers.CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(languageVersion, properties);
+        var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
+        GeneratorDriver driver = CreateGeneratorDriver<NsisPluginInitializerSourceGenerator>(compilation, properties: properties);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
         // 验证生成器没有输出任何代码文件
