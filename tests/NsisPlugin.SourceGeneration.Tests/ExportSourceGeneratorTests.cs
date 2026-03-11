@@ -164,7 +164,7 @@ public class ExportSourceGeneratorTests
         Assert.Equal(3, runResult.Diagnostics.Length);
         foreach (var diagnostic in runResult.Diagnostics)
         {
-            Assert.Equal("NSISPLUGINGEN101", diagnostic.Id);
+            Assert.Equal("NSPGEN101", diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Info, diagnostic.Severity);
             // Assert.True(diagnostic.Location.IsInSource);
             // Assert.NotNull(diagnostic.Location.SourceTree);

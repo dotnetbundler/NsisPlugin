@@ -9,7 +9,7 @@ internal static class ExportDiagnostics
 
     // 方法不可用
     private static readonly DiagnosticDescriptor _methodNotEligible = new(
-        "NSISPLUGINGEN101",
+        "NSPGEN101",
         "NsisAction target is not eligible",
         "NsisAction target '{0}' is skipped because {1}",
         Category,
@@ -18,7 +18,7 @@ internal static class ExportDiagnostics
 
     // 冲突的入口点
     private static readonly DiagnosticDescriptor _actionEntryPointConflict = new(
-        "NSISPLUGINGEN102",
+        "NSPGEN102",
         "Conflicting entry point",
         "The entry point '{0}' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.",
         Category,

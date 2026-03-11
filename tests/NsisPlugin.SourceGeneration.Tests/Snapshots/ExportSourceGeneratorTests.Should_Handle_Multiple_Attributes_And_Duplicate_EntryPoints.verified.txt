@@ -6,7 +6,7 @@
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
-        Id: NSISPLUGINGEN102,
+        Id: NSPGEN102,
         Title: Conflicting entry point,
         MessageFormat: The entry point '{0}' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.,
         Category: NsisPlugin.SourceGeneration,

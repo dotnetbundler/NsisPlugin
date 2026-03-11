@@ -56,11 +56,11 @@ public class InitializerSourceGeneratorTests
     /// </list>
     /// </summary>
     [Theory]
-    [InlineData(LanguageVersion.CSharp8, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN001")]
-    [InlineData(LanguageVersion.CSharp9, null, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN002")]
-    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN003")]
-    [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN002")]
-    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new string[0], "NSISPLUGINGEN003")]
+    [InlineData(LanguageVersion.CSharp8, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSPGEN001")]
+    [InlineData(LanguageVersion.CSharp9, null, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSPGEN002")]
+    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSPGEN003")]
+    [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSPGEN002")]
+    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new string[0], "NSPGEN003")]
     public void Should_NotGenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties, string expectedDiagnosticId)
     {
         var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
