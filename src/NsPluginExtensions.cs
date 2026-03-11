@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NsisPlugin;
 
-public static class Extensions
+public static partial class NsPluginExtensions
 {
     extension(string self)
     {
@@ -31,7 +31,10 @@ public static class Extensions
             }
         }
     }
+}
 
+public static partial class NsPluginExtensions
+{
     extension(StackT self)
     {
         public bool Pop<T>([NotNullWhen(true)] out T? val)
@@ -47,7 +50,10 @@ public static class Extensions
 
         public bool Push<T>(T val) => self.Push(val?.ToString() ?? string.Empty);
     }
+}
 
+public static partial class NsPluginExtensions
+{
     extension(Variables self)
     {
         public bool Get<T>(NsVariable variable, [NotNullWhen(true)] out T? val)

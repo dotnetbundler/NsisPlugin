@@ -15,6 +15,7 @@ internal class ExportEmitter(SourceProductionContext context)
     private const string ExtraParametersName = "ExtraParameters";
 
     // 引用类的 global::fully.qualified.name
+    private const string IntRef = "int";
     private const string IntPtrRef = "global::System.IntPtr";
     private const string ExceptionRef = "global::System.Exception";
     private const string DisposableRef = "global::System.IDisposable";
@@ -27,6 +28,7 @@ internal class ExportEmitter(SourceProductionContext context)
     private const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
     private const string NsisPluginRef = "global::NsisPlugin.NsPlugin";
     private const string NsPluginEncRef = "global::NsisPlugin.NsPluginEnc";
+    private const string NsPluginExtensionsRef = "global::NsisPlugin.NsPluginExtensions";
 
     // 用于类型显示的格式，包含全限定名、类型参数、特殊类型转换等选项
     private static readonly SymbolDisplayFormat _fullQualifiedFormat = new(SymbolDisplayGlobalNamespaceStyle.Included, SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces, SymbolDisplayGenericsOptions.IncludeTypeParameters, miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
@@ -100,7 +102,7 @@ internal class ExportEmitter(SourceProductionContext context)
             else isFirstMethod = false;
 
             writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new[] {{ typeof({CallConvCdeclRef}) }})]");
-            writer.WriteLine($"public static void {actionSpec.EntryPoint}_Gen({IntPtrRef} hwndParent, {IntPtrRef} string_size, {IntPtrRef} variables, {IntPtrRef} stacktop, {IntPtrRef} extra)");
+            writer.WriteLine($"public static void {actionSpec.EntryPoint}_Gen({IntPtrRef} hwndParent, {IntRef} string_size, {IntPtrRef} variables, {IntPtrRef} stacktop, {IntPtrRef} extra)");
             writer.WriteLine('{');
             writer.Indentation++;
 
@@ -130,12 +132,12 @@ internal class ExportEmitter(SourceProductionContext context)
                         if (ExportParser.TryGetFromVariableAttribute(parameter, out var fromVariable))
                         {
                             var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameter.Name}'({paramType}) from the variable\");";
-                            writer.WriteLine($"if (!{NsisPluginRef}.{VariablesName}.Get({VariablesRef}.{fromVariable}, out {paramType} {paramName})) {throwCode}");
+                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsisPluginRef}.{VariablesName}, {VariablesRef}.{fromVariable}, out {paramType} {paramName})) {throwCode}");
                         }
                         else
                         {
                             var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameter.Name}'({paramType}) from the stack\");";
-                            writer.WriteLine($"if (!{NsisPluginRef}.{StackTopName}.Pop(out {paramType} {paramName})) {throwCode}");
+                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Pop({NsisPluginRef}.{StackTopName}, out {paramType} {paramName})) {throwCode}");
                         }
                         var paramExpression = parameter.Type.IsValueType ? $"{paramName}.Value" : $"{paramName}!";
                         arguments.Add(paramExpression);
@@ -151,8 +153,8 @@ internal class ExportEmitter(SourceProductionContext context)
 
                         // 推送结果
                         writer.WriteLine(ExportParser.TryGetToVariableAttribute(method, out var toVariable) ?
-                            $"{NsisPluginRef}.{VariablesName}.Set({VariablesRef}.{toVariable}, result);" :
-                            $"{NsisPluginRef}.{StackTopName}.Push(result);");
+                            $"{NsPluginExtensionsRef}.Set({NsisPluginRef}.{VariablesName}, {VariablesRef}.{toVariable}, result);" :
+                            $"{NsPluginExtensionsRef}.Push({NsisPluginRef}.{StackTopName}, result);");
                     }
                 }
                 writer.Indentation--;
