@@ -1,0 +1,18 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (7,9)-(7,26),
+      Message: The entry point 'Dup' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: NSISPLUGINGEN102,
+        Title: Conflicting entry point,
+        MessageFormat: The entry point '{0}' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.,
+        Category: NsisPlugin.SourceGeneration,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
