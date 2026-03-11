@@ -2,11 +2,13 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 
-namespace NsisPlugin.SourceGeneration;
+// ReSharper disable CheckNamespace
+// ReSharper disable JoinDeclarationAndInitializer
+
+namespace SourceGenerators;
 
 /// <summary>
-/// 用于生成源代码文本的辅助类，提供了自动缩进和多行文本处理功能。
-/// <seealso href="https://github.com/dotnet/runtime/blob/a064f10785a00344fbf863e9b9255a036167700c/src/libraries/Common/src/SourceGenerators/SourceWriter.cs">SourceWriter source</seealso>
+/// <seealso href="https://github.com/dotnet/runtime/blob/e9ec642ee7ab11ffe1b8e767809fe60dd4a45b82/src/libraries/Common/src/SourceGenerators/SourceWriter.cs">to source</seealso>
 /// </summary>
 internal sealed class SourceWriter
 {
@@ -84,6 +86,7 @@ internal sealed class SourceWriter
             return default;
         }
 
+        ReadOnlySpan<char> next;
         ReadOnlySpan<char> rest;
 
         var lineLength = remainingText.IndexOf('\n');
@@ -104,7 +107,7 @@ internal sealed class SourceWriter
             lineLength--;
         }
 
-        var next = remainingText.Slice(0, lineLength);
+        next = remainingText.Slice(0, lineLength);
         remainingText = rest;
         return next;
     }
