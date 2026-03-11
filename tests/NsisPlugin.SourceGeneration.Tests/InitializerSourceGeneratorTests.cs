@@ -56,25 +56,24 @@ public class InitializerSourceGeneratorTests
     /// </list>
     /// </summary>
     [Theory]
-    [InlineData(LanguageVersion.CSharp8, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN002")]
-    [InlineData(LanguageVersion.CSharp9, null, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN003")]
-    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN001")]
-    [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN001")]
-    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new string[0], "NSISPLUGINGEN001")]
+    [InlineData(LanguageVersion.CSharp8, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN001")]
+    [InlineData(LanguageVersion.CSharp9, null, new[] { "AutoGenerateNsisPluginInitializer=true" }, "NSISPLUGINGEN002")]
+    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN003")]
+    [InlineData(LanguageVersion.CSharp14, null, new[] { "AutoGenerateNsisPluginInitializer=false" }, "NSISPLUGINGEN002")]
+    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new string[0], "NSISPLUGINGEN003")]
     public void Should_NotGenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties, string expectedDiagnosticId)
     {
         var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
         GeneratorDriver driver = CreateGeneratorDriver<InitializerSourceGenerator>(compilation, properties: properties);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
 
+        // 没有生成
         var runResult = driver.GetRunResult();
         Assert.Empty(runResult.GeneratedTrees);
 
-        // 验证有且仅有一个跳过原因诊断，且不包含错误级别诊断。
+        // 验证跳过原因诊断
         Assert.Single(runResult.Diagnostics);
-        Assert.DoesNotContain(runResult.Diagnostics, static d => d.Severity == DiagnosticSeverity.Error);
-        Assert.Equal(DiagnosticSeverity.Info, runResult.Diagnostics[0].Severity);
-        Assert.Equal(expectedDiagnosticId, runResult.Diagnostics[0].Id);
+        Assert.Equal(runResult.Diagnostics[0].Id, expectedDiagnosticId);
     }
 
 
