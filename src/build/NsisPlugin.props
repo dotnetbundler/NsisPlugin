@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
-    <!-- Nsis 插件使用 Unicode 编码 -->
+    <!-- Nsis 插件是否使用 Unicode 编码 -->
     <NSISUnicode>false</NSISUnicode>
+    <!-- 是否自动生成 Nsis 插件初始化器 -->
+    <AutoGenerateNsisPluginInitializer>true</AutoGenerateNsisPluginInitializer>
   </PropertyGroup>
 </Project>
