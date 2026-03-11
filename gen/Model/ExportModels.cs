@@ -3,7 +3,7 @@ using System.Numerics.Hashing;
 using Microsoft.CodeAnalysis;
 using SourceGenerators;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Model;
 
 [DebuggerDisplay("ContainingType = {ContainingType}, Methods = {Methods.Count}")]
 internal readonly struct ExportTypeSpec(INamedTypeSymbol containingType, IEnumerable<ExportMethodSpec> methods) : IEquatable<ExportTypeSpec>

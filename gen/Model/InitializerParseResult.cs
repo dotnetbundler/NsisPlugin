@@ -1,10 +1,11 @@
 using SourceGenerators;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Model;
 
-internal readonly struct InitializerParseResult(params IEnumerable<DiagnosticInfo> diagnostics)
+internal readonly struct InitializerParseResult(IEnumerable<DiagnosticInfo> diagnostics)
 {
-    public bool ShouldGenerate => Diagnostics.Count == 0;
+    private readonly ImmutableEquatableArray<DiagnosticInfo>? _diagnostics = diagnostics.ToImmutableEquatableArray();
 
-    public ImmutableEquatableArray<DiagnosticInfo> Diagnostics { get; } = diagnostics.ToImmutableEquatableArray();
+    public bool ShouldGenerate => Diagnostics.Count == 0;
+    public ImmutableEquatableArray<DiagnosticInfo> Diagnostics => _diagnostics ?? ImmutableEquatableArray<DiagnosticInfo>.Empty;
 }

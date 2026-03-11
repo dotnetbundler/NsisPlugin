@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using SourceGenerators;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Diagnostics;
 
 internal static class ExportDiagnostics
 {

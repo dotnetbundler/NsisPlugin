@@ -1,9 +1,11 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
+using NsisPlugin.SourceGeneration.Model;
+using NsisPlugin.SourceGeneration.Parser;
 using SourceGenerators;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Emitters;
 
 internal class ExportEmitter(SourceProductionContext context)
 {

@@ -1,4 +1,7 @@
 using Microsoft.CodeAnalysis;
+using NsisPlugin.SourceGeneration.Emitters;
+using NsisPlugin.SourceGeneration.Model;
+using NsisPlugin.SourceGeneration.Parser;
 
 namespace NsisPlugin.SourceGeneration;
 
@@ -13,10 +16,7 @@ public sealed class InitializerSourceGenerator : IIncrementalGenerator
 
     private static void ReportDiagnosticsAndEmitSource(SourceProductionContext context, InitializerParseResult spec)
     {
-        foreach (var diagnostic in spec.Diagnostics)
-        {
-            context.ReportDiagnostic(diagnostic.CreateDiagnostic());
-        }
+        foreach (var diagnostic in spec.Diagnostics) context.ReportDiagnostic(diagnostic.CreateDiagnostic());
 
         if (!spec.ShouldGenerate) return;
         InitializerEmitter.Emit(context);

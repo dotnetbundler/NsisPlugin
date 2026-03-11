@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Emitters;
 
 internal static class InitializerEmitter
 {

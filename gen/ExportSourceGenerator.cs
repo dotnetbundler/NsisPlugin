@@ -1,5 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NsisPlugin.SourceGeneration.Emitters;
+using NsisPlugin.SourceGeneration.Model;
+using NsisPlugin.SourceGeneration.Parser;
 
 namespace NsisPlugin.SourceGeneration;
 

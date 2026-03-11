@@ -2,9 +2,11 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
+using NsisPlugin.SourceGeneration.Diagnostics;
+using NsisPlugin.SourceGeneration.Model;
 using SourceGenerators;
 
-namespace NsisPlugin.SourceGeneration;
+namespace NsisPlugin.SourceGeneration.Parser;
 
 internal static class ExportParser
 {
@@ -52,13 +54,13 @@ internal static class ExportParser
     /// </summary>
     public static ExportMethodParseResult ParseMethod(GeneratorAttributeSyntaxContext context, CancellationToken _)
     {
-        if (context.TargetSymbol is not IMethodSymbol method) return new ExportMethodParseResult(null);
+        if (context.TargetSymbol is not IMethodSymbol method) return new ExportMethodParseResult(null, []);
 
         // 检查方法是否满足导出条件，如果不满足则生成诊断信息并跳过
         if (GetSkipReason(method) is ExportMethodSkipReason reason)
         {
             var diagnostic = ExportDiagnostics.CreateMethodNotEligible(method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), reason, method.Locations.FirstOrDefault());
-            return new ExportMethodParseResult(null, diagnostic);
+            return new ExportMethodParseResult(null, [diagnostic]);
         }
 
         // 解析方法上的 [NsisAction] 特性，生成对应的导出动作信息
@@ -66,7 +68,7 @@ internal static class ExportParser
             .Where(static attribute => attribute.AttributeClass?.ToDisplayString() == NsisActionAttributeMetadataName)
             .Select(attribute => ParseAction(attribute, method));
 
-        return new ExportMethodParseResult(new ExportMethodSpec(method, actions));
+        return new ExportMethodParseResult(new ExportMethodSpec(method, actions), []);
 
         // 获取方法不符合导出条件的原因
         static ExportMethodSkipReason? GetSkipReason(IMethodSymbol method)
