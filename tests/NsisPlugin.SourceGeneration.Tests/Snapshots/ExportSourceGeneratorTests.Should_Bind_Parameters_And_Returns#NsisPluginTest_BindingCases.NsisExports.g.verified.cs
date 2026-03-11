@@ -6,19 +6,19 @@ namespace NsisPluginTest
     public static class BindingCasesNsisExports
     {
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "Bind_Combine", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static void Bind_Combine_Gen(global::System.IntPtr hwndParent, global::System.IntPtr string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
+        public static void Bind_Combine_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
             {
                 using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPlugin.Variables.Get(global::NsisPlugin.Variables.Inst1, out int? count)) throw new global::System.Exception("Failed to get 'count'(int?) from the variable");
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out string? name)) throw new global::System.Exception("Failed to get 'name'(string?) from the stack");
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out int? optional)) throw new global::System.Exception("Failed to get 'optional'(int?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.Variables.Inst1, out int? count)) throw new global::System.Exception("Failed to get 'count'(int?) from the variable");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out string? name)) throw new global::System.Exception("Failed to get 'name'(string?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int? optional)) throw new global::System.Exception("Failed to get 'optional'(int?) from the stack");
 
                 string result = global::NsisPluginTest.BindingCases.Combine(count.Value, name!, optional.Value, global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsPlugin.StackTop, global::NsisPlugin.NsPlugin.ExtraParameters);
-                global::NsisPlugin.NsPlugin.Variables.Set(global::NsisPlugin.Variables.InstR0, result);
+                global::NsisPlugin.NsPluginExtensions.Set(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.Variables.InstR0, result);
             }
             catch (global::System.Exception ex)
             {
@@ -27,14 +27,14 @@ namespace NsisPluginTest
         }
 
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "VoidCase", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static void VoidCase_Gen(global::System.IntPtr hwndParent, global::System.IntPtr string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
+        public static void VoidCase_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
             {
                 using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPlugin.Variables.Get(global::NsisPlugin.Variables.Inst2, out string? value)) throw new global::System.Exception("Failed to get 'value'(string?) from the variable");
+                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.Variables.Inst2, out string? value)) throw new global::System.Exception("Failed to get 'value'(string?) from the variable");
 
                 global::NsisPluginTest.BindingCases.Do(value!);
             }
@@ -45,18 +45,18 @@ namespace NsisPluginTest
         }
 
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "StackReturn", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static void StackReturn_Gen(global::System.IntPtr hwndParent, global::System.IntPtr string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
+        public static void StackReturn_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
             {
                 using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out int? left)) throw new global::System.Exception("Failed to get 'left'(int?) from the stack");
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out int? right)) throw new global::System.Exception("Failed to get 'right'(int?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int? left)) throw new global::System.Exception("Failed to get 'left'(int?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int? right)) throw new global::System.Exception("Failed to get 'right'(int?) from the stack");
 
                 int result = global::NsisPluginTest.BindingCases.Add(left.Value, right.Value);
-                global::NsisPlugin.NsPlugin.StackTop.Push(result);
+                global::NsisPlugin.NsPluginExtensions.Push(global::NsisPlugin.NsPlugin.StackTop, result);
             }
             catch (global::System.Exception ex)
             {

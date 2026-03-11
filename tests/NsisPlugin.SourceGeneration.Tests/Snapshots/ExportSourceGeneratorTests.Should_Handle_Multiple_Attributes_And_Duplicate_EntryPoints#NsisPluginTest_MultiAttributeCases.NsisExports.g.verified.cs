@@ -6,17 +6,17 @@ namespace NsisPluginTest
     public static class MultiAttributeCasesNsisExports
     {
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "Dup", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static void Dup_Gen(global::System.IntPtr hwndParent, global::System.IntPtr string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
+        public static void Dup_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
             {
                 using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out int? value)) throw new global::System.Exception("Failed to get 'value'(int?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int? value)) throw new global::System.Exception("Failed to get 'value'(int?) from the stack");
 
                 int result = global::NsisPluginTest.MultiAttributeCases.Multi(value.Value);
-                global::NsisPlugin.NsPlugin.StackTop.Push(result);
+                global::NsisPlugin.NsPluginExtensions.Push(global::NsisPlugin.NsPlugin.StackTop, result);
             }
             catch (global::System.Exception ex)
             {
@@ -25,17 +25,17 @@ namespace NsisPluginTest
         }
 
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "Fmt_Multi", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static void Fmt_Multi_Gen(global::System.IntPtr hwndParent, global::System.IntPtr string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
+        public static void Fmt_Multi_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
             {
                 using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPlugin.StackTop.Pop(out int? value)) throw new global::System.Exception("Failed to get 'value'(int?) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int? value)) throw new global::System.Exception("Failed to get 'value'(int?) from the stack");
 
                 int result = global::NsisPluginTest.MultiAttributeCases.Multi(value.Value);
-                global::NsisPlugin.NsPlugin.StackTop.Push(result);
+                global::NsisPlugin.NsPluginExtensions.Push(global::NsisPlugin.NsPlugin.StackTop, result);
             }
             catch (global::System.Exception ex)
             {
