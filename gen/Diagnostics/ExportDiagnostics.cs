@@ -5,25 +5,19 @@ namespace NsisPlugin.SourceGeneration.Diagnostics;
 
 internal static class ExportDiagnostics
 {
-    private const string Category = "NsisPlugin.SourceGeneration";
-
     // 方法不可用
-    private static readonly DiagnosticDescriptor _methodNotEligible = new(
+    private static readonly DiagnosticDescriptor _methodNotEligible = DiagnosticCatalog.CreateDescriptor(
         "NSPGEN101",
-        "NsisAction target is not eligible",
-        "NsisAction target '{0}' is skipped because {1}",
-        Category,
-        DiagnosticSeverity.Info,
-        true);
+        "Method is not eligible for export",
+        "Source generation skips NsisAction target '{0}' because {1}",
+        DiagnosticSeverity.Warning);
 
     // 冲突的入口点
-    private static readonly DiagnosticDescriptor _actionEntryPointConflict = new(
+    private static readonly DiagnosticDescriptor _actionEntryPointConflict = DiagnosticCatalog.CreateDescriptor(
         "NSPGEN102",
-        "Conflicting entry point",
-        "The entry point '{0}' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.",
-        Category,
-        DiagnosticSeverity.Warning,
-        true);
+        "Entry point conflicts with another export",
+        "Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint",
+        DiagnosticSeverity.Warning);
 
     private static string GetReasonMessage(ExportMethodSkipReason reason) => reason switch
     {
