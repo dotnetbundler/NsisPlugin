@@ -1,3 +1,5 @@
+#pragma warning disable CS9113
+
 namespace NsisPlugin;
 
 /// <summary>
@@ -18,7 +20,7 @@ public class NsisActionAttribute(string entryPointFormat = "{0}") : Attribute
 /// </summary>
 /// <param name="variable">要获取的变量</param>
 [AttributeUsage(AttributeTargets.Parameter)]
-public class FromVariableAttribute(NsVariable variable) : Attribute { }
+public class FromVariableAttribute(NsVariable variable) : Attribute;
 
 /// <summary>
 /// NSIS 插件方法返回值特性
@@ -26,4 +28,4 @@ public class FromVariableAttribute(NsVariable variable) : Attribute { }
 /// </summary>
 /// <param name="variable">要设置的变量</param>
 [AttributeUsage(AttributeTargets.ReturnValue)]
-public class ToVariableAttribute(NsVariable variable) : Attribute { }
+public class ToVariableAttribute(NsVariable variable) : Attribute;
