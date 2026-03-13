@@ -2,13 +2,13 @@
   Diagnostics: [
     {
       Location: : (7,9)-(7,26),
-      Message: The entry point 'Dup' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.,
+      Message: Source generation found duplicate entry point 'Dup', specify unique entry points by setting NsisActionAttribute.EntryPoint,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
         Id: NSPGEN102,
-        Title: Conflicting entry point,
-        MessageFormat: The entry point '{0}' is used by multiple methods, which is not supported. Consider specifying unique entry points using the EntryPoint property of the NsisAction attribute.,
+        Title: Entry point conflicts with another export,
+        MessageFormat: Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint,
         Category: NsisPlugin.SourceGeneration,
         DefaultSeverity: Warning,
         IsEnabledByDefault: true

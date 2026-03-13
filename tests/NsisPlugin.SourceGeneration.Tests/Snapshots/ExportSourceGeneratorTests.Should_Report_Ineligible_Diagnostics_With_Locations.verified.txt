@@ -1,22 +1,22 @@
 ﻿[
   {
     Id: NSPGEN101,
-    Severity: Info,
-    Message: NsisAction target 'NsisPluginTest.IneligibleCases.Generic<T>(T)' is skipped because it is generic,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'NsisPluginTest.IneligibleCases.Generic<T>(T)' because it is generic,
     Line: 11,
     Column: 25
   },
   {
     Id: NSPGEN101,
-    Severity: Info,
-    Message: NsisAction target 'NsisPluginTest.IneligibleCases.RefParameter(ref int)' is skipped because it has ref, out, or in parameters,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'NsisPluginTest.IneligibleCases.RefParameter(ref int)' because it has ref, out, or in parameters,
     Line: 8,
     Column: 28
   },
   {
     Id: NSPGEN101,
-    Severity: Info,
-    Message: NsisAction target 'NsisPluginTest.NonStaticContainer.InstanceMethod(int)' is skipped because it is not static,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'NsisPluginTest.NonStaticContainer.InstanceMethod(int)' because it is not static,
     Line: 17,
     Column: 20
   }
