@@ -1,7 +1,6 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using NsisPlugin.SourceGeneration.Emitters;
-using NsisPlugin.SourceGeneration.Model;
-using NsisPlugin.SourceGeneration.Parser;
+using NsisPlugin.SourceGeneration.Initializer;
 
 namespace NsisPlugin.SourceGeneration;
 
@@ -10,15 +9,31 @@ public sealed class InitializerSourceGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var initializerSpecProvider = context.AnalyzerConfigOptionsProvider.Combine(context.CompilationProvider).Select(static (pair, _) => InitializerParser.Parse(pair.Left, pair.Right));
-        context.RegisterSourceOutput(initializerSpecProvider, ReportDiagnosticsAndEmitSource);
+        var parseResult = context.AnalyzerConfigOptionsProvider.Combine(context.CompilationProvider).Select(static (pair, _) => Parser.Parse(pair.Left, pair.Right));
+
+        // 报告诊断信息
+        var diagnostics = parseResult.Select(static (result, _) => result.Item2);
+        context.RegisterSourceOutput(diagnostics, ReportDiagnostics);
+
+        // 生成源码
+        var shouldGenerate = parseResult.Select(static (result, _) => result.Item1);
+        context.RegisterSourceOutput(shouldGenerate, EmitSource);
     }
 
-    private static void ReportDiagnosticsAndEmitSource(SourceProductionContext context, InitializerParseResult spec)
+    private static void ReportDiagnostics(SourceProductionContext context, ImmutableArray<Diagnostic> diagnostics)
     {
-        foreach (var diagnostic in spec.Diagnostics) context.ReportDiagnostic(diagnostic.CreateDiagnostic());
+        if (diagnostics.IsDefaultOrEmpty) return;
+        foreach (var diagnostic in diagnostics)
+        {
+            context.ReportDiagnostic(diagnostic);
+        }
+    }
 
-        if (!spec.ShouldGenerate) return;
-        InitializerEmitter.Emit(context);
+    private static void EmitSource(SourceProductionContext context, bool shouldGenerate)
+    {
+        if (!shouldGenerate) return;
+
+        Emitter emitter = new(context);
+        emitter.Emit();
     }
 }

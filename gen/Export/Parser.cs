@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using SourceGenerators;
 
@@ -15,7 +14,9 @@ public class Parser
     private readonly HashSet<string> _entryPoints = [];
     public List<Diagnostic> Diagnostics { get; } = [];
 
-    [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1035:不要使用禁用于分析器的 API")]
+    /// <summary>
+    /// 解析方法语法上下文，生成类型规范列表
+    /// </summary>
     public List<TypeGenerationSpec> Parse(ImmutableArray<GeneratorAttributeSyntaxContext> methodSyntaxContexts, CancellationToken token)
     {
         Dictionary<INamedTypeSymbol, List<MethodGenerationSpec>> typeDict = new(SymbolEqualityComparer.Default);
@@ -25,7 +26,7 @@ public class Parser
             // 检查方法是否不满足导出条件
             if (DiagnosticDescriptors.TryGetMethodNotEligibleReason(method) is string reason)
             {
-                Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MethodNotEligible, method.Locations.FirstOrDefault(), method.Name, reason));
+                Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MethodNotEligible, method.Locations.FirstOrDefault(), method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), reason));
                 continue;
             }
 

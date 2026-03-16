@@ -1,7 +1,13 @@
 ﻿{
   Diagnostics: [
     {
-      Location: : (7,9)-(7,26),
+      Location: /*
+        [NsisAction("Dup")]
+        [NsisAction("Dup")]
+         ^^^^^^^^^^^^^^^^^
+        [NsisAction("Fmt_{0}")]
+*/
+ : (7,9)-(7,26),
       Message: Source generation found duplicate entry point 'Dup', specify unique entry points by setting NsisActionAttribute.EntryPoint,
       Severity: Warning,
       WarningLevel: 1,

@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Compile Include="..\Common\**\*.cs" Link="Common\%(RecursiveDir)%(Filename)%(Extension)"/>
-    <Compile Remove="New\**\*.cs"/>
   </ItemGroup>
 
 </Project>
