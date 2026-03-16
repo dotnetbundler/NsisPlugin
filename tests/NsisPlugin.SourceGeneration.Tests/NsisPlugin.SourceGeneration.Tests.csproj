@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\gen\NsisPlugin.SourceGeneration.csproj"/>
+    <!--    <ProjectReference Include="..\..\gen\New\New.csproj"/>-->
     <ProjectReference Include="..\..\src\NsisPlugin.csproj"/>
   </ItemGroup>
 

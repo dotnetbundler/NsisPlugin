@@ -4,6 +4,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <AnalyzerLanguage>cs</AnalyzerLanguage>
+
+    <RootNamespace>NsisPlugin.SourceGeneration</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Common\**\*.cs" Link="Common\%(RecursiveDir)%(Filename)%(Extension)"/>
-    <Compile Remove="New\**\*.cs"/>
+    <Compile Include="..\..\Common\**\*.cs" Link="Common\%(RecursiveDir)%(Filename)%(Extension)"/>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,98 @@
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
+using SourceGenerators;
+
+namespace NsisPlugin.SourceGeneration.Export;
+
+public class Parser
+{
+    public const string NsisActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
+    private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
+    private const string ToVariableAttributeName = "NsisPlugin.ToVariableAttribute";
+
+    private readonly HashSet<string> _entryPoints = [];
+    public List<Diagnostic> Diagnostics { get; } = [];
+
+    [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1035:不要使用禁用于分析器的 API")]
+    public List<TypeGenerationSpec> Parse(ImmutableArray<GeneratorAttributeSyntaxContext> methodSyntaxContexts, CancellationToken token)
+    {
+        Dictionary<INamedTypeSymbol, List<MethodGenerationSpec>> typeDict = new(SymbolEqualityComparer.Default);
+        foreach (var methodSyntaxContext in methodSyntaxContexts)
+        {
+            if (methodSyntaxContext.TargetSymbol is not IMethodSymbol method) continue;
+            // 检查方法是否不满足导出条件
+            if (DiagnosticDescriptors.TryGetMethodNotEligibleReason(method) is string reason)
+            {
+                Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MethodNotEligible, method.Locations.FirstOrDefault(), method.Name, reason));
+                continue;
+            }
+
+            if (!typeDict.TryGetValue(method.ContainingType, out var methodList)) typeDict[method.ContainingType] = methodList = [];
+            methodList.Add(ParseMethod(method, methodSyntaxContext.Attributes));
+        }
+
+        var result = typeDict.Select(td => new TypeGenerationSpec(td.Key.ContainingNamespace?.ToDisplayString(), new TypeRef(td.Key), td.Value.ToImmutableEquatableArray())).ToList();
+        return result;
+    }
+
+    /// <summary>
+    /// 解析方法，生成 MethodGenerationSpec
+    /// </summary>
+    private MethodGenerationSpec ParseMethod(IMethodSymbol method, ImmutableArray<AttributeData> attributes)
+    {
+        var returnSpec = ParseReturn(method);
+        var parameterSpecs = method.Parameters.Select(ParseParameter).ToImmutableEquatableArray();
+        var actionSpecs = attributes.Where(ad => ad.AttributeClass?.ToDisplayString() == NsisActionAttributeMetadataName)
+            .Select(ad => ParseAction(ad, method.Name)).Where(ags => ags is not null).Select(ags => ags!).ToImmutableEquatableArray();
+        return new(method.Name, returnSpec, parameterSpecs, actionSpecs);
+
+        // 解析方法的返回值
+        static ReturnGenerationSpec ParseReturn(IMethodSymbol method)
+        {
+            if (method.GetReturnTypeAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == ToVariableAttributeName) is not AttributeData toVariableAttr) return new(new TypeRef(method.ReturnType), null);
+
+            Debug.Assert(toVariableAttr.ConstructorArguments.Length == 1);
+            var toVariable = (NsVariable)toVariableAttr.ConstructorArguments.FirstOrDefault().Value!;
+            return new(new TypeRef(method.ReturnType), toVariable);
+        }
+
+        // 解析方法的参数
+        static ParameterGenerationSpec ParseParameter(IParameterSymbol parameter)
+        {
+            if (parameter.GetAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == FromVariableAttributeName) is not AttributeData fromVariableAttr) return new(new TypeRef(parameter.Type), parameter.Name, null);
+
+            Debug.Assert(fromVariableAttr.ConstructorArguments.Length == 1);
+            var fromVariable = (NsVariable)fromVariableAttr.ConstructorArguments.FirstOrDefault().Value!;
+            return new(new TypeRef(parameter.Type), parameter.Name, fromVariable);
+        }
+    }
+
+    /// <summary>
+    /// 解析方法上的 NsisActionAttribute，生成 ActionGenerationSpec
+    /// </summary>
+    private ActionGenerationSpec? ParseAction(AttributeData attribute, string methodName)
+    {
+        var (entryPointFormat, encoding) = ParseNsisActionAttribute(attribute);
+        var entryPoint = FormatEntryPoint(entryPointFormat, methodName);
+        if (_entryPoints.Add(entryPoint)) return new ActionGenerationSpec(entryPoint, encoding);
+
+        Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.ActionEntryPointConflict, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPoint));
+        return null;
+
+        static (string, Encodings) ParseNsisActionAttribute(AttributeData attribute)
+        {
+            Debug.Assert(attribute.ConstructorArguments.Length == 1);
+            var entryPointFormat = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? "{0}";
+            var encoding = (Encodings)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? Encodings.Undefined);
+            return (entryPointFormat, encoding);
+        }
+
+        static string FormatEntryPoint(string format, string methodName)
+        {
+            try { return string.Format(format, methodName); }
+            catch (FormatException) { return methodName; }
+        }
+    }
+}
