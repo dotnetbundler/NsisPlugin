@@ -89,7 +89,7 @@ public sealed class Emitter(SourceProductionContext context)
             if (!isFirst) writer.WriteLine();
             else isFirst = false;
 
-            writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new Type[] {{ typeof({CallConvCdeclRef}) }})]");
+            writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new[] {{ typeof({CallConvCdeclRef}) }})]");
             writer.WriteLine($"public static void {actionSpec.EntryPoint}_Gen({IntPtrRef} hwndParent, {IntRef} string_size, {IntPtrRef} variables, {IntPtrRef} stacktop, {IntPtrRef} extra)");
             writer.WriteLine('{');
             writer.Indentation++;
