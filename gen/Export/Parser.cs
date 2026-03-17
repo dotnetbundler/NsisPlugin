@@ -23,6 +23,7 @@ public class Parser
         Dictionary<INamedTypeSymbol, List<MethodGenerationSpec>> typeDict = new(SymbolEqualityComparer.Default);
         foreach (var methodSyntaxContext in methodSyntaxContexts)
         {
+            token.ThrowIfCancellationRequested();
             if (methodSyntaxContext.TargetSymbol is not IMethodSymbol method) continue;
             // 检查方法是否合格
             if (!method.IsEligible(out var reason))
