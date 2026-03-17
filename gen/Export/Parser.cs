@@ -90,7 +90,15 @@ public class Parser
     private ActionGenerationSpec? ParseAction(AttributeData attribute, string methodName)
     {
         var (entryPointFormat, encoding) = ParseNsisActionAttribute(attribute);
-        var entryPoint = FormatEntryPoint(entryPointFormat, methodName);
+
+        // 格式化入口名称
+        string entryPoint;
+        try { entryPoint = string.Format(entryPointFormat, methodName); }
+        catch (Exception ex)
+        {
+            Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.InvalidEntryPointFormat, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPointFormat, ex.Message));
+            return null;
+        }
 
         // 入口名称不合法 || 是保留关键字
         if (!SyntaxFacts.IsValidIdentifier(entryPoint) || SyntaxFacts.IsReservedKeyword(SyntaxFacts.GetKeywordKind(entryPoint)))
@@ -115,12 +123,6 @@ public class Parser
             var entryPointFormat = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? "{0}";
             var encoding = (Encodings)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? Encodings.Undefined);
             return (entryPointFormat, encoding);
-        }
-
-        static string FormatEntryPoint(string format, string methodName)
-        {
-            try { return string.Format(format, methodName); }
-            catch (FormatException) { return methodName; }
         }
     }
 }

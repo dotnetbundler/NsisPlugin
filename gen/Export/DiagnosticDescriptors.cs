@@ -12,24 +12,32 @@ internal static class DiagnosticDescriptors
         DiagnosticSeverity.Warning,
         true);
 
-    public static DiagnosticDescriptor ActionEntryPointConflict { get; } = new(
-        "NSPGEN102",
-        "Entry point conflicts with another export",
-        "Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint",
-        Constants.NsisPluginSourceGenerationName,
-        DiagnosticSeverity.Warning,
-        true);
-
     public static DiagnosticDescriptor MissingReturnTypeWithToVariable { get; } = new(
-        "NSPGEN103",
+        "NSPGEN102",
         "Method with ToVariableAttribute must have a return value",
         "The method '{0}' is decorated with [ToVariable], but it returns void. Methods must return a value to be assigned to a variable.",
         Constants.NsisPluginSourceGenerationName,
         DiagnosticSeverity.Warning,
         true);
 
+    public static DiagnosticDescriptor ActionEntryPointConflict { get; } = new(
+        "NSPGEN121",
+        "Entry point conflicts with another export",
+        "Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint",
+        Constants.NsisPluginSourceGenerationName,
+        DiagnosticSeverity.Error,
+        true);
+
+    public static DiagnosticDescriptor InvalidEntryPointFormat { get; } = new(
+        "NSPGEN122",
+        "Invalid entry point format string",
+        "The entry point format string '{0}' is invalid. {1}",
+        Constants.NsisPluginSourceGenerationName,
+        DiagnosticSeverity.Error,
+        true);
+
     public static DiagnosticDescriptor InvalidEntryPointName { get; } = new(
-        "NSPGEN104",
+        "NSPGEN123",
         "Invalid entry point name",
         "The entry point name '{0}' is not a valid C# identifier or contains characters not supported for export.",
         Constants.NsisPluginSourceGenerationName,
