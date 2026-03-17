@@ -23,18 +23,25 @@ public class Parser
         foreach (var methodSyntaxContext in methodSyntaxContexts)
         {
             if (methodSyntaxContext.TargetSymbol is not IMethodSymbol method) continue;
-            // 检查方法是否不满足导出条件
-            if (DiagnosticDescriptors.TryGetMethodNotEligibleReason(method) is string reason)
+            // 检查方法是否合格
+            if (!method.IsEligible(out var reason))
             {
                 Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MethodNotEligible, method.Locations.FirstOrDefault(), method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), reason));
                 continue;
             }
 
+            var methodSpec = ParseMethod(method, methodSyntaxContext.Attributes);
+            if (methodSpec.Actions.Count == 0) continue;
+
             if (!typeDict.TryGetValue(method.ContainingType, out var methodList)) typeDict[method.ContainingType] = methodList = [];
-            methodList.Add(ParseMethod(method, methodSyntaxContext.Attributes));
+            methodList.Add(methodSpec);
         }
 
-        var result = typeDict.Select(td => new TypeGenerationSpec(td.Key.ContainingNamespace?.ToDisplayString(), new TypeRef(td.Key), td.Value.ToImmutableEquatableArray())).ToList();
+        var result = typeDict.Where(td => td.Value.Count > 0).Select(td =>
+        {
+            var namespaceName = td.Key.ContainingNamespace is { IsGlobalNamespace: false } ns ? ns.ToDisplayString() : null;
+            return new TypeGenerationSpec(namespaceName, new TypeRef(td.Key), td.Value.ToImmutableEquatableArray());
+        }).ToList();
         return result;
     }
 

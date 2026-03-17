@@ -20,13 +20,21 @@ internal static class DiagnosticDescriptors
         DiagnosticSeverity.Warning,
         true);
 
-    public static string? TryGetMethodNotEligibleReason(IMethodSymbol method)
+    /// <summary>
+    /// 检查方法是否满足导出条件，如果不满足则返回不满足的原因字符串
+    /// </summary>
+    public static bool IsEligible(this IMethodSymbol method, out string? reason)
     {
-        if (!method.IsStatic) return "it is not static";
-        if (method.IsAbstract) return "it is abstract";
-        if (method.IsGenericMethod) return "it is generic";
-        if (method.ContainingType is null || method.ContainingType.IsGenericType) return "its containing type is generic";
-        if (method.Parameters.Any(p => p.RefKind != RefKind.None)) return "it has ref, out, or in parameters";
-        return method.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal) ? "its accessibility is not public or internal" : null;
+        reason = method switch
+        {
+            { IsStatic: false } => "it is not static",
+            { IsAbstract: true } => "it is abstract",
+            { IsGenericMethod: true } => "it is generic",
+            { ContainingType: null or { IsGenericType: true } } => "its containing type is generic",
+            { Parameters: var parameters } when parameters.Any(p => p.RefKind != RefKind.None) => "it has ref, out, or in parameters",
+            { DeclaredAccessibility: not (Accessibility.Public or Accessibility.Internal) } => "its accessibility is not public or internal",
+            _ => null
+        };
+        return reason is null;
     }
 }
