@@ -53,7 +53,7 @@ public sealed class Emitter(SourceProductionContext context)
 
         // 命名空间内部
         {
-            writer.WriteLine($"public static class {typeSpec.Type.Name}_NsisExports");
+            writer.WriteLine($"public static class {GetExportClassName(typeSpec)}_NsisExports");
             writer.WriteLine('{');
             writer.Indentation++;
 
@@ -71,6 +71,14 @@ public sealed class Emitter(SourceProductionContext context)
             writer.WriteLine('}');
         }
         return writer.ToSourceText();
+
+        // 获取导出类名
+        static string GetExportClassName(TypeGenerationSpec typeSpec)
+        {
+            var prefix = typeSpec.Namespace is null ? "global::" : $"global::{typeSpec.Namespace}.";
+            var typePath = typeSpec.Type.FullyQualifiedName.Replace(prefix, string.Empty);
+            return typePath.Replace('.', '_');
+        }
     }
 
     private static void WriteMethod(SourceWriter writer, TypeRef containingType, MethodGenerationSpec methodSpec, ref bool isFirst)
@@ -81,7 +89,7 @@ public sealed class Emitter(SourceProductionContext context)
             if (!isFirst) writer.WriteLine();
             else isFirst = false;
 
-            writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new[] {{ typeof({CallConvCdeclRef}) }})]");
+            writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new Type[] {{ typeof({CallConvCdeclRef}) }})]");
             writer.WriteLine($"public static void {actionSpec.EntryPoint}_Gen({IntPtrRef} hwndParent, {IntRef} string_size, {IntPtrRef} variables, {IntPtrRef} stacktop, {IntPtrRef} extra)");
             writer.WriteLine('{');
             writer.Indentation++;
