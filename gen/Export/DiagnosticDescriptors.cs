@@ -28,6 +28,14 @@ internal static class DiagnosticDescriptors
         DiagnosticSeverity.Warning,
         true);
 
+    public static DiagnosticDescriptor InvalidEntryPointName { get; } = new(
+        "NSPGEN104",
+        "Invalid entry point name",
+        "The entry point name '{0}' is not a valid C# identifier or contains characters not supported for export.",
+        Constants.NsisPluginSourceGenerationName,
+        DiagnosticSeverity.Error,
+        true);
+
     /// <summary>
     /// 检查方法是否满足导出条件，如果不满足则返回不满足的原因字符串
     /// </summary>

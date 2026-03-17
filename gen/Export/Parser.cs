@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
@@ -89,10 +90,23 @@ public class Parser
     {
         var (entryPointFormat, encoding) = ParseNsisActionAttribute(attribute);
         var entryPoint = FormatEntryPoint(entryPointFormat, methodName);
-        if (_entryPoints.Add(entryPoint)) return new ActionGenerationSpec(entryPoint, encoding);
 
-        Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.ActionEntryPointConflict, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPoint));
-        return null;
+        // 入口名称不合法 || 是保留关键字
+        if (!SyntaxFacts.IsValidIdentifier(entryPoint) || SyntaxFacts.IsReservedKeyword(SyntaxFacts.GetKeywordKind(entryPoint)))
+        {
+            Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.InvalidEntryPointName, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPoint));
+            return null;
+        }
+
+        // 入口名称冲突
+        if (!_entryPoints.Add(entryPoint))
+        {
+            Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.ActionEntryPointConflict, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPoint));
+            return null;
+        }
+
+        return new ActionGenerationSpec(entryPoint, encoding);
+
 
         static (string, Encodings) ParseNsisActionAttribute(AttributeData attribute)
         {
