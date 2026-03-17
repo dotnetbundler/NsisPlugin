@@ -5,7 +5,7 @@ using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
 
-public sealed class Emitter(SourceProductionContext context)
+internal sealed class Emitter(SourceProductionContext context)
 {
     // 源生成用到的字面量
     private const string StackTopName = "StackTop";

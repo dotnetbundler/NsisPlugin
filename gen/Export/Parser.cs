@@ -6,7 +6,7 @@ using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
 
-public class Parser
+internal class Parser
 {
     public const string NsisActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
     private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
