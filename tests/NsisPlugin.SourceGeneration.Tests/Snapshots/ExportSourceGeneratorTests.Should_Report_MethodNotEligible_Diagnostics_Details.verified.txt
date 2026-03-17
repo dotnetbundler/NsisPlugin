@@ -1,0 +1,37 @@
+﻿[
+  {
+    Scenario: NotStatic,
+    Id: NSPGEN101,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'Demo.A()' because it is not static,
+    HasSourceLocation: true
+  },
+  {
+    Scenario: GenericMethod,
+    Id: NSPGEN101,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'Demo.A<T>()' because it is generic,
+    HasSourceLocation: true
+  },
+  {
+    Scenario: GenericContainingType,
+    Id: NSPGEN101,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'Demo<T>.A()' because its containing type is generic,
+    HasSourceLocation: true
+  },
+  {
+    Scenario: RefParameter,
+    Id: NSPGEN101,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'Demo.A(ref int)' because it has ref, out, or in parameters,
+    HasSourceLocation: true
+  },
+  {
+    Scenario: PrivateMethod,
+    Id: NSPGEN101,
+    Severity: Warning,
+    Message: Source generation skips NsisAction target 'Demo.A()' because its accessibility is not public or internal,
+    HasSourceLocation: true
+  }
+]

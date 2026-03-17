@@ -3,9 +3,9 @@
 
 namespace NsisPluginTest
 {
-    public static class EntryPointCases_NsisExports
+    public static class AA_EntryPointCases_NsisExports
     {
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "DefaultEntry", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "DefaultEntry", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void DefaultEntry_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
@@ -25,7 +25,7 @@ namespace NsisPluginTest
             }
         }
 
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "My_FormatEntry_Entry", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "My_FormatEntry_Entry", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void My_FormatEntry_Entry_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
@@ -44,7 +44,7 @@ namespace NsisPluginTest
             }
         }
 
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "LiteralEntry", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "LiteralEntry", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void LiteralEntry_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
@@ -63,7 +63,7 @@ namespace NsisPluginTest
             }
         }
 
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "BadFormatEntry", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "BadFormatEntry", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void BadFormatEntry_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
@@ -82,7 +82,7 @@ namespace NsisPluginTest
             }
         }
 
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void _Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
@@ -101,7 +101,7 @@ namespace NsisPluginTest
             }
         }
 
-        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "   ", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
+        [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "   ", CallConvs = new Type[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void    _Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
             try
