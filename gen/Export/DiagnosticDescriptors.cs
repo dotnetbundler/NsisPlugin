@@ -20,6 +20,14 @@ internal static class DiagnosticDescriptors
         DiagnosticSeverity.Warning,
         true);
 
+    public static DiagnosticDescriptor MissingReturnTypeWithToVariable { get; } = new(
+        "NSPGEN103",
+        "Method with ToVariableAttribute must have a return value",
+        "The method '{0}' is decorated with [ToVariable], but it returns void. Methods must return a value to be assigned to a variable.",
+        Constants.NsisPluginSourceGenerationName,
+        DiagnosticSeverity.Warning,
+        true);
+
     /// <summary>
     /// 检查方法是否满足导出条件，如果不满足则返回不满足的原因字符串
     /// </summary>

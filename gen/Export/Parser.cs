@@ -50,20 +50,25 @@ public class Parser
     /// </summary>
     private MethodGenerationSpec ParseMethod(IMethodSymbol method, ImmutableArray<AttributeData> attributes)
     {
-        var returnSpec = ParseReturn(method);
+        var returnSpec = ParseReturn();
         var parameterSpecs = method.Parameters.Select(ParseParameter).ToImmutableEquatableArray();
         var actionSpecs = attributes.Where(ad => ad.AttributeClass?.ToDisplayString() == NsisActionAttributeMetadataName)
             .Select(ad => ParseAction(ad, method.Name)).Where(ags => ags is not null).Select(ags => ags!).ToImmutableEquatableArray();
         return new(method.Name, returnSpec, parameterSpecs, actionSpecs);
 
         // 解析方法的返回值
-        static ReturnGenerationSpec ParseReturn(IMethodSymbol method)
+        ReturnGenerationSpec ParseReturn()
         {
-            if (method.GetReturnTypeAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == ToVariableAttributeName) is not AttributeData toVariableAttr) return new(new TypeRef(method.ReturnType), null);
+            // 没有特性
+            var returnType = new TypeRef(method.ReturnType);
+            if (method.GetReturnTypeAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == ToVariableAttributeName) is not AttributeData toVariableAttr) return new(returnType, null);
+
+            // 有特性但没有返回值
+            if (returnType.SpecialType is SpecialType.System_Void) Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MissingReturnTypeWithToVariable, method.Locations.FirstOrDefault(), method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
 
             Debug.Assert(toVariableAttr.ConstructorArguments.Length == 1);
             var toVariable = (NsVariable)toVariableAttr.ConstructorArguments.FirstOrDefault().Value!;
-            return new(new TypeRef(method.ReturnType), toVariable);
+            return new(returnType, toVariable);
         }
 
         // 解析方法的参数
