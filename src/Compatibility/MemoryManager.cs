@@ -6,7 +6,7 @@ namespace NsisPlugin.Compatibility;
 /// 跨框架内存管理 API 统一接口
 /// 为不同 .NET 版本提供统一的内存分配和释放方法
 /// </summary>
-public static unsafe class MemoryManager
+internal static unsafe class MemoryManager
 {
     /// <summary>
     /// 分配零初始化的非托管内存
