@@ -22,7 +22,7 @@ internal sealed class Emitter(SourceProductionContext context)
 
     private const string EncodingsRef = "global::NsisPlugin.Encodings";
     private const string StackTRef = "global::NsisPlugin.StackT";
-    private const string VariablesRef = "global::NsisPlugin.Variables";
+    private const string NsVariableRef = "global::NsisPlugin.NsVariable";
     private const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
     private const string NsisPluginRef = "global::NsisPlugin.NsPlugin";
     private const string NsPluginEncRef = "global::NsisPlugin.NsPluginEnc";
@@ -118,7 +118,7 @@ internal sealed class Emitter(SourceProductionContext context)
                         if (parameterSpec.FromVariable is not null)
                         {
                             var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the variable\");";
-                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsisPluginRef}.{VariablesName}, {VariablesRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {parameterSpec.Name})) {throwCode}");
+                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsisPluginRef}.{VariablesName}, {NsVariableRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {parameterSpec.Name})) {throwCode}");
                         }
                         else
                         {
@@ -137,7 +137,7 @@ internal sealed class Emitter(SourceProductionContext context)
                         writer.WriteLine($"var result = {invocation}");
                         // 推送结果
                         writer.WriteLine(methodSpec.Return.ToVariable is not null ?
-                            $"{NsPluginExtensionsRef}.Set({NsisPluginRef}.{VariablesName}, {VariablesRef}.{methodSpec.Return.ToVariable}, result);" :
+                            $"{NsPluginExtensionsRef}.Set({NsisPluginRef}.{VariablesName}, {NsVariableRef}.{methodSpec.Return.ToVariable}, result);" :
                             $"{NsPluginExtensionsRef}.Push({NsisPluginRef}.{StackTopName}, result);");
                     }
                 }
@@ -163,7 +163,7 @@ internal sealed class Emitter(SourceProductionContext context)
             argument = parameterFullyQualifiedName switch
             {
                 StackTRef => $"{NsisPluginRef}.{StackTopName}",
-                VariablesRef => $"{NsisPluginRef}.{VariablesName}",
+                NsVariableRef => $"{NsisPluginRef}.{VariablesName}",
                 ExtraParametersRef => $"{NsisPluginRef}.{ExtraParametersName}",
                 _ => null
             };
