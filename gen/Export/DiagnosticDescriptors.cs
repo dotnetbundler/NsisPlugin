@@ -56,7 +56,7 @@ internal static class DiagnosticDescriptors
             { IsGenericMethod: true } => "it is generic",
             { DeclaredAccessibility: not (Accessibility.Public or Accessibility.Internal) } => "its accessibility is not public or internal",
             { Parameters: var parameters } when parameters.Any(p => p.RefKind != RefKind.None) => "it has ref, out, or in parameters",
-            { ContainingType : null } => "it is not contained in a type",
+            { ContainingType : null or { TypeKind: TypeKind.Error } or { IsImplicitClass: true } } => "it is not contained in a type", // 没有容器类 || 是隐式类
             { ContainingType.IsGenericType: true } => "its containing type is generic", // 父级中有一个类型是泛型 IsGenericType 就为 true
             not null when !IsAccessibility(method.ContainingType) => "it is not accessibility",
             _ => null
