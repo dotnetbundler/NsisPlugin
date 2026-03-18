@@ -54,11 +54,22 @@ internal static class DiagnosticDescriptors
             { IsStatic: false } => "it is not static",
             { IsAbstract: true } => "it is abstract",
             { IsGenericMethod: true } => "it is generic",
-            { ContainingType: null or { IsGenericType: true } } => "its containing type is generic",
-            { Parameters: var parameters } when parameters.Any(p => p.RefKind != RefKind.None) => "it has ref, out, or in parameters",
             { DeclaredAccessibility: not (Accessibility.Public or Accessibility.Internal) } => "its accessibility is not public or internal",
+            { Parameters: var parameters } when parameters.Any(p => p.RefKind != RefKind.None) => "it has ref, out, or in parameters",
+            { ContainingType : null } => "it is not contained in a type",
+            { ContainingType.IsGenericType: true } => "its containing type is generic", // 父级中有一个类型是泛型 IsGenericType 就为 true
+            not null when !IsAccessibility(method.ContainingType) => "it is not accessibility",
             _ => null
         };
         return reason is null;
+
+        // 是否可访问
+        static bool IsAccessibility(INamedTypeSymbol type)
+        {
+            for (; type != null; type = type.ContainingType)
+                if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal))
+                    return false;
+            return true;
+        }
     }
 }
