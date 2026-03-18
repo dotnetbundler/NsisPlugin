@@ -99,11 +99,13 @@ internal static class CompilationHelper
     /// <param name="sourceCompilation">源编译</param>
     /// <param name="generatorDiagnostics">源生成器诊断</param>
     /// <param name="outputCompilation">生成源编译</param>
+    /// <param name="parseOptions">解析选项，如果为 null 则使用默认解析选项</param>
     /// <returns>生成器驱动</returns>
-    public static GeneratorDriver RunGeneratorsAndCompilation<TSourceGenerator>(string source, out Compilation sourceCompilation, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation) where TSourceGenerator : IIncrementalGenerator, new()
+    public static GeneratorDriver RunGeneratorsAndCompilation<TSourceGenerator>(string source, out Compilation sourceCompilation, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation, CSharpParseOptions? parseOptions = null)
+        where TSourceGenerator : IIncrementalGenerator, new()
     {
         // 编译源
-        sourceCompilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)));
+        sourceCompilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)), parseOptions: parseOptions);
 
         // 运行源生成器
         GeneratorDriver driver = CreateGeneratorDriver<TSourceGenerator>(sourceCompilation);
