@@ -83,6 +83,65 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
     }
 
     [Fact]
+    public void Generic_Method()
+    {
+        const string source = """
+                              using NsisPlugin;
+
+                              namespace Demo
+                              {
+                                  public class GenericMethodCases
+                                  {
+                                      [NsisAction]
+                                      public static void Work<T>() { }
+                                  }
+                              }
+                              """;
+
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+
+        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+
+        Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
+    }
+
+    [Fact]
+    public void Generic_ContainingType()
+    {
+        const string source = """
+                              using NsisPlugin;
+
+                              namespace Demo
+                              {
+                                  public class GenericContainingTypeCasesA<T>
+                                  {
+                                      [NsisAction]
+                                      public static void Work() { }
+                                  }
+
+                                  public class GenericContainingTypeCasesB<T>
+                                  {
+                                      public class GenericContainingTypeCases1
+                                      {
+                                          [NsisAction]
+                                          public static void Work() { }
+                                      }
+                                  }
+                              }
+                              """;
+
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+
+        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+
+        Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
+    }
+
+    [Fact]
     public void Private_Method()
     {
         const string source = """
@@ -148,60 +207,23 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
     }
 
     [Fact]
-    public void Generic_Method()
+    public void Not_In_ContainingType()
     {
         const string source = """
                               using NsisPlugin;
 
                               namespace Demo
                               {
-                                  public class GenericMethodCases
-                                  {
-                                      [NsisAction]
-                                      public static void Work<T>() { }
-                                  }
+                                  [NsisAction]
+                                  public static void Work() { }
                               }
                               """;
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken), "CS0116");
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
-        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-
-        Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
-    }
-
-    [Fact]
-    public void Generic_ContainingType()
-    {
-        const string source = """
-                              using NsisPlugin;
-
-                              namespace Demo
-                              {
-                                  public class GenericContainingTypeCasesA<T>
-                                  {
-                                      [NsisAction]
-                                      public static void Work() { }
-                                  }
-
-                                  public class GenericContainingTypeCasesB<T>
-                                  {
-                                      public class GenericContainingTypeCases1
-                                      {
-                                          [NsisAction]
-                                          public static void Work() { }
-                                      }
-                                  }
-                              }
-                              """;
-
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
-
-        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
-        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken), "CS0116");
 
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
