@@ -50,14 +50,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -79,14 +75,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, CreateParseOptions(LanguageVersion.CSharp11));
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -108,14 +100,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -152,14 +140,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -181,14 +165,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -219,14 +199,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -254,14 +230,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101", "NSPGEN101");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -295,14 +267,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121", "NSPGEN121", "NSPGEN121");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count() + 1, outputCompilation.SyntaxTrees.Count());
         Assert.Contains("WorkOk", outputCompilation.SyntaxTrees.Last().ToString());
     }
@@ -325,14 +293,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN122");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
@@ -363,14 +327,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
 
-        // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        // 验证源生成器诊断
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123", "NSPGEN123", "NSPGEN123", "NSPGEN123");
-        // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证是否生成源
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 }
