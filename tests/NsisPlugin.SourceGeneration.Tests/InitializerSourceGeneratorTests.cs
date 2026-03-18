@@ -40,10 +40,10 @@ public class InitializerSourceGeneratorTests
         GeneratorDriver driver = CreateGeneratorDriver<InitializerSourceGenerator>(compilation, properties: properties);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics, TestContext.Current.CancellationToken);
 
-        // 源生成器没有诊断
-        Assert.Empty(diagnostics);
-        // 生成源编译没有诊断
-        Assert.Empty(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        // 验证源生成器诊断
+        AssertDiagnosticIdsInOrder(diagnostics);
+        // 验证生成源编译诊断
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
         // 生成源快照验证
         return VerifySnapshot(driver, SnapshotsDirectory);
@@ -70,9 +70,8 @@ public class InitializerSourceGeneratorTests
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
         var runResult = driver.GetRunResult();
 
-        // 验证跳过原因诊断
-        Assert.Single(runResult.Diagnostics);
-        Assert.Equal(runResult.Diagnostics.First().Id, expectedDiagnosticId);
+        // 验证跳过原因
+        AssertDiagnosticIdsInOrder(runResult.Diagnostics, expectedDiagnosticId);
 
         // 没有生成源
         Assert.Empty(runResult.GeneratedTrees);
