@@ -1,0 +1,23 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+        [NsisAction("ok")]
+        [NsisAction("1bad")]
+         ^^^^^^^^^^^^^^^^^^
+        public static void Work() { }
+*/
+ : (7,9)-(7,27),
+      Message: The entry point name '1bad' is not a valid C# identifier or contains characters not supported for export.,
+      Severity: Error,
+      Descriptor: {
+        Id: NSPGEN123,
+        Title: Invalid entry point name,
+        MessageFormat: The entry point name '{0}' is not a valid C# identifier or contains characters not supported for export.,
+        Category: NsisPlugin.SourceGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

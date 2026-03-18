@@ -6,7 +6,7 @@ namespace NsisPlugin.SourceGeneration.Tests;
 public class ExportSourceGeneratorGeneratableCasesTests
 {
     // 快照目录
-    private const string SnapshotsDirectory = "ExportGeneratableSnapshots";
+    private const string SnapshotsDirectory = "ExportSnapshots";
 
     [Fact]
     public Task DefaultEntryPoint()
@@ -64,7 +64,6 @@ public class ExportSourceGeneratorGeneratableCasesTests
 
         return VerifySnapshot(driver, SnapshotsDirectory);
     }
-
 
     [Fact]
     public Task ExportClassName_For_GlobalNamespace_NestedType()

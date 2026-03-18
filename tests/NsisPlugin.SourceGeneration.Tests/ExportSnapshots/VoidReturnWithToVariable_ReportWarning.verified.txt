@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+        [return: ToVariable(NsVariable.Inst0)]
+        public static void Work() { }
+                           ^^^^
+    }
+*/
+ : (8,27)-(8,31),
+      Message: The method 'Demo.ReturnCases.Work()' is decorated with [ToVariable], but it returns void. Methods must return a value to be assigned to a variable.,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: NSPGEN102,
+        Title: Method with ToVariableAttribute must have a return value,
+        MessageFormat: The method '{0}' is decorated with [ToVariable], but it returns void. Methods must return a value to be assigned to a variable.,
+        Category: NsisPlugin.SourceGeneration,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
