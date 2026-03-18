@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using static NsisPlugin.SourceGeneration.Tests.Helper.AssertHelper;
 using static NsisPlugin.SourceGeneration.Tests.Helper.CompilationHelper;
 
 namespace NsisPlugin.SourceGeneration.Tests;

@@ -1,6 +1,6 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -44,7 +44,7 @@ internal static class CompilationHelper
     );
 
     /// <summary>
-    /// 创建一个 C# 编译环境
+    /// 创建一个 C# 编译
     /// </summary>
     /// <param name="source"></param>
     /// <param name="includeBase"></param>
@@ -77,9 +77,9 @@ internal static class CompilationHelper
     /// <param name="compilation">编译环境，生成器将基于此环境进行分析和生成</param>
     /// <param name="generator">增量生成器实例，如果为 null 则会创建一个新的实例</param>
     /// <param name="properties">生成器配置属性字符串数组，每个字符串应为 "key=value" 格式，这些属性将被传递给生成器作为分析器配置选项</param>
-    /// <typeparam name="T">增量生成器类型，必须实现 IIncrementalGenerator 接口并具有无参构造函数</typeparam>
+    /// <typeparam name="TSourceGenerator">增量生成器类型，必须实现 IIncrementalGenerator 接口并具有无参构造函数</typeparam>
     /// <returns></returns>
-    public static CSharpGeneratorDriver CreateGeneratorDriver<T>(Compilation compilation, T? generator = default, params IEnumerable<string> properties) where T : IIncrementalGenerator, new()
+    public static CSharpGeneratorDriver CreateGeneratorDriver<TSourceGenerator>(Compilation compilation, TSourceGenerator? generator = default, params IEnumerable<string> properties) where TSourceGenerator : IIncrementalGenerator, new()
     {
         generator ??= new();
         var parseOptions = compilation.SyntaxTrees.OfType<CSharpSyntaxTree>().Select(tree => tree.Options).FirstOrDefault() ?? _defaultParseOptions;
@@ -93,33 +93,21 @@ internal static class CompilationHelper
     }
 
     /// <summary>
-    /// 验证快照
+    /// 运行源生成器并编译
     /// </summary>
-    /// <param name="target">目标</param>
-    /// <param name="snapshotsDirectory">快照目录</param>
-    /// <param name="methodName">调用方法名（auto）</param>
-    /// <param name="filePath">调用文件名（auto）</param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public static Task VerifySnapshot<T>(T target, string snapshotsDirectory, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "")
+    /// <param name="source">源</param>
+    /// <param name="sourceCompilation">源编译</param>
+    /// <param name="generatorDiagnostics">源生成器诊断</param>
+    /// <param name="outputCompilation">生成源编译</param>
+    /// <returns>生成器驱动</returns>
+    public static GeneratorDriver RunGeneratorsAndCompilation<TSourceGenerator>(string source, out Compilation sourceCompilation, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation) where TSourceGenerator : IIncrementalGenerator, new()
     {
-        // 如果快照目录不是绝对路径
-        // 则将其视为相对于调用测试方法的源代码文件所在目录的路径
-        if (!Path.IsPathRooted(snapshotsDirectory))
-        {
-            var directory = Path.GetDirectoryName(filePath);
-            Assert.True(Directory.Exists(directory), $"{directory} does not exist");
-            snapshotsDirectory = Path.Combine(directory, snapshotsDirectory);
-        }
+        // 编译源
+        sourceCompilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)));
 
-        // 配置 Verify 以使用特定的目录和文件名存储快照
-        var settings = new VerifySettings();
-        settings.UseDirectory(snapshotsDirectory);
-        settings.UseFileName(methodName);
-        settings.DisableRequireUniquePrefix();
-
-        // 验证生成了代码快照
-        return Verify(target, settings);
+        // 运行源生成器
+        GeneratorDriver driver = CreateGeneratorDriver<TSourceGenerator>(sourceCompilation);
+        return driver.RunGeneratorsAndUpdateCompilation(sourceCompilation, out outputCompilation, out generatorDiagnostics, TestContext.Current.CancellationToken);
     }
 }
 
