@@ -10,6 +10,8 @@ namespace NsisPlugin.SourceGeneration.Tests;
 /// </summary>
 public class InitializerSourceGeneratorTests
 {
+    private const string SnapshotsDirectory = "InitializerSnapshots";
+
     /// <summary>
     /// 该测试应成功生成，需要满足以下条件
     /// <list type="bullet">
@@ -22,29 +24,28 @@ public class InitializerSourceGeneratorTests
     /// <param name="referenceTypes">需要包含的类型引用，用于满足生成器对特定类型定义的检查</param>
     /// <param name="properties">生成器属性配置</param>
     [Theory]
-    [InlineData(LanguageVersion.CSharp9, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp10, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp12, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.Latest, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
-    [InlineData(LanguageVersion.CSharp14, new[] { typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=TRUE" })]
+    [InlineData(LanguageVersion.CSharp9, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp10, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp12, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp14, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.Latest, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=true" })]
+    [InlineData(LanguageVersion.CSharp14, new[] { typeof(NsPlugin), typeof(ModuleInitializerAttribute) }, new[] { "AutoGenerateNsisPluginInitializer=TRUE" })]
     public Task Should_GenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
-        // 创建编译环境
+        // 编译源
         var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
 
-        // 运行源生成器
+        // 运行源生成器并编译
         GeneratorDriver driver = CreateGeneratorDriver<InitializerSourceGenerator>(compilation, properties: properties);
-        driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics, TestContext.Current.CancellationToken);
 
-        // 配置 Verify 以使用特定的目录和文件名存储快照
-        var settings = new VerifySettings();
-        settings.UseDirectory("Snapshots");
-        settings.UseFileName($"{nameof(InitializerSourceGeneratorTests)}.{nameof(Should_GenerateCode)}");
-        settings.DisableRequireUniquePrefix();
+        // 源生成器没有诊断
+        Assert.Empty(diagnostics);
+        // 生成源编译没有诊断
+        Assert.Empty(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 验证生成了代码快照
-        return Verify(driver, settings);
+        // 生成源快照验证
+        return VerifySnapshot(driver, SnapshotsDirectory);
     }
 
     /// <summary>
@@ -66,14 +67,14 @@ public class InitializerSourceGeneratorTests
         var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
         GeneratorDriver driver = CreateGeneratorDriver<InitializerSourceGenerator>(compilation, properties: properties);
         driver = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
-
-        // 没有生成
         var runResult = driver.GetRunResult();
-        Assert.Empty(runResult.GeneratedTrees);
 
         // 验证跳过原因诊断
         Assert.Single(runResult.Diagnostics);
-        Assert.Equal(runResult.Diagnostics[0].Id, expectedDiagnosticId);
+        Assert.Equal(runResult.Diagnostics.First().Id, expectedDiagnosticId);
+
+        // 没有生成源
+        Assert.Empty(runResult.GeneratedTrees);
     }
 
     /// <summary>
@@ -109,12 +110,8 @@ public class InitializerSourceGeneratorTests
             };
         }).ToArray();
 
-        var settings = new VerifySettings();
-        settings.UseDirectory("Snapshots");
-        settings.UseFileName($"{nameof(InitializerSourceGeneratorTests)}.{nameof(Should_Report_Skip_Diagnostics_Details)}");
-        settings.DisableRequireUniquePrefix();
-
-        return Verify(diagnostics, settings);
+        // 验证快照
+        return VerifySnapshot(diagnostics, SnapshotsDirectory);
     }
 
     public readonly record struct SkipScenario(string Name, LanguageVersion LanguageVersion, IEnumerable<MetadataReference>? References, string[] Properties);
