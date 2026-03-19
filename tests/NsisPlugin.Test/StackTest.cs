@@ -11,7 +11,7 @@ public class StackTest
     public void StackT_ShouldPushAndPopValues(Encodings encoding, string expectedValue)
     {
         const int stringSize = 64;
-        var stackTopPtr = CreateStackTop();
+        var stackTopPtr = StackTopTestHelper.Create();
 
         try
         {
@@ -40,7 +40,7 @@ public class StackTest
         }
         finally
         {
-            DrainStackAndFree(NsPlugin.StackTop);
+            StackTopTestHelper.DrainAndFree(NsPlugin.StackTop);
         }
     }
 
@@ -50,7 +50,7 @@ public class StackTest
     public void StackT_ShouldNotWriteOrReadOutOfBounds(Encodings encoding)
     {
         const int stringSize = 16;
-        var stackTopPtr = CreateStackTop();
+        var stackTopPtr = StackTopTestHelper.Create();
 
         try
         {
@@ -81,17 +81,7 @@ public class StackTest
         }
         finally
         {
-            DrainStackAndFree(NsPlugin.StackTop);
+            StackTopTestHelper.DrainAndFree(NsPlugin.StackTop);
         }
-    }
-
-    private static IntPtr CreateStackTop() => TestUnmanagedMemory.Zeroed<IntPtr>();
-
-    private static unsafe void DrainStackAndFree(StackT? stack)
-    {
-        if (stack == null) return;
-        // 弹出所有剩余项以释放内存
-        while (stack.Pop(out _)) { }
-        TestUnmanagedMemory.Free((IntPtr)stack.Raw);
     }
 }

@@ -11,7 +11,7 @@ public class VariablesTest
     public void Variables_ShouldReadAndWriteValue(Encodings encoding, string expectedValue)
     {
         const int stringSize = 64;
-        var variablesPtr = CreateVariables(encoding, stringSize);
+        var variablesPtr = VariablesTestHelper.Create(encoding, stringSize);
 
         try
         {
@@ -33,7 +33,7 @@ public class VariablesTest
         }
         finally
         {
-            TestUnmanagedMemory.Free(variablesPtr);
+            VariablesTestHelper.Free(variablesPtr);
         }
     }
 
@@ -43,7 +43,7 @@ public class VariablesTest
     public void Variables_ShouldNotWriteOrReadOutOfBounds(Encodings encoding)
     {
         const int stringSize = 16;
-        var variablesPtr = CreateVariables(encoding, stringSize);
+        var variablesPtr = VariablesTestHelper.Create(encoding, stringSize);
 
         try
         {
@@ -79,22 +79,7 @@ public class VariablesTest
         }
         finally
         {
-            TestUnmanagedMemory.Free(variablesPtr);
+            VariablesTestHelper.Free(variablesPtr);
         }
-    }
-
-    /// <summary>
-    /// 创建用于测试的 Variables 内存块，大小根据字符串长度和变量数量计算。
-    /// </summary>
-    /// <param name="encoding">编码</param>
-    /// <param name="stringSize">字符串长度</param>
-    /// <returns>variables 指针，需要手动释放</returns>
-    private static IntPtr CreateVariables(Encodings encoding, int stringSize)
-    {
-        if (encoding == Encodings.Undefined) throw new NotSupportedException("Undefined encoding");
-        var charSize = encoding == Encodings.Unicode ? 2 : 1;
-        var variablesBytes = (nuint)(stringSize * charSize * (int)NsVariable.InstLast);
-        var variablesPtr = TestUnmanagedMemory.Zeroed(variablesBytes);
-        return variablesPtr;
     }
 }
