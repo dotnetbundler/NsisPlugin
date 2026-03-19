@@ -13,8 +13,11 @@
         <File Path="eng/project.props"/>
     </Folder>
 
+    <Folder Name="/tests/">
+        <Project Path="tests/NsisPlugin.SourceGeneration.Tests/NsisPlugin.SourceGeneration.Tests.csproj"/>
+        <Project Path="tests/NsisPlugin.Test/NsisPlugin.Test.csproj"/>
+    </Folder>
+
     <Project Path="src/NsisPlugin.csproj"/>
     <Project Path="gen/NsisPlugin.SourceGeneration.csproj"/>
-    <Project Path="tests/NsisPlugin.SourceGeneration.Tests/NsisPlugin.SourceGeneration.Tests.csproj"/>
-    <Project Path="tests/NsisPlugin.Test/NsisPlugin.Test.csproj"/>
 </Solution>
