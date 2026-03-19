@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net10.0;</TargetFrameworks>
+    <TargetFrameworks>net472;net10.0;</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -21,6 +21,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NsisPlugin.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\Compatibility\MemoryManager.cs" Link="Compatibility\MemoryManager.cs"/>
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,8 @@
+using NsisPlugin.Compatibility;
+
 namespace NsisPlugin.Test.Helper;
 
-public static class VariablesTestHelper
+public static unsafe class VariablesTestHelper
 {
     public static IntPtr Create(Encodings encoding, int stringSize)
     {
@@ -8,8 +10,8 @@ public static class VariablesTestHelper
 
         var charSize = encoding == Encodings.Unicode ? 2 : 1;
         var byteCount = (nuint)(stringSize * charSize * (int)NsVariable.InstLast);
-        return TestUnmanagedMemory.Zeroed(byteCount);
+        return (IntPtr)MemoryManager.AllocZeroed(byteCount);
     }
 
-    public static void Free(IntPtr variablesPtr) => TestUnmanagedMemory.Free(variablesPtr);
+    public static void Free(IntPtr variablesPtr) => MemoryManager.Free((void*)variablesPtr);
 }

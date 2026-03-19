@@ -37,7 +37,7 @@ public unsafe class ExtraParametersTest
 
         try
         {
-            const IntPtr hwndParent = 0x4567;
+            var hwndParent = (IntPtr)0x4567;
             NsPlugin.Init(hwndParent, 64, IntPtr.Zero, IntPtr.Zero, (IntPtr)extra);
 
             var result = NsPlugin.ExtraParameters.ExecuteCodeSegment(7);
@@ -86,7 +86,7 @@ public unsafe class ExtraParametersTest
 
         try
         {
-            const IntPtr moduleHandle = 0x9988;
+            var moduleHandle = (IntPtr)0x9988;
             NsPlugin.ModuleHandle = moduleHandle;
             NsPlugin.Init(IntPtr.Zero, 64, IntPtr.Zero, IntPtr.Zero, (IntPtr)extra);
 
@@ -94,7 +94,7 @@ public unsafe class ExtraParametersTest
             NsPluginCallback callback1 = _ => IntPtr.Zero;
 
             var first = NsPlugin.ExtraParameters.RegisterPluginCallback(callback1);
-            var second = NsPlugin.ExtraParameters.RegisterPluginCallback(_ => 1);
+            var second = NsPlugin.ExtraParameters.RegisterPluginCallback(_ => (IntPtr)1);
 
             Assert.Equal(0, first);
             Assert.Equal(1, second);
