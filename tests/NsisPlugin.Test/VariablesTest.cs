@@ -6,9 +6,9 @@ namespace NsisPlugin.Test;
 public class VariablesTest
 {
     [Theory]
-    [InlineData(Encodings.Ansi, "ansi")]
-    [InlineData(Encodings.Unicode, "你好")]
-    public void Variables_ShouldReadAndWriteValue(Encodings encoding, string expectedValue)
+    [InlineData(NsEncoding.Ansi, "ansi")]
+    [InlineData(NsEncoding.Unicode, "你好")]
+    public void Variables_ShouldReadAndWriteValue(NsEncoding encoding, string expectedValue)
     {
         const int stringSize = 64;
         var variablesPtr = VariablesTestHelper.Create(encoding, stringSize);
@@ -38,9 +38,9 @@ public class VariablesTest
     }
 
     [Theory]
-    [InlineData(Encodings.Ansi)]
-    [InlineData(Encodings.Unicode)]
-    public void Variables_ShouldNotWriteOrReadOutOfBounds(Encodings encoding)
+    [InlineData(NsEncoding.Ansi)]
+    [InlineData(NsEncoding.Unicode)]
+    public void Variables_ShouldNotWriteOrReadOutOfBounds(NsEncoding encoding)
     {
         const int stringSize = 16;
         var variablesPtr = VariablesTestHelper.Create(encoding, stringSize);
@@ -51,7 +51,7 @@ public class VariablesTest
             NsPlugin.Init(IntPtr.Zero, stringSize, variablesPtr, IntPtr.Zero, IntPtr.Zero);
 
             // 计算写入和预期值
-            var overflowChar = encoding == Encodings.Unicode ? '你' : 'x';
+            var overflowChar = encoding == NsEncoding.Unicode ? '你' : 'x';
             var tooLongValue = new string(overflowChar, stringSize + 16);
             var expectedTruncated = new string(overflowChar, stringSize - 1);
 

@@ -45,9 +45,9 @@ public static class NsPluginEnc
     /// <summary>
     /// 创建编码作用域，在 using 块内临时切换编码设置，离开块后恢复之前的设置
     /// </summary>
-    /// <param name="encoding">要使用的编码，为 <see cref="Encodings.Undefined">Undefined</see> 时使用全局设置</param>
+    /// <param name="encoding">要使用的编码，为 <see cref="NsEncoding.Undefined">Undefined</see> 时使用全局设置</param>
     /// <returns>编码作用域对象</returns>
-    public static IDisposable CreateEncScope(Encodings encoding) => new NsPluginEncScope(encoding);
+    public static IDisposable CreateEncScope(NsEncoding encoding) => new NsPluginEncScope(encoding);
 }
 
 /// <summary>
@@ -57,11 +57,11 @@ public static class NsPluginEnc
 public sealed class NsPluginEncScope : IDisposable
 {
     private readonly bool? _pre = NsPluginEnc.ScopeUseUnicode;
-    public NsPluginEncScope(Encodings encoding) => NsPluginEnc.ScopeUseUnicode = encoding switch
+    public NsPluginEncScope(NsEncoding encoding) => NsPluginEnc.ScopeUseUnicode = encoding switch
     {
-        Encodings.Undefined => null,
-        Encodings.Ansi => false,
-        Encodings.Unicode => true,
+        NsEncoding.Undefined => null,
+        NsEncoding.Ansi => false,
+        NsEncoding.Unicode => true,
         _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
     };
 

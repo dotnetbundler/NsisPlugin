@@ -6,9 +6,9 @@ namespace NsisPlugin.Test;
 public class StackTest
 {
     [Theory]
-    [InlineData(Encodings.Ansi, "ansi")]
-    [InlineData(Encodings.Unicode, "你好")]
-    public void StackT_ShouldPushAndPopValues(Encodings encoding, string expectedValue)
+    [InlineData(NsEncoding.Ansi, "ansi")]
+    [InlineData(NsEncoding.Unicode, "你好")]
+    public void StackT_ShouldPushAndPopValues(NsEncoding encoding, string expectedValue)
     {
         const int stringSize = 64;
         var stackTopPtr = StackTopTestHelper.Create();
@@ -45,9 +45,9 @@ public class StackTest
     }
 
     [Theory]
-    [InlineData(Encodings.Ansi)]
-    [InlineData(Encodings.Unicode)]
-    public void StackT_ShouldNotWriteOrReadOutOfBounds(Encodings encoding)
+    [InlineData(NsEncoding.Ansi)]
+    [InlineData(NsEncoding.Unicode)]
+    public void StackT_ShouldNotWriteOrReadOutOfBounds(NsEncoding encoding)
     {
         const int stringSize = 16;
         var stackTopPtr = StackTopTestHelper.Create();
@@ -57,7 +57,7 @@ public class StackTest
             using var _ = NsPluginEnc.CreateEncScope(encoding);
             NsPlugin.Init(IntPtr.Zero, stringSize, IntPtr.Zero, stackTopPtr, IntPtr.Zero);
 
-            var overflowChar = encoding == Encodings.Unicode ? '你' : 'x';
+            var overflowChar = encoding == NsEncoding.Unicode ? '你' : 'x';
             var tooLongValue = new string(overflowChar, stringSize + 16);
             var expectedTruncated = new string(overflowChar, stringSize - 1);
 

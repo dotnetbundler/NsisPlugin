@@ -20,13 +20,16 @@ internal sealed class Emitter(SourceProductionContext context)
     private const string CallConvCdeclRef = "global::System.Runtime.CompilerServices.CallConvCdecl";
     private const string UnmanagedCallersOnlyAttributeRef = "global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute";
 
-    private const string EncodingsRef = "global::NsisPlugin.Encodings";
-    private const string StackTRef = "global::NsisPlugin.StackT";
+    private const string NsEncodingRef = "global::NsisPlugin.NsEncoding";
     private const string NsVariableRef = "global::NsisPlugin.NsVariable";
-    private const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
-    private const string NsisPluginRef = "global::NsisPlugin.NsPlugin";
+
     private const string NsPluginEncRef = "global::NsisPlugin.NsPluginEnc";
+    private const string NsPluginRef = "global::NsisPlugin.NsPlugin";
     private const string NsPluginExtensionsRef = "global::NsisPlugin.NsPluginExtensions";
+
+    private const string StackTRef = "global::NsisPlugin.StackT";
+    private const string VariablesRef = "global::NsisPlugin.Variables";
+    private const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
 
     public void Emit(ImmutableEquatableArray<TypeGenerationSpec> types)
     {
@@ -101,31 +104,33 @@ internal sealed class Emitter(SourceProductionContext context)
                 // try 内部
                 {
                     // 编码和初始化
-                    writer.WriteLine($"using {DisposableRef} _ = {NsPluginEncRef}.CreateEncScope({EncodingsRef}.{actionSpec.Encoding});");
-                    writer.WriteLine($"{NsisPluginRef}.Init(hwndParent, string_size, variables, stacktop, extra);");
+                    writer.WriteLine($"using {DisposableRef} _ = {NsPluginEncRef}.CreateEncScope({NsEncodingRef}.{actionSpec.Encoding});");
+                    writer.WriteLine($"{NsPluginRef}.Init(hwndParent, string_size, variables, stacktop, extra);");
 
                     // 参数
                     if (methodSpec.Parameters.Count > 0) writer.WriteLine();
                     List<string> arguments = new(methodSpec.Parameters.Count);
-                    foreach (var parameterSpec in methodSpec.Parameters)
+                    for (var i = 0; i < methodSpec.Parameters.Count; i++)
                     {
+                        var parameterSpec = methodSpec.Parameters[i];
                         if (TryGetSpecialArgument(parameterSpec.Type.FullyQualifiedName, out var argument))
                         {
                             arguments.Add(argument!);
                             continue;
                         }
 
+                        var uniqueLocalName = $"{parameterSpec.Name}_p{i}";
                         if (parameterSpec.FromVariable is not null)
                         {
                             var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the variable\");";
-                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsisPluginRef}.{VariablesName}, {NsVariableRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {parameterSpec.Name})) {throwCode}");
+                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsPluginRef}.{VariablesName}, {NsVariableRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
                         }
                         else
                         {
                             var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the stack\");";
-                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Pop({NsisPluginRef}.{StackTopName}, out {parameterSpec.Type.FullyQualifiedName} {parameterSpec.Name})) {throwCode}");
+                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Pop({NsPluginRef}.{StackTopName}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
                         }
-                        arguments.Add(parameterSpec.Name);
+                        arguments.Add(uniqueLocalName);
                     }
 
                     // 调用原方法
@@ -137,8 +142,8 @@ internal sealed class Emitter(SourceProductionContext context)
                         writer.WriteLine($"var result = {invocation}");
                         // 推送结果
                         writer.WriteLine(methodSpec.Return.ToVariable is not null ?
-                            $"{NsPluginExtensionsRef}.Set({NsisPluginRef}.{VariablesName}, {NsVariableRef}.{methodSpec.Return.ToVariable}, result);" :
-                            $"{NsPluginExtensionsRef}.Push({NsisPluginRef}.{StackTopName}, result);");
+                            $"{NsPluginExtensionsRef}.Set({NsPluginRef}.{VariablesName}, {NsVariableRef}.{methodSpec.Return.ToVariable}, result);" :
+                            $"{NsPluginExtensionsRef}.Push({NsPluginRef}.{StackTopName}, result);");
                     }
                 }
                 writer.Indentation--;
@@ -148,7 +153,7 @@ internal sealed class Emitter(SourceProductionContext context)
                 writer.Indentation++;
                 // catch 内部
                 {
-                    writer.WriteLine($"{NsisPluginRef}.{StackTopName}.Push($\"Exception in {actionSpec.EntryPoint}: {{ex}}\");");
+                    writer.WriteLine($"{NsPluginRef}.{StackTopName}.Push($\"Exception in {actionSpec.EntryPoint}: {{ex}}\");");
                 }
                 writer.Indentation--;
                 writer.WriteLine('}');
@@ -162,9 +167,9 @@ internal sealed class Emitter(SourceProductionContext context)
         {
             argument = parameterFullyQualifiedName switch
             {
-                StackTRef => $"{NsisPluginRef}.{StackTopName}",
-                NsVariableRef => $"{NsisPluginRef}.{VariablesName}",
-                ExtraParametersRef => $"{NsisPluginRef}.{ExtraParametersName}",
+                StackTRef => $"{NsPluginRef}.{StackTopName}",
+                VariablesRef => $"{NsPluginRef}.{VariablesName}",
+                ExtraParametersRef => $"{NsPluginRef}.{ExtraParametersName}",
                 _ => null
             };
             return argument is not null;

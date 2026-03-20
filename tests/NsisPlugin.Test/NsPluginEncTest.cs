@@ -8,12 +8,12 @@ public class NsPluginEncTest
     [Fact]
     public void CreateEncScope_ShouldApplyAndRestoreNestedEncoding()
     {
-        using (NsPluginEnc.CreateEncScope(Encodings.Unicode))
+        using (NsPluginEnc.CreateEncScope(NsEncoding.Unicode))
         {
             Assert.True(NsPluginEnc.IsUnicode);
             Assert.Equal(2, NsPluginEnc.CharSize);
 
-            using (NsPluginEnc.CreateEncScope(Encodings.Ansi))
+            using (NsPluginEnc.CreateEncScope(NsEncoding.Ansi))
             {
                 Assert.False(NsPluginEnc.IsUnicode);
                 Assert.Equal(1, NsPluginEnc.CharSize);
@@ -46,20 +46,20 @@ public class NsPluginEncTest
                     for (var i = 0; i < iterationsPerWorker; i++)
                     {
                         Thread.Sleep(random.Next(0, 5));
-                        var outerEncoding = (Encodings)random.Next(0, 3);
+                        var outerEncoding = (NsEncoding)random.Next(0, 3);
 
-                        AssertScopeEnc(Encodings.Undefined);
+                        AssertScopeEnc(NsEncoding.Undefined);
                         using (NsPluginEnc.CreateEncScope(outerEncoding))
                         {
                             AssertScopeEnc(outerEncoding);
                             Thread.Sleep(random.Next(0, 5));
-                            var innerEncoding = (Encodings)random.Next(0, 3);
+                            var innerEncoding = (NsEncoding)random.Next(0, 3);
 
                             AssertScopeEnc(outerEncoding);
                             using (NsPluginEnc.CreateEncScope(innerEncoding)) { AssertScopeEnc(innerEncoding); }
                             AssertScopeEnc(outerEncoding);
                         }
-                        AssertScopeEnc(Encodings.Undefined);
+                        AssertScopeEnc(NsEncoding.Undefined);
                     }
                 }
                 catch (Exception ex)
@@ -80,18 +80,18 @@ public class NsPluginEncTest
         Assert.Empty(errors);
 
         // 断言当前编码状态与预期一致
-        void AssertScopeEnc(Encodings encoding)
+        void AssertScopeEnc(NsEncoding encoding)
         {
-            if (encoding == Encodings.Undefined)
+            if (encoding == NsEncoding.Undefined)
             {
                 Assert.False(NsPluginEnc.ScopeUseUnicode.HasValue);
                 return;
             }
 
             Assert.True(NsPluginEnc.ScopeUseUnicode.HasValue);
-            Assert.Equal(encoding == Encodings.Unicode, NsPluginEnc.ScopeUseUnicode.Value);
-            Assert.Equal(encoding == Encodings.Unicode, NsPluginEnc.IsUnicode);
-            Assert.Equal(encoding == Encodings.Unicode ? 2 : 1, NsPluginEnc.CharSize);
+            Assert.Equal(encoding == NsEncoding.Unicode, NsPluginEnc.ScopeUseUnicode.Value);
+            Assert.Equal(encoding == NsEncoding.Unicode, NsPluginEnc.IsUnicode);
+            Assert.Equal(encoding == NsEncoding.Unicode ? 2 : 1, NsPluginEnc.CharSize);
         }
     }
 
@@ -100,12 +100,12 @@ public class NsPluginEncTest
     {
         NsPlugin.Init(IntPtr.Zero, 10, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
 
-        using (NsPluginEnc.CreateEncScope(Encodings.Ansi))
+        using (NsPluginEnc.CreateEncScope(NsEncoding.Ansi))
         {
             Assert.Equal(10, NsPlugin.MaxStringBytes);
         }
 
-        using (NsPluginEnc.CreateEncScope(Encodings.Unicode))
+        using (NsPluginEnc.CreateEncScope(NsEncoding.Unicode))
         {
             Assert.Equal(20, NsPlugin.MaxStringBytes);
         }

@@ -11,7 +11,7 @@ namespace NsisPlugin;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class NsisActionAttribute(string entryPointFormat = "{0}") : Attribute
 {
-    public Encodings Encoding { get; set; }
+    public NsEncoding Encoding { get; set; }
 }
 
 /// <summary>

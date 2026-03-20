@@ -48,8 +48,8 @@ public class ExportSourceGeneratorGeneratableCasesTests
                                   public static class FullFlowCases
                                   {
                                       [NsisAction("sum_{0}")]
-                                      [NsisAction("sum_{0}A", Encoding = Encodings.Ansi)]
-                                      [NsisAction("sum_{0}U", Encoding = Encodings.Unicode)]
+                                      [NsisAction("sum_{0}A", Encoding = NsEncoding.Ansi)]
+                                      [NsisAction("sum_{0}U", Encoding = NsEncoding.Unicode)]
                                       [return: ToVariable(NsVariable.Inst0)]
                                       public static int Add([FromVariable(NsVariable.Inst2)] int fromVar, int fromStack, StackT stack, Variables vars, ExtraParameters extra) => fromVar + fromStack;
                                   }

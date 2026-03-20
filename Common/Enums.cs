@@ -105,7 +105,7 @@ public enum NsVariable
 /// <summary>
 /// 字符串编码
 /// </summary>
-public enum Encodings
+public enum NsEncoding
 {
     /// <summary>
     /// 未定义，使用默认编码

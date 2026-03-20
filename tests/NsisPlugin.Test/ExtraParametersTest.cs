@@ -53,9 +53,9 @@ public unsafe class ExtraParametersTest
     }
 
     [Theory]
-    [InlineData(Encodings.Ansi)]
-    [InlineData(Encodings.Unicode)]
-    public void ShouldValidateFilename(Encodings encoding)
+    [InlineData(NsEncoding.Ansi)]
+    [InlineData(NsEncoding.Unicode)]
+    public void ShouldValidateFilename(NsEncoding encoding)
     {
         ExtraParametersTestHelper.ResetStubState();
         ExtraParametersTestHelper.ResetPluginCallbackCache();

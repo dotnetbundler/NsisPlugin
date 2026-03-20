@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SourceGenerators;
@@ -68,7 +67,7 @@ internal class Parser
             // 有特性但没有返回值
             if (returnType.SpecialType is SpecialType.System_Void) Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MissingReturnTypeWithToVariable, method.Locations.FirstOrDefault(), method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
 
-            var toVariable = (NsVariable?)toVariableAttr.ConstructorArguments.FirstOrDefault().Value;
+            NsVariable? toVariable = toVariableAttr.ConstructorArguments.FirstOrDefault().Value is int value ? (NsVariable)value : null;
             return new(returnType, toVariable);
         }
 
@@ -77,7 +76,7 @@ internal class Parser
         {
             if (parameter.GetAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == FromVariableAttributeName) is not AttributeData fromVariableAttr) return new(new TypeRef(parameter.Type), parameter.Name, null);
 
-            var fromVariable = (NsVariable?)fromVariableAttr.ConstructorArguments.FirstOrDefault().Value;
+            NsVariable? fromVariable = fromVariableAttr.ConstructorArguments.FirstOrDefault().Value is int value ? (NsVariable)value : null;
             return new(new TypeRef(parameter.Type), parameter.Name, fromVariable);
         }
     }
@@ -115,10 +114,10 @@ internal class Parser
         return new ActionGenerationSpec(entryPoint, encoding);
 
 
-        static (string, Encodings) ParseNsisActionAttribute(AttributeData attribute)
+        static (string, NsEncoding) ParseNsisActionAttribute(AttributeData attribute)
         {
             var entryPointFormat = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? "{0}";
-            var encoding = (Encodings)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? Encodings.Undefined);
+            var encoding = (NsEncoding)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? NsEncoding.Undefined);
             return (entryPointFormat, encoding);
         }
     }
