@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -60,7 +61,13 @@ internal static class CompilationHelper
         if (includeBase)
         {
             references.AddRange(GetReferences(typeof(object), typeof(Enumerable)));
+#if NET
             references.Add(MetadataReference.CreateFromFile(Assembly.Load(new AssemblyName("System.Runtime")).Location));
+#else
+            references.AddRange(GetReferences(typeof(UnmanagedCallersOnlyAttribute)));
+            references.Add(MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.Unsafe).Assembly.Location));
+            references.Add(MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51").Location));
+#endif
         }
 
         // 语法树

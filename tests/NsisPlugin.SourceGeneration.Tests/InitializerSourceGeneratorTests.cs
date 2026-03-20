@@ -34,7 +34,7 @@ public class InitializerSourceGeneratorTests
     public Task Should_GenerateCode(LanguageVersion languageVersion, IEnumerable<Type>? referenceTypes, IEnumerable<string> properties)
     {
         // 编译源
-        var compilation = CreateCompilation("", false, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
+        var compilation = CreateCompilation("", true, GetReferences(referenceTypes), parseOptions: CreateParseOptions(languageVersion));
 
         // 运行源生成器并编译
         GeneratorDriver driver = CreateGeneratorDriver<InitializerSourceGenerator>(compilation, properties: properties);

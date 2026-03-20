@@ -75,9 +75,15 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
 
         var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, CreateParseOptions(LanguageVersion.CSharp11));
 
+#if NET
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+#else
+        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken), ["CS8919"]);
+        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken), ["CS8919"]);
+#endif
 
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
