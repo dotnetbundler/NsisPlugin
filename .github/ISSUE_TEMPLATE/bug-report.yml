@@ -1,0 +1,48 @@
+name: Bug Report
+description: File a bug report to help us improve
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+
+  - type: textarea
+    id: env-info
+    attributes:
+      label: Environment Information
+      description: OS, .NET version, NSIS version, NsisPlugin version, etc.
+      placeholder: |
+        - OS: Windows 11 x64 23H2 (Build 22631.3007)
+        - .NET: .NET 8.0.0
+        - NSIS: 3.11
+        - NsisPlugin: 1.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or logs about the problem here.
+      placeholder: Drag and drop images or paste error logs.
