@@ -68,8 +68,7 @@ internal class Parser
             // 有特性但没有返回值
             if (returnType.SpecialType is SpecialType.System_Void) Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.MissingReturnTypeWithToVariable, method.Locations.FirstOrDefault(), method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
 
-            Debug.Assert(toVariableAttr.ConstructorArguments.Length == 1);
-            var toVariable = (NsVariable)toVariableAttr.ConstructorArguments.FirstOrDefault().Value!;
+            var toVariable = (NsVariable?)toVariableAttr.ConstructorArguments.FirstOrDefault().Value;
             return new(returnType, toVariable);
         }
 
@@ -78,8 +77,7 @@ internal class Parser
         {
             if (parameter.GetAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == FromVariableAttributeName) is not AttributeData fromVariableAttr) return new(new TypeRef(parameter.Type), parameter.Name, null);
 
-            Debug.Assert(fromVariableAttr.ConstructorArguments.Length == 1);
-            var fromVariable = (NsVariable)fromVariableAttr.ConstructorArguments.FirstOrDefault().Value!;
+            var fromVariable = (NsVariable?)fromVariableAttr.ConstructorArguments.FirstOrDefault().Value;
             return new(new TypeRef(parameter.Type), parameter.Name, fromVariable);
         }
     }
@@ -119,7 +117,6 @@ internal class Parser
 
         static (string, Encodings) ParseNsisActionAttribute(AttributeData attribute)
         {
-            Debug.Assert(attribute.ConstructorArguments.Length == 1);
             var entryPointFormat = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? "{0}";
             var encoding = (Encodings)(attribute.NamedArguments.FirstOrDefault(kv => kv.Key == nameof(NsisActionAttribute.Encoding)).Value.Value ?? Encodings.Undefined);
             return (entryPointFormat, encoding);
