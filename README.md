@@ -7,23 +7,25 @@
 
 ## 特性
 
-- **特性驱动**：使用 `[NsisAction]` 声明导出函数，无需手写 P/Invoke 包装代码
-- **自动参数绑定**：自动从 NSIS 栈弹出参数，并将返回值压回栈
+- **特性驱动**：使用 `[NsisAction]` 声明导出函数，源生成器自动生成非托管导出包装代码，无需手动编写样板
+- **自动参数绑定**：自动从 NSIS 栈弹出参数并转换为目标类型，将返回值压回栈
 - **变量绑定**：通过 `[FromVariable]` / `[ToVariable]` 直接读写 NSIS 变量
 - **ANSI / Unicode 双编码支持**：全局与方法级编码均可独立控制
-- **编译期诊断**：不符合导出规则的方法会在编译时报告诊断，快速定位问题
-- **AOT 友好**：支持 .NET NativeAOT 编译
-- **多目标框架**：支持 .NET Standard 2.0 / 2.1、.NET 8 / 9 / 10
+- **编译期诊断**：不满足导出规则的方法会在编译时产生诊断信息，快速定位配置错误
+- **基于 NativeAOT**：插件必须以 NativeAOT 方式发布，才能生成可被 NSIS 加载的本机动态链接库
 
 ## 环境要求
 
-| 要求 | 版本 |
-|------|------|
-| .NET SDK | 10.0 或更高（开发本库本身） |
-| C# | 9.0 或更高（使用 `ModuleInitializerAttribute`） |
-| 目标框架 | .NET Standard 2.0 / 2.1，.NET 8 / 9 / 10 |
+使用本库的项目必须以 **NativeAOT** 方式发布，以生成可被 NSIS 加载的本机动态链接库。这要求目标框架为 .NET 8.0 或更高版本。
 
-> **说明**：通过 NuGet 包使用时，只需项目满足上述目标框架之一即可；SDK 10.0 要求仅针对本仓库自身的构建。
+```xml
+<PropertyGroup>
+  <PublishAot>true</PublishAot>
+  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+</PropertyGroup>
+```
+
+> 自动生成的模块初始化器还额外要求 C# 9.0 或更高（使用 `ModuleInitializerAttribute`）。若将 `AutoGenerateNsisPluginInitializer` 设为 `false` 并手动初始化，则无此要求。
 
 ## 安装
 
@@ -43,7 +45,7 @@ Install-Package NsisPlugin
 
 ### 示例一：最简单的插件函数
 
-以下代码将 `Add` 导出为 NSIS 插件入口点。运行时，源生成器自动生成包装函数，依次从 NSIS 栈弹出参数 `a`、`b`，并将返回值压回 NSIS 栈。
+以下代码将 `Add` 导出为 NSIS 插件入口点。源生成器自动生成包装函数，依次从 NSIS 栈弹出参数 `a`、`b`，并将返回值压回 NSIS 栈。
 
 ```csharp
 using NsisPlugin;
@@ -55,14 +57,29 @@ public static class MyPlugin
 }
 ```
 
-在 NSIS 脚本中调用：
+在 NSIS 脚本中调用（`MyPlugin` 为插件的 DLL 文件名，不含扩展名）：
 
 ```nsis
 MyPlugin::Add 3 5
 Pop $0   ; $0 = "8"
 ```
 
-### 示例二：自定义入口点名称
+### 示例二：多种参数类型
+
+NSIS 传递的参数均为字符串，源生成器会自动将栈中的字符串转换为方法声明的参数类型。支持 `string`、`int`、`double`、`bool` 等所有可由 `Convert.ChangeType` 转换的类型：
+
+```csharp
+[NsisAction]
+public static string Greet(string name) => $"Hello, {name}!";
+
+[NsisAction]
+public static double Power(double baseValue, int exponent) => Math.Pow(baseValue, exponent);
+
+[NsisAction]
+public static string IsEven(int number) => (number % 2 == 0) ? "true" : "false";
+```
+
+### 示例三：自定义入口点名称
 
 方法名与导出名称可以分离。`entryPointFormat` 支持 `{0}` 占位符（会被替换为方法名）：
 
@@ -75,7 +92,7 @@ public static string Version() => "1.0.0";
 public static string Greet(string name) => $"Hello, {name}!";
 ```
 
-### 示例三：读写 NSIS 变量
+### 示例四：读写 NSIS 变量
 
 使用 `[FromVariable]` 从指定 NSIS 变量读取参数，使用 `[ToVariable]` 将返回值写入指定变量（而非压栈）：
 
@@ -87,7 +104,7 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
     => path.Replace('/', '\\');
 ```
 
-### 示例四：同一方法多个入口点（ANSI 与 Unicode 各一个）
+### 示例五：同一方法多个入口点（ANSI 与 Unicode 各一个）
 
 ```csharp
 [NsisAction("DoWork_A", Encoding = NsEncoding.Ansi)]
@@ -95,7 +112,7 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
 public static string DoWork(string input) => input.ToUpper();
 ```
 
-### 示例五：使用插件回调
+### 示例六：使用插件回调
 
 ```csharp
 [NsisAction]
@@ -114,7 +131,7 @@ private static IntPtr OnMessage(Nspim message)
 }
 ```
 
-### 示例六：访问执行标志
+### 示例七：访问执行标志
 
 ```csharp
 [NsisAction]
