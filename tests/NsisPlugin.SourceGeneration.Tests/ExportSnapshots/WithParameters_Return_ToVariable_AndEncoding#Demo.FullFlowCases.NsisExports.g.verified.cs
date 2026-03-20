@@ -10,14 +10,13 @@ namespace Demo
         {
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
+                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out global::NsisPlugin.Variables vars)) throw new global::System.Exception("Failed to get 'vars'(global::NsisPlugin.Variables) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
-                var result = global::Demo.FullFlowCases.Add(fromVar, fromStack, global::NsisPlugin.NsPlugin.StackTop, vars, global::NsisPlugin.NsPlugin.ExtraParameters);
+                var result = global::Demo.FullFlowCases.Add(fromVar_p0, fromStack_p1, global::NsisPlugin.NsPlugin.StackTop, global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsPlugin.ExtraParameters);
                 global::NsisPlugin.NsPluginExtensions.Set(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst0, result);
             }
             catch (global::System.Exception ex)
@@ -31,14 +30,13 @@ namespace Demo
         {
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Ansi);
+                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Ansi);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out global::NsisPlugin.Variables vars)) throw new global::System.Exception("Failed to get 'vars'(global::NsisPlugin.Variables) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
-                var result = global::Demo.FullFlowCases.Add(fromVar, fromStack, global::NsisPlugin.NsPlugin.StackTop, vars, global::NsisPlugin.NsPlugin.ExtraParameters);
+                var result = global::Demo.FullFlowCases.Add(fromVar_p0, fromStack_p1, global::NsisPlugin.NsPlugin.StackTop, global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsPlugin.ExtraParameters);
                 global::NsisPlugin.NsPluginExtensions.Set(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst0, result);
             }
             catch (global::System.Exception ex)
@@ -52,14 +50,13 @@ namespace Demo
         {
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Unicode);
+                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Unicode);
                 global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
-                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
-                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out global::NsisPlugin.Variables vars)) throw new global::System.Exception("Failed to get 'vars'(global::NsisPlugin.Variables) from the stack");
+                if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
+                if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
-                var result = global::Demo.FullFlowCases.Add(fromVar, fromStack, global::NsisPlugin.NsPlugin.StackTop, vars, global::NsisPlugin.NsPlugin.ExtraParameters);
+                var result = global::Demo.FullFlowCases.Add(fromVar_p0, fromStack_p1, global::NsisPlugin.NsPlugin.StackTop, global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsPlugin.ExtraParameters);
                 global::NsisPlugin.NsPluginExtensions.Set(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst0, result);
             }
             catch (global::System.Exception ex)

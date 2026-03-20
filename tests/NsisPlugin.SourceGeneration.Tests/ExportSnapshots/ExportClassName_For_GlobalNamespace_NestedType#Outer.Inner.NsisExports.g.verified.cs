@@ -8,7 +8,7 @@ public static class Outer_Inner_NsisExports
     {
         try
         {
-            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.Encodings.Undefined);
+            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
             global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
 
             global::Outer.Inner.Work();
