@@ -104,15 +104,39 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
     => path.Replace('/', '\\');
 ```
 
-### 示例五：同一方法多个入口点（ANSI 与 Unicode 各一个）
+### 示例五：同一方法多个入口点
+
+同一方法可附加任意数量的 `[NsisAction]`，分别指定不同的入口点名称和编码。不指定 `Encoding` 时使用项目全局编码（由 `NSISUnicode` 属性决定）：
 
 ```csharp
-[NsisAction("DoWork_A", Encoding = NsEncoding.Ansi)]
-[NsisAction("DoWork_U", Encoding = NsEncoding.Unicode)]
+[NsisAction("DoWork")]                                  // 使用全局编码（由 NSISUnicode 决定）
+[NsisAction("DoWork_A", Encoding = NsEncoding.Ansi)]    // 强制 ANSI 编码
+[NsisAction("DoWork_U", Encoding = NsEncoding.Unicode)] // 强制 Unicode 编码
 public static string DoWork(string input) => input.ToUpper();
 ```
 
-### 示例六：使用插件回调
+### 示例六：特殊参数（StackT / Variables / ExtraParameters）
+
+将 `StackT`、`Variables` 或 `ExtraParameters` 声明为方法参数时，源生成器会自动传入当前调用的上下文对象，**不会**从 NSIS 栈弹出。这三种类型可自由组合，顺序任意，与普通参数混用：
+
+```csharp
+[NsisAction]
+public static void Summarize(string input, StackT stack, Variables vars, ExtraParameters extra)
+{
+    // 手动向栈压入多个值
+    stack.Push(input.ToUpper());
+    stack.Push(input.Length.ToString());
+
+    // 将统计结果写入 NSIS 变量
+    vars.Set(NsVariable.InstR0, input.Length.ToString());
+
+    // 根据执行标志决定是否输出额外信息
+    if (extra.ExecFlags.Silent == 0)
+        stack.Push("verbose");
+}
+```
+
+### 示例七：使用插件回调
 
 ```csharp
 [NsisAction]
@@ -131,7 +155,7 @@ private static IntPtr OnMessage(Nspim message)
 }
 ```
 
-### 示例七：访问执行标志
+### 示例八：访问执行标志
 
 ```csharp
 [NsisAction]
