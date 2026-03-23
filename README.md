@@ -7,7 +7,7 @@
 [![NuGet Version](https://img.shields.io/nuget/v/NsisPlugin?label=NsisPlugin)](https://www.nuget.org/packages/NsisPlugin)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NsisPlugin?label=NsisPlugin)](https://www.nuget.org/packages/NsisPlugin)
 
-[NsisPlugin](https://github.com/dotnetbundler/NsisPlugin) 是一个面向 C# 的现代化 [NSIS](https://nsis.sourceforge.io/)（Nullsoft Scriptable Install System）插件开发框架。
+[NsisPlugin](https://github.com/dotnetbundler/NsisPlugin) 是一个面向 C# 的现代化 [NSIS](https://nsis.sourceforge.io/)（Nullsoft Scriptable Install System）插件开发框架。  
 它通过特性标注（Attribute）和 Roslyn 源生成器，将繁琐的非托管互操作样板代码完全自动化，让开发者专注于业务逻辑本身。
 
 ## 特性
@@ -372,6 +372,11 @@ public delegate IntPtr NsPluginCallback(Nspim message);
 - **类型转换失败**：泛型扩展方法（`Pop<T>`、`Get<T>` 等）在转换失败时返回 `false` 而非抛出异常，调用方需检查返回值。
 - **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](#to-variable-attribute) 时结果写入指定变量，不再压栈。两者不可同时生效。
 - **手动初始化**：当 `AutoGenerateNsisPluginInitializer` 设为 `false` 时，必须在插件加载时手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
+- **Visual Studio中生成器诊断不实时**：
+    - 2026 （若高级配置未迁移，需要打开旧的选项框）
+        - 工具 -> 选项 -> 语言 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
+    - 2022
+        - 工具 -> 选项 -> 文本编辑器 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
 
 ## License
 
