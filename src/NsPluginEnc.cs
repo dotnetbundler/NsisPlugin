@@ -57,6 +57,12 @@ public static class NsPluginEnc
 public sealed class NsPluginEncScope : IDisposable
 {
     private readonly bool? _pre = NsPluginEnc.ScopeUseUnicode;
+
+    /// <summary>
+    /// 构造函数，根据指定的编码设置当前线程的编码设置
+    /// </summary>
+    /// <param name="encoding">编码</param>
+    /// <exception cref="ArgumentOutOfRangeException">未知编码</exception>
     public NsPluginEncScope(NsEncoding encoding) => NsPluginEnc.ScopeUseUnicode = encoding switch
     {
         NsEncoding.Undefined => null,
@@ -65,5 +71,8 @@ public sealed class NsPluginEncScope : IDisposable
         _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
     };
 
+    /// <summary>
+    /// 释放函数，恢复之前的编码设置
+    /// </summary>
     public void Dispose() => NsPluginEnc.ScopeUseUnicode = _pre;
 }

@@ -111,6 +111,12 @@ public enum NsEncoding
     /// 未定义，使用默认编码
     /// </summary>
     Undefined,
+    /// <summary>
+    /// ANSI 编码，使用当前系统的默认代码页进行编码和解码
+    /// </summary>
     Ansi,
+    /// <summary>
+    /// Unicode 编码，使用 UTF-16LE 编码和解码字符串
+    /// </summary>
     Unicode
 }
