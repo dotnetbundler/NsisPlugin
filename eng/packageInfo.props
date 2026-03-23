@@ -1,7 +1,5 @@
 <Project>
   <PropertyGroup Label="package base">
-    <!-- You need to manually set IsPackable in the packaged project to true -->
-    <IsPackable>false</IsPackable>
     <PackageId>$(AssemblyName)</PackageId>
     <Product>$(AssemblyName)</Product>
     <PackageIcon>icon.png</PackageIcon>

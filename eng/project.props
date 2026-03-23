@@ -11,8 +11,13 @@
     <LangVersion>14</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsGeneratorProject)' == 'true'">
+  <PropertyGroup Label="Generator Props" Condition="'$(IsGeneratorProject)' == 'true'">
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsRoslynComponent>true</IsRoslynComponent>
+  </PropertyGroup>
+
+  <!-- 是包的项目需要手动设置为 true -->
+  <PropertyGroup Label="Not packable">
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>
