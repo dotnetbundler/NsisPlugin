@@ -5,7 +5,7 @@ SetCompress off
 Name "插件测试程序"
 
 Section
-	UseNsisPlugin::Add 100 99
+	UseNsisPlugin::Add 200 99
 	Pop $0
 	DetailPrint $0
 	
