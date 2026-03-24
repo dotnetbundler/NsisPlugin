@@ -21,8 +21,11 @@
 
     <!-- Is a test project -->
     <IsTestProject Condition="$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)')) == 'tests' or $([System.IO.Path]::GetFileName('$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))')) == 'tests'">true</IsTestProject>
+
+    <!-- Is a sample project -->
+    <IsSampleProject Condition="$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)')) == 'samples' or $([System.IO.Path]::GetFileName('$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))')) == 'samples'">true</IsSampleProject>
   </PropertyGroup>
 
   <Import Project="$([MSBuild]::NormalizePath($(EngDir),'project.props'))"/>
-  <Import Project="$([MSBuild]::NormalizePath($(EngDir),'packageInfo.props'))" Condition="'$(IsGeneratorProject)' != 'true' And '$(IsTestProject)' != 'true'"/>
+  <Import Project="$([MSBuild]::NormalizePath($(EngDir),'packageInfo.props'))" Condition="'$(IsGeneratorProject)' != 'true' And '$(IsTestProject)' != 'true' And '$(IsSampleProject)' != 'true'"/>
 </Project>

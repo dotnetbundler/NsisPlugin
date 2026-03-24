@@ -4,6 +4,7 @@
     <TargetFrameworks Condition="'$(IsGeneratorProject)' != 'true' And '$(IsTestProject)' != 'true'">$(TargetFrameworks);netstandard2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsGeneratorProject)' != 'true'">$(TargetFrameworks);net8.0;net9.0;net10.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsTestProject)' == 'true' And $([System.OperatingSystem]::IsWindows())">$(TargetFrameworks);net472</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsSampleProject)' == 'true'"></TargetFrameworks>
 
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
