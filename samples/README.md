@@ -57,6 +57,13 @@ samples/
 .\scripts\NSISPackaging.cmd UseLocalNsisPlugin.nsi
 ```
 
+#### 发布插件并打包可执行文件
+
+```bash
+# 发布 UseLocalNsisPlugin 插件并打包 UseLocalNsisPlugin.nsi
+.\scripts\PublishPlugin.cmd UseLocalNsisPlugin && .\scripts\NSISPackaging.cmd UseLocalNsisPlugin.nsi
+```
+
 ### 3. 执行看看效果
 
 双击运行 `UseNsisPlugin.exe` 和 `UseLocalNsisPlugin.exe`，看看效果吧！
