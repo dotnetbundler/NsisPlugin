@@ -2,8 +2,8 @@
 
 - [x] readme 文档
 - [x] 项目注释
-- [ ] github 工作流
-- [ ] 发布
+- [x] github 工作流
+- [x] 发布
 - NsisPlugin 使用示例
     - [ ] 写一个插件
     - [ ] 写一个 nsis 脚本
