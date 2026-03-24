@@ -19,6 +19,7 @@
     </Folder>
 	
     <Folder Name="/samples/">
+        <Project Path="samples/NotUseNsisPlugin/NotUseNsisPlugin.csproj"/>
         <Project Path="samples/UseLocalNsisPlugin/UseLocalNsisPlugin.csproj"/>
         <Project Path="samples/UseNsisPlugin/UseNsisPlugin.csproj"/>
     </Folder>
