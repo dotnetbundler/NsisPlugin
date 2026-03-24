@@ -15,6 +15,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- Normalize the path, standardize the slash direction -->
+    <NormalizedProjectDir>$(MSBuildProjectDirectory.Replace('\', '/'))</NormalizedProjectDir>
+
     <!-- Is a generator project -->
     <!-- see:https://github.com/dotnet/runtime/blob/253a5c5911d9447ac19864a215408440228da2ed/Directory.Build.props#L311-L312 -->
     <IsGeneratorProject Condition="$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)')) == 'gen' or $([System.IO.Path]::GetFileName('$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))')) == 'gen'">true</IsGeneratorProject>
@@ -23,7 +26,7 @@
     <IsTestProject Condition="$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)')) == 'tests' or $([System.IO.Path]::GetFileName('$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))')) == 'tests'">true</IsTestProject>
 
     <!-- Is a sample project -->
-    <IsSampleProject Condition="$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)')) == 'samples' or $([System.IO.Path]::GetFileName('$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))')) == 'samples'">true</IsSampleProject>
+    <IsSampleProject Condition="$(NormalizedProjectDir.Contains('/samples/')) or $(NormalizedProjectDir.EndsWith('/samples'))">true</IsSampleProject>
   </PropertyGroup>
 
   <Import Project="$([MSBuild]::NormalizePath($(EngDir),'project.props'))"/>
