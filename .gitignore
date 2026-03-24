@@ -400,3 +400,7 @@ FodyWeavers.xsd
 
 # mac file
 .DS_Store
+
+# 样品
+samples/scripts/addplugin
+samples/scripts/*.exe
