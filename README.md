@@ -20,12 +20,12 @@
 
 ## 前提条件
 
-- **使用源生成器**：需要 C# 9.0 或更高版本
-    - [**配置**](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/configure-language-version)：`<LangVersion>9.0</LangVersion>` 或更高
-    - 不满足时无法生成模块初始化器与导出包装代码，但仍可使用 NsisPlugin 的运行时库部分，手动编写导出函数和互操作代码
-- **发布为 NSIS 插件**：最终产物必须是原生共享库（Windows 下为 `.dll`）
-    - NsisPlugin 会生成带 `UnmanagedCallersOnly` 的导出包装代码，但**不会自动为消费项目开启 Native AOT / 原生库发布**
-    - 因此消费项目仍需显式配置原生发布流程，例如使用 [Native AOT class library 发布](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/libraries)
+- **.NET 9.0+**
+  - **源生成器**： 项目依赖 Roslyn 源生成器生成模块初始化器与导出包装代码。（.NET 5.0+）
+  - **Native AOT**：NSIS 插件需以原生共享库（Windows 下为 `.dll`）交付，消费项目需采用 Native AOT 发布流程。（.NET 7.0+，win-x86 支持从 .NET 9.0 开始提供）
+  - 参考文档：
+    - [Native AOT 平台与架构限制（.NET 9+）](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=windows%2Cnet9plus#platformarchitecture-restrictions)
+    - [Native AOT class library 发布](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/libraries)
 
 ## 安装
 
@@ -166,9 +166,9 @@ private static IntPtr OnMessage(Nspim message)
 
 ## 配置
 
-| 属性                                  | 默认值     | 说明                                                                                                             |
-|-------------------------------------|---------|----------------------------------------------------------------------------------------------------------------|
-| `NSISUnicode`                       | `false` | 设置默认编码，`false` 为 ANSI，`true` 为 Unicode。方法级 `Encoding` 可覆盖此设置。                                                  |
+| 属性                                | 默认值  | 说明                                                                                                                                               |
+| ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NSISUnicode`                       | `false` | 设置默认编码，`false` 为 ANSI，`true` 为 Unicode。方法级 `Encoding` 可覆盖此设置。                                                                 |
 | `AutoGenerateNsisPluginInitializer` | `true`  | 自动生成模块初始化器，负责设置 `NsPluginEnc.UseUnicode` 和 `NsPlugin.ModuleHandle`。为 `false` 时 `NSISUnicode` 配置无效。大多数场景保持默认即可。 |
 
 > **编码说明**：`NSISUnicode=true` 会在编译时定义 `NSIS_UNICODE` 预处理符号，源生成器生成的初始化器在编译时以此来设置默认编码。
@@ -188,23 +188,23 @@ private static IntPtr OnMessage(Nspim message)
 <a id="nsis-action-attribute"></a>
 
 - `NsisActionAttribute`
-    - 目标：方法
-    - 说明：将方法声明为 NSIS 插件函数，源生成器会为其生成非托管导出包装代码
-    - 参数：
-        - `entryPointFormat`：可选，指定导出函数名称的格式，默认为 `{0}`（方法名）。例如 `"Plugin_{0}"` 会将方法 `Greet` 导出为 `Plugin_Greet`
-        - `Encoding`：可选，指定此方法使用的编码（ANSI / Unicode）。
+  - 目标：方法
+  - 说明：将方法声明为 NSIS 插件函数，源生成器会为其生成非托管导出包装代码
+  - 参数：
+    - `entryPointFormat`：可选，指定导出函数名称的格式，默认为 `{0}`（方法名）。例如 `"Plugin_{0}"` 会将方法 `Greet` 导出为 `Plugin_Greet`
+    - `Encoding`：可选，指定此方法使用的编码（ANSI / Unicode）。
           <a id="from-variable-attribute"></a>
 - `FromVariableAttribute`
-    - 目标：参数
-    - 说明：从指定 NSIS 变量读取参数值，而非从栈弹出。
-    - 参数：
-        - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
+  - 目标：参数
+  - 说明：从指定 NSIS 变量读取参数值，而非从栈弹出。
+  - 参数：
+    - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
           <a id="to-variable-attribute"></a>
 - `ToVariableAttribute`
-    - 目标：返回值
-    - 说明：将返回值写入指定 NSIS 变量，而非压回栈。
-    - 参数：
-        - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
+  - 目标：返回值
+  - 说明：将返回值写入指定 NSIS 变量，而非压回栈。
+  - 参数：
+    - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
 
 ### 核心类型
 
@@ -212,87 +212,87 @@ private static IntPtr OnMessage(Nspim message)
 
 #### `NsPlugin`（静态类）
 
-| 成员                | 类型                                          | 说明                                      |
-|-------------------|---------------------------------------------|-----------------------------------------|
-| `ModuleHandle`    | `IntPtr`                                    | DLL 模块句柄，由模块初始化器自动填充。                   |
-| `HwndParent`      | `IntPtr`                                    | NSIS 安装器父窗口句柄。                          |
+| 成员              | 类型                                        | 说明                                                  |
+| ----------------- | ------------------------------------------- | ----------------------------------------------------- |
+| `ModuleHandle`    | `IntPtr`                                    | DLL 模块句柄，由模块初始化器自动填充。                |
+| `HwndParent`      | `IntPtr`                                    | NSIS 安装器父窗口句柄。                               |
 | `StringSize`      | `int`                                       | NSIS 字符串缓冲区大小（字符数）。                     |
 | `MaxStringBytes`  | `int`                                       | 字符串缓冲区最大字节数（= `StringSize × CharSize`）。 |
-| `Variables`       | [`Variables`](#variables-type)              | NSIS 变量封装。                              |
-| `StackTop`        | [`StackT`](#stackt-type)                    | NSIS 栈封装。                               |
-| `ExtraParameters` | [`ExtraParameters`](#extra-parameters-type) | NSIS 额外参数与执行标志封装。                       |
+| `Variables`       | [`Variables`](#variables-type)              | NSIS 变量封装。                                       |
+| `StackTop`        | [`StackT`](#stackt-type)                    | NSIS 栈封装。                                         |
+| `ExtraParameters` | [`ExtraParameters`](#extra-parameters-type) | NSIS 额外参数与执行标志封装。                         |
 
 <a id="variables-type"></a>
 
 #### `Variables`（类）
 
-| 成员                                            | 说明                                    |
-|-----------------------------------------------|---------------------------------------|
-| `Get(NsVariable variable, out string? value)` | 读取指定 NSIS 变量的字符串值，成功返回 `true`。        |
+| 成员                                          | 说明                                                          |
+| --------------------------------------------- | ------------------------------------------------------------- |
+| `Get(NsVariable variable, out string? value)` | 读取指定 NSIS 变量的字符串值，成功返回 `true`。               |
 | `Get<T>(NsVariable variable, out T? value)`   | 读取指定 NSIS 变量的值并尝试转换为指定类型，成功返回 `true`。 |
-| `Set(NsVariable variable, string value)`      | 写入指定 NSIS 变量的字符串值，成功返回 `true`。        |
-| `Set<T>(NsVariable variable, T value)`        | 将指定值转换为字符串并写入 NSIS 变量，成功返回 `true`。    |
-| `Raw`                                         | 底层变量缓冲区指针，供高级场景使用。                    |
+| `Set(NsVariable variable, string value)`      | 写入指定 NSIS 变量的字符串值，成功返回 `true`。               |
+| `Set<T>(NsVariable variable, T value)`        | 将指定值转换为字符串并写入 NSIS 变量，成功返回 `true`。       |
+| `Raw`                                         | 底层变量缓冲区指针，供高级场景使用。                          |
 
 <a id="stackt-type"></a>
 
 #### `StackT`（类）
 
-| 成员                       | 说明                                     |
-|--------------------------|----------------------------------------|
-| `Pop(out string? value)` | 从 NSIS 栈顶弹出一个字符串参数，成功返回 `true`。        |
+| 成员                     | 说明                                                            |
+| ------------------------ | --------------------------------------------------------------- |
+| `Pop(out string? value)` | 从 NSIS 栈顶弹出一个字符串参数，成功返回 `true`。               |
 | `Pop<T>(out T? value)`   | 从 NSIS 栈顶弹出一个参数并尝试转换为指定类型，成功返回 `true`。 |
-| `Push(string value)`     | 将一个字符串参数压回 NSIS 栈。                     |
-| `Push<T>(T value)`       | 将一个值转换为字符串并压回 NSIS 栈。                  |
-| `Raw`                    | `stack_t**` 指针，供高级场景使用。                |
+| `Push(string value)`     | 将一个字符串参数压回 NSIS 栈。                                  |
+| `Push<T>(T value)`       | 将一个值转换为字符串并压回 NSIS 栈。                            |
+| `Raw`                    | `stack_t**` 指针，供高级场景使用。                              |
 
 <a id="extra-parameters-type"></a>
 
 #### `ExtraParameters`（类）
 
-| 成员                                                                                  | 说明                              |
-|-------------------------------------------------------------------------------------|---------------------------------|
-| `ExecFlags`                                                                         | NSIS 执行标志结构体。                   |
-| `ExecuteCodeSegment(int code)`                                                      | 执行 NSIS 代码段，成功返回 0。             |
+| 成员                                                                                | 说明                                           |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `ExecFlags`                                                                         | NSIS 执行标志结构体。                          |
+| `ExecuteCodeSegment(int code)`                                                      | 执行 NSIS 代码段，成功返回 0。                 |
 | `ValidateFilename(ref string filename)`                                             | 通过 NSIS 内置验证函数规范化文件名。           |
-| `RegisterPluginCallback([NsPluginCallback](#ns-plugin-callback-delegate) callback)` | 注册插件回调函数，成功返回 0，已经注册返回 1。       |
-| `Raw`                                                                               | `extra_parameters*` 指针，供高级场景使用。 |
+| `RegisterPluginCallback([NsPluginCallback](#ns-plugin-callback-delegate) callback)` | 注册插件回调函数，成功返回 0，已经注册返回 1。 |
+| `Raw`                                                                               | `extra_parameters*` 指针，供高级场景使用。     |
 
 <a id="ns-plugin-enc-type"></a>
 
 #### `NsPluginEnc`（静态类）
 
-| 成员                                    | 说明                                                  |
-|---------------------------------------|-----------------------------------------------------|
+| 成员                                  | 说明                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------- |
 | `UseUnicode`                          | 全局编码开关；`true` 为 Unicode，`false` 为 ANSI。由模块初始化器自动设置。 |
-| `ScopeUseUnicode`                     | 线程本地编码覆盖；为 `null` 时使用全局设置。                          |
+| `ScopeUseUnicode`                     | 线程本地编码覆盖；为 `null` 时使用全局设置。                               |
 | `IsUnicode`                           | 当前线程是否使用 Unicode 编码（综合全局与作用域设置）。                    |
-| `CharSize`                            | 当前编码每个字符的字节数（Unicode = 2，ANSI = 1）。                 |
-| `Encoding`                            | 当前编码对应的 `System.Text.Encoding` 对象。                  |
-| `PtrToString(IntPtr ptr)`             | 按当前编码将非托管指针转换为 `string`。                            |
-| `CreateEncScope(NsEncoding encoding)` | 创建编码作用域，在 `using` 块内临时切换编码，离开后自动恢复。                 |
+| `CharSize`                            | 当前编码每个字符的字节数（Unicode = 2，ANSI = 1）。                        |
+| `Encoding`                            | 当前编码对应的 `System.Text.Encoding` 对象。                               |
+| `PtrToString(IntPtr ptr)`             | 按当前编码将非托管指针转换为 `string`。                                    |
+| `CreateEncScope(NsEncoding encoding)` | 创建编码作用域，在 `using` 块内临时切换编码，离开后自动恢复。              |
 
 #### `ExecFlags`（结构体）
 
 映射 NSIS `exec_flags_t` 结构体；
 字段类型均为 `int`，被当作布尔值标志时，遵循0表示false，非0表示true的约定
 
-| 字段                 | 说明                   |
-|--------------------|----------------------|
-| `Autoclose`        | 自动关闭标志               |
-| `AllUserVar`       | 变量作用域（0 = 用户，1 = 机器） |
-| `ExecError`        | 执行错误标志               |
-| `Abort`            | 中止标志                 |
-| `ExecReboot`       | 是否需要重启               |
-| `RebootCalled`     | 是否已调用重启              |
+| 字段               | 说明                                 |
+| ------------------ | ------------------------------------ |
+| `Autoclose`        | 自动关闭标志                         |
+| `AllUserVar`       | 变量作用域（0 = 用户，1 = 机器）     |
+| `ExecError`        | 执行错误标志                         |
+| `Abort`            | 中止标志                             |
+| `ExecReboot`       | 是否需要重启                         |
+| `RebootCalled`     | 是否已调用重启                       |
 | `XxxCurInsttype`   | 已弃用；保留以支持向后兼容的ABI/布局 |
-| `PluginApiVersion` | 插件 API/ABI 版本        |
-| `Silent`           | 静默模式标志               |
-| `InstdirError`     | 安装目录错误标志             |
-| `Rtl`              | 语言是否为从右到左（RTL）       |
-| `Errlvl`           | 错误级别                 |
-| `AlterRegView`     | 注册表视图设置              |
-| `StatusUpdate`     | 状态更新 / 详细信息打印        |
+| `PluginApiVersion` | 插件 API/ABI 版本                    |
+| `Silent`           | 静默模式标志                         |
+| `InstdirError`     | 安装目录错误标志                     |
+| `Rtl`              | 语言是否为从右到左（RTL）            |
+| `Errlvl`           | 错误级别                             |
+| `AlterRegView`     | 注册表视图设置                       |
+| `StatusUpdate`     | 状态更新 / 详细信息打印              |
 
 ### 枚举
 
@@ -302,24 +302,24 @@ private static IntPtr OnMessage(Nspim message)
 
 对应 NSIS 脚本中的变量，可用于 [`[FromVariable]`](#from-variable-attribute)、[`[ToVariable]`](#to-variable-attribute) 以及 [Variables](#variables-type) 的 `Get` / `Set`：
 
-| 值                   | 对应 NSIS 变量    |
-|---------------------|---------------|
-| `Inst0` ~ `Inst9`   | `$0` ~ `$9`   |
-| `InstR0` ~ `InstR9` | `$R0` ~ `$R9` |
-| `InstCmdline`       | `$CMDLINE`    |
-| `InstInstdir`       | `$INSTDIR`    |
-| `InstOutdir`        | `$OUTDIR`     |
-| `InstExedir`        | `$EXEDIR`     |
-| `InstLang`          | `$LANGUAGE`   |
+| 值                  | 对应 NSIS 变量 |
+| ------------------- | -------------- |
+| `Inst0` ~ `Inst9`   | `$0` ~ `$9`    |
+| `InstR0` ~ `InstR9` | `$R0` ~ `$R9`  |
+| `InstCmdline`       | `$CMDLINE`     |
+| `InstInstdir`       | `$INSTDIR`     |
+| `InstOutdir`        | `$OUTDIR`      |
+| `InstExedir`        | `$EXEDIR`      |
+| `InstLang`          | `$LANGUAGE`    |
 
 <a id="ns-encoding-enum"></a>
 
 #### `NsEncoding`
 
-| 值           | 说明                   |
-|-------------|----------------------|
-| `Undefined` | 未定义，使用全局设置           |
-| `Ansi`      | ANSI 编码              |
+| 值          | 说明                     |
+| ----------- | ------------------------ |
+| `Undefined` | 未定义，使用全局设置     |
+| `Ansi`      | ANSI 编码                |
 | `Unicode`   | Unicode（UTF-16 LE）编码 |
 
 <a id="nspim-enum"></a>
@@ -328,9 +328,9 @@ private static IntPtr OnMessage(Nspim message)
 
 插件回调消息类型，用于 `NsPluginCallback` 委托：
 
-| 值                | 说明                         |
-|------------------|----------------------------|
-| `NspimUnload`    | 插件卸载，执行最终清理                |
+| 值               | 说明                                |
+| ---------------- | ----------------------------------- |
+| `NspimUnload`    | 插件卸载，执行最终清理              |
 | `NspimGuiunload` | GUI 卸载（在 `.onGUIEnd` 之后触发） |
 
 <a id="ns-plugin-callback-delegate"></a>
@@ -348,21 +348,21 @@ public delegate IntPtr NsPluginCallback(Nspim message);
 
 ### 初始化器诊断
 
-| 诊断 ID       | 级别      | 说明                                                  |
-|-------------|---------|-----------------------------------------------------|
-| `NSPGEN001` | Warning | C# 语言版本低于 9.0，无法生成模块初始化器                            |
-| `NSPGEN002` | Warning | 找不到 `ModuleInitializerAttribute`，无法生成模块初始化器         |
+| 诊断 ID     | 级别    | 说明                                                        |
+| ----------- | ------- | ----------------------------------------------------------- |
+| `NSPGEN001` | Warning | C# 语言版本低于 9.0，无法生成模块初始化器                   |
+| `NSPGEN002` | Warning | 找不到 `ModuleInitializerAttribute`，无法生成模块初始化器   |
 | `NSPGEN003` | Info    | `AutoGenerateNsisPluginInitializer` 未设为 `true`，跳过生成 |
 
 ### 导出函数诊断
 
-| 诊断 ID       | 级别      | 说明                                                                                                              |
-|-------------|---------|-----------------------------------------------------------------------------------------------------------------|
+| 诊断 ID     | 级别    | 说明                                                                                                                                                                       |
+| ----------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NSPGEN101` | Warning | 方法不满足导出条件，例如：不是 `static`、是 `abstract`、是泛型方法、方法或其包含类型不是 `public/internal` 可访问、参数包含 `ref/out/in`、不在命名类型中、或包含类型是泛型 |
-| `NSPGEN102` | Warning | 带 [`[ToVariable]`](#to-variable-attribute) 的方法不能返回 `void`                                                       |
-| `NSPGEN121` | Error   | 入口点与其他导出冲突                                                                                                      |
-| `NSPGEN122` | Error   | 入口点格式字符串无效                                                                                                      |
-| `NSPGEN123` | Error   | 入口点名称无效，不是合法标识符或包含不支持导出的字符                                                                                      |
+| `NSPGEN102` | Warning | 带 [`[ToVariable]`](#to-variable-attribute) 的方法不能返回 `void`                                                                                                          |
+| `NSPGEN121` | Error   | 入口点与其他导出冲突                                                                                                                                                       |
+| `NSPGEN122` | Error   | 入口点格式字符串无效                                                                                                                                                       |
+| `NSPGEN123` | Error   | 入口点名称无效，不是合法标识符或包含不支持导出的字符                                                                                                                       |
 
 ## 注意事项
 
@@ -373,10 +373,10 @@ public delegate IntPtr NsPluginCallback(Nspim message);
 - **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](#to-variable-attribute) 时结果写入指定变量，不再压栈。两者不可同时生效。
 - **手动初始化**：当 `AutoGenerateNsisPluginInitializer` 设为 `false` 时，必须在插件加载时手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
 - **Visual Studio中生成器诊断不实时**：
-    - 2026 （若高级配置未迁移，需要打开旧的选项框）
-        - 工具 -> 选项 -> 语言 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
-    - 2022
-        - 工具 -> 选项 -> 文本编辑器 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
+  - 2026 （若高级配置未迁移，需要打开旧的选项框）
+    - 工具 -> 选项 -> 语言 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
+  - 2022
+    - 工具 -> 选项 -> 文本编辑器 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器
 
 ## License
 
