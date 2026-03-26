@@ -5,13 +5,21 @@
 - [x] github 工作流
 - [x] 发布
 - NsisPlugin 使用示例
-    - [ ] 写一个插件
-    - [ ] 写一个 nsis 脚本
-    - [ ] 写一个去执行 nsis 脚本的系统脚本
-- [ ] 默认开启 PublishAot
+  - [x] 写一个插件
+  - [x] 写一个 nsis 脚本
+  - [x] 写一个去执行 nsis 脚本的系统脚本
+- [x] 写一个跑 AOT 输出体积的项目
+- [ ] 在 readme 中添加以下内容
+  - [ ] 记录 RuntimeIdentifier=win-x86 [最低.net 9 版本](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=windows%2Cnet9plus#platformarchitecture-restrictions)
+  - [ ] 记录使用不同方式的输出体积对比
+  - [ ] 记录怎么跑输出体积对比的脚本
+- [ ] 默认开启配置
+  - PublishAot
+  - IsAotCompatible
+  - NativeLib=Shared
+  - RuntimeIdentifier=win-x86
 - [ ] 多目标兼容性写到公共中
 - [ ] 解决范围编码释放顺序乱的问题
 - [ ] 解决范围编码跨线程释放的问题
 - [ ] 使用 AsyncLocal 来替换 ThreadStatic 来存储当前插件上下文，避免在异步方法中丢失上下文
 - [ ] 导出函数的公共部分提取出来，通过调用执行
-
