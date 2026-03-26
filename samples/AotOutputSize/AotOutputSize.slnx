@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Empty/Empty.csproj" />
+  <Project Path="Hello/Hello.csproj" />
+  <Project Path="NotUseNsisPlugin/NotUseNsisPlugin.csproj" />
+  <Project Path="UseNsisPlugin/UseNsisPlugin.csproj" />
+</Solution>
