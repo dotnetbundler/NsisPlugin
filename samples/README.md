@@ -2,65 +2,21 @@
 
 该目录包含以下内容
 
-- NsisPlugin 的使用示例
-- 插件的发布示例
-- NSIS 脚本使用插件示例
-
+- NsisPlugin 的使用示例 [Plugins](./Plugins/)
+- 插件的[发布以及使用](./nsis-script-use.md)
+- [Aot 发布体积分析](./print-aot-plugin-size.md)
 
 ## 目录结构
 
 ```text
 samples/
-├── NotUseNsisPlugin/               # 不使用 NsisPlugin 的 NSIS 脚本示例
-├── UseNsisPlugin/                  # NsisPlugin Nuegt 包使用示例（学习只看这个即可）
-├── UseLocalUsisPlugin/             # NsisPlugin 本地程序使用示例
-├── scripts/
-│   ├── addplugin/                  # 通过 PublishPlugin.cmd 发布的插件目录
-│   ├── NSIS/                       # NSIS 打包程序目录
-│   ├── NotUseNsisPlugin.nsi/       # NotUseNsisPlugin NSIS 脚本
-│   ├── UseLocalNsisPlugin.nsi      # UseLocalNsisPlugin NSIS 脚本
-│   └── UseNsisPlugin.nsi           # UseNsisPlugin NSIS 脚本
-│   ├── NSISPackaging.cmd           # 用于将 NSIS 脚本打包成可执行文件的脚本
-│   ├── PublishPlugin.cmd           # 用于发布插件的脚本
+├── AotOutputSize/                  # AOT 发布体积分析示例
+├── NsisScripts/                    # NSIS 脚本使用示例
+├── Plugins/                        # 插件示例
+│   ├── NotUseNsisPlugin/               # 不使用 NsisPlugin 的 NSIS 脚本示例
+│   ├── UseNsisPlugin/                  # NsisPlugin Nuegt 包使用示例（学习只看这个即可）
+│   └── UseLocalUsisPlugin/             # NsisPlugin 本地程序使用示例
+├── nsis-script-use.md                # NSIS 脚本使用说明
+├── print-aot-plugin-size.md           # 打印 AOT 发布体积说明
 └── README.md
 ```
-
-## 使用
-> ps. 需要在 Windows 环境下使用  
-> 工作目录需要切换到 samples 目录下
-
-### 1. 发布插件
-> 发布后的脚本文件会被放在 `scripts/addplugin` 目录下
-
-```bash
-# 发布样品中的所有插件
-.\scripts\PublishPlugin.cmd
-
-# 发布 UseNsisPlugin 插件
-.\scripts\PublishPlugin.cmd UseNsisPlugin
-```
-
-### 2. 打包可执行文件
-> 打包后的可执行文件会被放在 `scripts` 目录下
-
-```bash
-# 打包所有 NSIS 脚本
-.\scripts\NSISPackaging.cmd
-
-# 打包 UseNsisPlugin.nsi 脚本
-.\scripts\NSISPackaging.cmd UseNsisPlugin.nsi
-```
-
-#### 发布插件并打包可执行文件
-
-```bash
-# 发布所有插件并打包所有 NSIS 脚本
-.\scripts\PublishPlugin.cmd && .\scripts\NSISPackaging.cmd
-
-# 发布 UseLocalNsisPlugin 插件并打包 UseLocalNsisPlugin.nsi
-.\scripts\PublishPlugin.cmd UseLocalNsisPlugin && .\scripts\NSISPackaging.cmd UseLocalNsisPlugin.nsi
-```
-
-### 3. 执行看看效果
-
-双击运行NSIS生产的可执行文件。

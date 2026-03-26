@@ -1,6 +1,7 @@
-# AOT 输出大小对比样例
+# 打印 AOT 发布体积
 
-本示例用于比较不同项目在 Native AOT 发布下的输出体积和构建耗时，重点关注 NSIS 插件场景里两种实现方式的差异：
+该文档介绍了如果使用 [AotOutputSize](./AotOutputSize/) 中的脚本去打印其中几个项目的 AOT 发布体积。  
+主要对比了以下两种情况下的输出体积：
 
 - 手写 NSIS 交互逻辑时的输出体积
 - 使用 NsisPlugin 包时的输出体积
@@ -17,32 +18,24 @@
 
 ## 运行前提
 
-- Windows
-- 已安装可用的 .NET SDK
-- 当前项目目标框架为 `net10.0`
-
-本次文档中的实测环境：
-
-- .NET SDK：`10.0.201`
-- RID：`win-x86`
-  - NSIS 官方版本在目前(3.11)只支持 x86
+- Windows 操作系统
+- 已安装 .NET SDK（当前项目目标框架为 `net10.0`）
+- 终端进入 `samples` 目录
 
 ## 快速开始
 
-默认在当前目录执行：
+```bash
+# Empty
+.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\Empty\Empty.csproj win-x86 y
 
-```bat
-:: Empty
-.\AotOutputSize.cmd .\Empty\Empty.csproj win-x86 y
+# Hello
+.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\Hello\Hello.csproj win-x86 n
 
-:: Hello
-.\AotOutputSize.cmd .\Hello\Hello.csproj win-x86 n
+# NotUseNsisPlugin
+.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\NotUseNsisPlugin\NotUseNsisPlugin.csproj win-x86 n
 
-:: NotUseNsisPlugin
-.\AotOutputSize.cmd .\NotUseNsisPlugin\NotUseNsisPlugin.csproj win-x86 n
-
-:: UseNsisPlugin
-.\AotOutputSize.cmd .\UseNsisPlugin\UseNsisPlugin.csproj win-x86 n
+# UseNsisPlugin
+.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\UseNsisPlugin\UseNsisPlugin.csproj win-x86 n
 ```
 
 ## 脚本参数
@@ -57,29 +50,7 @@ AotOutputSize.cmd <项目路径.csproj> [RID] [是否保留日志:y/n]
   - `y`：保留 `AotBuildLog.txt`
   - `n`：执行完成后删除日志
 
-## 脚本行为
-
-脚本会按以下步骤执行：
-
-1. 对指定项目执行 `dotnet clean`
-2. 执行 `dotnet restore`
-3. 依次使用 9 组配置执行 `dotnet publish`
-4. 统计输出目录下所有 `.dll` 文件的总大小
-5. 打印每组配置的大小和耗时
-
-配置矩阵如下：
-
-- Base AOT Publish
-- OptimizationPreference=size
-- OptimizationPreference=speed
-- InvariantGlobalization=true
-- DebuggerSupport=false
-- StackTraceSupport=false
-- UseSizeOptimizedLinq=true
-- UseSystemResourceKeys=true
-- Full Optimizations
-
-## 本次实测结果
+## 实测结果
 
 ### 1. Base 与 Full 数据分析（仅体积）
 

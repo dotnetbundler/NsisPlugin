@@ -4,6 +4,9 @@ setlocal enabledelayedexpansion
 :: 进入脚本所在目录
 cd /d "%~dp0"
 
+:: 定义插件项目所在目录
+set "PLUGIN_DIR=%~dp0..\Plugins\"
+
 :: 定义目标发布目录
 set "DEST_DIR=%~dp0addplugin"
 if not exist "%DEST_DIR%" mkdir "%DEST_DIR%"
@@ -12,7 +15,7 @@ if not exist "%DEST_DIR%" mkdir "%DEST_DIR%"
 set "TARGET_PROJECT=%~1"
 if not "%TARGET_PROJECT%" == "" (
 	:: 检查项目是否存在
-	set "PROJ_PATH=%~dp0..\%TARGET_PROJECT%"
+	set "PROJ_PATH=%PLUGIN_DIR%%TARGET_PROJECT%"
 	if not exist "!PROJ_PATH!\*.csproj" (
 		echo [错误] 找不到项目: %TARGET_PROJECT%
 		exit /b 1
@@ -24,7 +27,7 @@ if not "%TARGET_PROJECT%" == "" (
 
 :: 遍历所有样品项目
 echo [遍历模式]
-for /d %%i in ("%~dp0..\*") do (
+for /d %%i in ("%PLUGIN_DIR%*") do (
 	if exist "%%i\*.csproj" (
 		call :PublishProject "%%i" "%%~nxi"
 	)
@@ -36,6 +39,7 @@ goto :end
 :PublishProject
 echo ---------------------------------------
 echo 正在发布: %~2
+:: 发布是不生成XML文档的，且不包含调试信息，以减小体积
 dotnet publish "%~1" -c Release -o "%DEST_DIR%" /p:GenerateDocumentationFile=false /p:DebugType=none /p:DebugSymbols=false
 if %errorlevel% neq 0 echo [警告] 项目 %~2 发布失败！
 goto :eof

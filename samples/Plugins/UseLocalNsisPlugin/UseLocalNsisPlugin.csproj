@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NsisPlugin.csproj" />
-    <ProjectReference Include="..\..\gen\NsisPlugin.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\NsisPlugin.csproj" />
+    <ProjectReference Include="..\..\..\gen\NsisPlugin.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="$(SlnDir)\src\build\NsisPlugin.props" />
