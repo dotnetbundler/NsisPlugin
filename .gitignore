@@ -402,5 +402,5 @@ FodyWeavers.xsd
 .DS_Store
 
 # 样品
-samples/scripts/addplugin
-samples/scripts/*.exe
+samples/NsisScripts/addplugin
+samples/NsisScripts/*.exe
