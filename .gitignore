@@ -404,3 +404,5 @@ FodyWeavers.xsd
 # 样品
 samples/NsisScripts/addplugin
 samples/NsisScripts/*.exe
+# 强制不忽略NSIS文件夹下的所有文件
+!samples/NsisScripts/NSIS/**
