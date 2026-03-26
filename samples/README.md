@@ -13,10 +13,10 @@ samples/
 ├── AotOutputSize/                  # AOT 发布体积分析示例
 ├── NsisScripts/                    # NSIS 脚本使用示例
 ├── Plugins/                        # 插件示例
-│   ├── NotUseNsisPlugin/               # 不使用 NsisPlugin 的 NSIS 脚本示例
-│   ├── UseNsisPlugin/                  # NsisPlugin Nuegt 包使用示例（学习只看这个即可）
-│   └── UseLocalUsisPlugin/             # NsisPlugin 本地程序使用示例
-├── nsis-script-use.md                # NSIS 脚本使用说明
-├── print-aot-plugin-size.md           # 打印 AOT 发布体积说明
+│   ├── NotUseNsisPlugin/           # 不使用 NsisPlugin 的 NSIS 脚本示例
+│   ├── UseNsisPlugin/              # NsisPlugin NuGet 包使用示例（学习只看这个即可）
+│   └── UseLocalNsisPlugin/         # NsisPlugin 本地程序使用示例
+├── nsis-script-use.md              # NSIS 脚本使用说明
+├── print-aot-plugin-size.md        # 打印 AOT 发布体积说明
 └── README.md
 ```
