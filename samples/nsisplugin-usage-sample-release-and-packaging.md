@@ -1,6 +1,6 @@
 # NsisPlugin 使用示例、发布及打包
 
-本文档主要介绍以下内容：
+本文档说明示例项目的使用方式，以及插件发布和 NSIS 打包流程。
 
 - NsisPlugin 的[使用示例](./Plugins/UseNsisPlugin/)
 - 如何发布 NSIS 插件
@@ -20,8 +20,8 @@
 - [NotUseNsisPlugin](./Plugins/NotUseNsisPlugin/)：手写 NSIS 交互的方式开发插件。
 
 ## 发布及打包
->
-> ps. 以下命令默认在 `NsisScript` 目录下执行
+
+说明：以下命令默认在 `NsisScripts` 目录下执行。
 
 ### 发布插件并打包可执行文件
 
@@ -34,9 +34,8 @@
 ```
 
 ### 发布插件
->
-> ps. 发布的都是 [Plugins](./Plugins/) 目录下的插件项目
-> 发布后的插件在 `NsisScript/addplugin` 目录下
+
+说明：发布对象为 [Plugins](./Plugins/) 目录下的插件项目，输出位于 `NsisScripts/addplugin`。
 
 ```bash
 # 发布所有插件
@@ -56,9 +55,8 @@
 - `/p:DebugType` 和 `/p:DebugSymbols`：避免生成 PDB 调试文件
 
 ### 打包 NSIS 可执行程序
->
-> ps. 打包的都是 [NsisScripts](./NsisScripts/) 目录下的 NSIS 脚本
-> 打包后的可执行文件在 `NsisScript` 目录下与脚本同名
+
+说明：打包对象为 [NsisScripts](./NsisScripts/) 目录下脚本，输出文件位于 `NsisScripts` 且与脚本同名。
 
 ```bash
 # 打包所有 NSIS 脚本
@@ -67,3 +65,9 @@
 # 打包 UseNsisPlugin.nsi 脚本
 .\NSISPackaging.cmd UseNsisPlugin.nsi
 ```
+
+## 相关文档
+
+- [示例总览](./README.md)
+- [项目主页](../README.md)
+- [API 参考](../docs/api-reference.md)

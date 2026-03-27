@@ -316,5 +316,6 @@ public unsafe struct extra_parameters
 
 ## 相关文档
 
-- 项目主页与快速开始：[README.md](../README.md)
-- 使用示例目录：`samples/`
+- [项目主页](../README.md)
+- [源生成器约束与诊断](source-generator-diagnostics.md)
+- [示例总览](../samples/README.md)

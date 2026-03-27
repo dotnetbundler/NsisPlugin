@@ -1,10 +1,11 @@
 # .NET Native AOT 发布体积分析
->
-> 由于 .NET Native AOT 发布会将整个运行时和应用程序编译成原生代码，因此输出体积通常较大。  
-> 本文档通过一些示例项目来分析不同情况下的 AOT 发布体积，帮助开发者理解和优化 AOT 发布的体积。
 
-本文档介绍 .NET Native AOT 发布体积分析的示例项目。
-主要关注以下几种情况下的输出体积：
+由于 .NET Native AOT 会将运行时与应用编译为原生代码，发布体积通常较大。
+本文档通过示例项目对比不同配置下的输出体积，帮助评估与优化 AOT 发布成本。
+
+## 目录
+
+主要关注以下场景的输出体积：
 
 - 手写 NSIS 交互时的输出体积
 - 使用 NsisPlugin 包时的输出体积
@@ -38,21 +39,21 @@
 - Windows 操作系统
 - 已安装 .NET SDK 10
 
-## 打印项目 aot 发布体积
->
-> ps. 以下命令默认在 `AotOutputSize` 目录下执行
+## 打印项目 AOT 发布体积
+
+说明：以下命令默认在 `AotOutputSize` 目录下执行。
 
 ```bash
-# 打印 Empty 项目 aot 发布体积
+# 打印 Empty 项目 AOT 发布体积
 .\AotOutputSize.cmd .\Empty\Empty.csproj win-x86 n
 
-# 打印 Hello 项目 aot 发布体积
+# 打印 Hello 项目 AOT 发布体积
 .\AotOutputSize.cmd .\Hello\Hello.csproj win-x86 n
 
-# 打印 NotUseNsisPlugin 项目 aot 发布体积
+# 打印 NotUseNsisPlugin 项目 AOT 发布体积
 .\AotOutputSize.cmd .\NotUseNsisPlugin\NotUseNsisPlugin.csproj win-x86 n
 
-# 打印 UseNsisPlugin 项目 aot 发布体积
+# 打印 UseNsisPlugin 项目 AOT 发布体积
 .\AotOutputSize.cmd .\UseNsisPlugin\UseNsisPlugin.csproj win-x86 n
 ```
 
@@ -162,3 +163,9 @@ Full Optimizations             | 1112576         | 4.09
 ------------------------------------------------------------------------------
 完成。
 ```
+
+## 相关文档
+
+- [示例总览](./README.md)
+- [插件开发、发布、打包](./nsisplugin-usage-sample-release-and-packaging.md)
+- [项目主页](../README.md)
