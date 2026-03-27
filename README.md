@@ -12,11 +12,19 @@
 
 ## 特性
 
-- **特性驱动**：使用 [`[NsisAction]`](#nsis-action-attribute) 声明导出函数，源生成器自动生成非托管导出包装代码，无需手动编写样板
+- **特性驱动**：使用 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute) 声明导出函数，源生成器自动生成非托管导出包装代码，无需手动编写样板
 - **自动参数绑定**：自动从 NSIS 栈弹出参数并转换为目标类型，将返回值压回栈
-- **变量绑定**：通过 [`[FromVariable]`](#from-variable-attribute) / [`[ToVariable]`](#to-variable-attribute) 直接读写 NSIS 变量
+- **变量绑定**：通过 [`[FromVariable]`](docs/api-reference.md#fromvariableattribute) / [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 直接读写 NSIS 变量
 - **ANSI / Unicode 双编码支持**：全局与方法级编码均可独立控制
 - **编译期诊断**：不满足导出规则的方法会在编译时产生诊断信息，快速定位配置错误
+
+## [API 文档](docs/api-reference.md)
+
+- [特性（Attributes）](docs/api-reference.md#特性attributes)
+- [核心类型](docs/api-reference.md#核心类型)
+- [扩展方法](docs/api-reference.md#扩展方法)
+- [枚举与委托](docs/api-reference.md#枚举与委托)
+- [底层互操作类型](docs/api-reference.md#底层互操作类型高级)
 
 ## 前提条件
 
@@ -100,7 +108,7 @@ public static string Greet(string name) => $"Hello, {name}!";
 
 ### 4. 读写 NSIS 变量
 
-使用 [`[FromVariable]`](#from-variable-attribute) 从指定 NSIS 变量读取参数，使用 [`[ToVariable]`](#to-variable-attribute) 将返回值写入指定变量（而非压栈）：
+使用 [`[FromVariable]`](docs/api-reference.md#fromvariableattribute) 从指定 NSIS 变量读取参数，使用 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 将返回值写入指定变量（而非压栈）：
 
 ```csharp
 // 从 $R0 读取路径，将结果写入 $R1
@@ -111,7 +119,7 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
 
 ### 5. 同一方法多个入口点
 
-同一方法可附加任意数量的 [`[NsisAction]`](#nsis-action-attribute)，分别指定不同的入口点名称和编码。不指定 `Encoding` 时使用项目全局编码（由 `NSISUnicode` 属性决定）：
+同一方法可附加任意数量的 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute)，分别指定不同的入口点名称和编码。不指定 `Encoding` 时使用项目全局编码（由 `NSISUnicode` 属性决定）：
 
 ```csharp
 [NsisAction("ToUpper")]                                  // 使用全局编码（由 NSISUnicode 决定）
@@ -120,9 +128,9 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
 public static string ToUpper(string input) => input.ToUpper();
 ```
 
-### 6. 特殊参数（[StackT](#stackt-type) / [Variables](#variables-type) / [ExtraParameters](#extra-parameters-type)）
+### 6. 特殊参数（[StackT](docs/api-reference.md#stackt) / [Variables](docs/api-reference.md#variables) / [ExtraParameters](docs/api-reference.md#extraparameters)）
 
-将 [StackT](#stackt-type)、[Variables](#variables-type) 或 [ExtraParameters](#extra-parameters-type) 声明为方法参数时，源生成器会自动传入当前调用的上下文对象，**不会**从 NSIS 栈弹出。这三种类型可自由组合，顺序任意，与普通参数混用：
+将 [StackT](docs/api-reference.md#stackt)、[Variables](docs/api-reference.md#variables) 或 [ExtraParameters](docs/api-reference.md#extraparameters) 声明为方法参数时，源生成器会自动传入当前调用的上下文对象，**不会**从 NSIS 栈弹出。这三种类型可自由组合，顺序任意，与普通参数混用：
 
 ```csharp
 [NsisAction]
@@ -142,7 +150,7 @@ public static void Summarize(string input, StackT stack, Variables vars, ExtraPa
 
 ### 7. 使用插件回调
 
-通过 [ExtraParameters](#extra-parameters-type) 的 `RegisterPluginCallback` 方法注册 [NsPluginCallback](#ns-plugin-callback-delegate)，回调参数类型为 [Nspim](#nspim-enum)：
+通过 [ExtraParameters](docs/api-reference.md#extraparameters) 的 `RegisterPluginCallback` 方法注册 [NsPluginCallback](docs/api-reference.md#nsplugincallback)，回调参数类型为 [Nspim](docs/api-reference.md#nspim)：
 
 ```csharp
 [NsisAction]
@@ -183,169 +191,6 @@ private static IntPtr OnMessage(Nspim message)
 </PropertyGroup>
 ```
 
-## API 文档
-
-### 特性（Attributes）
-
-<a id="nsis-action-attribute"></a>
-
-- `NsisActionAttribute`
-  - 目标：方法
-  - 说明：将方法声明为 NSIS 插件函数，源生成器会为其生成非托管导出包装代码
-  - 参数：
-    - `entryPointFormat`：可选，指定导出函数名称的格式，默认为 `{0}`（方法名）。例如 `"Plugin_{0}"` 会将方法 `Greet` 导出为 `Plugin_Greet`
-    - `Encoding`：可选，指定此方法使用的编码（ANSI / Unicode）。
-          <a id="from-variable-attribute"></a>
-- `FromVariableAttribute`
-  - 目标：参数
-  - 说明：从指定 NSIS 变量读取参数值，而非从栈弹出。
-  - 参数：
-    - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
-          <a id="to-variable-attribute"></a>
-- `ToVariableAttribute`
-  - 目标：返回值
-  - 说明：将返回值写入指定 NSIS 变量，而非压回栈。
-  - 参数：
-    - `NsVariable`：要绑定的 NSIS 变量枚举值，例如 `NsVariable.InstR0`
-
-### 核心类型
-
-<a id="ns-plugin-type"></a>
-
-#### `NsPlugin`（静态类）
-
-| 成员              | 类型                                        | 说明                                                  |
-| ----------------- | ------------------------------------------- | ----------------------------------------------------- |
-| `ModuleHandle`    | `IntPtr`                                    | DLL 模块句柄，由模块初始化器自动填充。                |
-| `HwndParent`      | `IntPtr`                                    | NSIS 安装器父窗口句柄。                               |
-| `StringSize`      | `int`                                       | NSIS 字符串缓冲区大小（字符数）。                     |
-| `MaxStringBytes`  | `int`                                       | 字符串缓冲区最大字节数（= `StringSize × CharSize`）。 |
-| `Variables`       | [`Variables`](#variables-type)              | NSIS 变量封装。                                       |
-| `StackTop`        | [`StackT`](#stackt-type)                    | NSIS 栈封装。                                         |
-| `ExtraParameters` | [`ExtraParameters`](#extra-parameters-type) | NSIS 额外参数与执行标志封装。                         |
-
-<a id="variables-type"></a>
-
-#### `Variables`（类）
-
-| 成员                                          | 说明                                                          |
-| --------------------------------------------- | ------------------------------------------------------------- |
-| `Get(NsVariable variable, out string? value)` | 读取指定 NSIS 变量的字符串值，成功返回 `true`。               |
-| `Get<T>(NsVariable variable, out T? value)`   | 读取指定 NSIS 变量的值并尝试转换为指定类型，成功返回 `true`。 |
-| `Set(NsVariable variable, string value)`      | 写入指定 NSIS 变量的字符串值，成功返回 `true`。               |
-| `Set<T>(NsVariable variable, T value)`        | 将指定值转换为字符串并写入 NSIS 变量，成功返回 `true`。       |
-| `Raw`                                         | 底层变量缓冲区指针，供高级场景使用。                          |
-
-<a id="stackt-type"></a>
-
-#### `StackT`（类）
-
-| 成员                     | 说明                                                            |
-| ------------------------ | --------------------------------------------------------------- |
-| `Pop(out string? value)` | 从 NSIS 栈顶弹出一个字符串参数，成功返回 `true`。               |
-| `Pop<T>(out T? value)`   | 从 NSIS 栈顶弹出一个参数并尝试转换为指定类型，成功返回 `true`。 |
-| `Push(string value)`     | 将一个字符串参数压回 NSIS 栈。                                  |
-| `Push<T>(T value)`       | 将一个值转换为字符串并压回 NSIS 栈。                            |
-| `Raw`                    | `stack_t**` 指针，供高级场景使用。                              |
-
-<a id="extra-parameters-type"></a>
-
-#### `ExtraParameters`（类）
-
-| 成员                                                                                | 说明                                           |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `ExecFlags`                                                                         | NSIS 执行标志结构体。                          |
-| `ExecuteCodeSegment(int code)`                                                      | 执行 NSIS 代码段，成功返回 0。                 |
-| `ValidateFilename(ref string filename)`                                             | 通过 NSIS 内置验证函数规范化文件名。           |
-| `RegisterPluginCallback([NsPluginCallback](#ns-plugin-callback-delegate) callback)` | 注册插件回调函数，成功返回 0，已经注册返回 1。 |
-| `Raw`                                                                               | `extra_parameters*` 指针，供高级场景使用。     |
-
-<a id="ns-plugin-enc-type"></a>
-
-#### `NsPluginEnc`（静态类）
-
-| 成员                                  | 说明                                                                       |
-| ------------------------------------- | -------------------------------------------------------------------------- |
-| `UseUnicode`                          | 全局编码开关；`true` 为 Unicode，`false` 为 ANSI。由模块初始化器自动设置。 |
-| `ScopeUseUnicode`                     | 线程本地编码覆盖；为 `null` 时使用全局设置。                               |
-| `IsUnicode`                           | 当前线程是否使用 Unicode 编码（综合全局与作用域设置）。                    |
-| `CharSize`                            | 当前编码每个字符的字节数（Unicode = 2，ANSI = 1）。                        |
-| `Encoding`                            | 当前编码对应的 `System.Text.Encoding` 对象。                               |
-| `PtrToString(IntPtr ptr)`             | 按当前编码将非托管指针转换为 `string`。                                    |
-| `CreateEncScope(NsEncoding encoding)` | 创建编码作用域，在 `using` 块内临时切换编码，离开后自动恢复。              |
-
-#### `ExecFlags`（结构体）
-
-映射 NSIS `exec_flags_t` 结构体；
-字段类型均为 `int`，被当作布尔值标志时，遵循0表示false，非0表示true的约定
-
-| 字段               | 说明                                 |
-| ------------------ | ------------------------------------ |
-| `Autoclose`        | 自动关闭标志                         |
-| `AllUserVar`       | 变量作用域（0 = 用户，1 = 机器）     |
-| `ExecError`        | 执行错误标志                         |
-| `Abort`            | 中止标志                             |
-| `ExecReboot`       | 是否需要重启                         |
-| `RebootCalled`     | 是否已调用重启                       |
-| `XxxCurInsttype`   | 已弃用；保留以支持向后兼容的ABI/布局 |
-| `PluginApiVersion` | 插件 API/ABI 版本                    |
-| `Silent`           | 静默模式标志                         |
-| `InstdirError`     | 安装目录错误标志                     |
-| `Rtl`              | 语言是否为从右到左（RTL）            |
-| `Errlvl`           | 错误级别                             |
-| `AlterRegView`     | 注册表视图设置                       |
-| `StatusUpdate`     | 状态更新 / 详细信息打印              |
-
-### 枚举
-
-<a id="ns-variable-enum"></a>
-
-#### `NsVariable`
-
-对应 NSIS 脚本中的变量，可用于 [`[FromVariable]`](#from-variable-attribute)、[`[ToVariable]`](#to-variable-attribute) 以及 [Variables](#variables-type) 的 `Get` / `Set`：
-
-| 值                  | 对应 NSIS 变量 |
-| ------------------- | -------------- |
-| `Inst0` ~ `Inst9`   | `$0` ~ `$9`    |
-| `InstR0` ~ `InstR9` | `$R0` ~ `$R9`  |
-| `InstCmdline`       | `$CMDLINE`     |
-| `InstInstdir`       | `$INSTDIR`     |
-| `InstOutdir`        | `$OUTDIR`      |
-| `InstExedir`        | `$EXEDIR`      |
-| `InstLang`          | `$LANGUAGE`    |
-
-<a id="ns-encoding-enum"></a>
-
-#### `NsEncoding`
-
-| 值          | 说明                     |
-| ----------- | ------------------------ |
-| `Undefined` | 未定义，使用全局设置     |
-| `Ansi`      | ANSI 编码                |
-| `Unicode`   | Unicode（UTF-16 LE）编码 |
-
-<a id="nspim-enum"></a>
-
-#### `Nspim`
-
-插件回调消息类型，用于 `NsPluginCallback` 委托：
-
-| 值               | 说明                                |
-| ---------------- | ----------------------------------- |
-| `NspimUnload`    | 插件卸载，执行最终清理              |
-| `NspimGuiunload` | GUI 卸载（在 `.onGUIEnd` 之后触发） |
-
-<a id="ns-plugin-callback-delegate"></a>
-
-### 委托
-
-```csharp
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate IntPtr NsPluginCallback(Nspim message);
-```
-
-插件回调委托，通过 [ExtraParameters](#extra-parameters-type) 的 `RegisterPluginCallback` 注册后，由 NSIS 在卸载时调用。
-
 ## 导出函数约束与诊断
 
 ### 初始化器诊断
@@ -361,7 +206,7 @@ public delegate IntPtr NsPluginCallback(Nspim message);
 | 诊断 ID     | 级别    | 说明                                                                                                                                                                       |
 | ----------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NSPGEN101` | Warning | 方法不满足导出条件，例如：不是 `static`、是 `abstract`、是泛型方法、方法或其包含类型不是 `public/internal` 可访问、参数包含 `ref/out/in`、不在命名类型中、或包含类型是泛型 |
-| `NSPGEN102` | Warning | 带 [`[ToVariable]`](#to-variable-attribute) 的方法不能返回 `void`                                                                                                          |
+| `NSPGEN102` | Warning | 带 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 的方法不能返回 `void`                                                                                       |
 | `NSPGEN121` | Error   | 入口点与其他导出冲突                                                                                                                                                       |
 | `NSPGEN122` | Error   | 入口点格式字符串无效                                                                                                                                                       |
 | `NSPGEN123` | Error   | 入口点名称无效，不是合法标识符或包含不支持导出的字符                                                                                                                       |
@@ -372,7 +217,7 @@ public delegate IntPtr NsPluginCallback(Nspim message);
 - **发布方式**：生成器只负责生成导出包装代码；如果消费项目没有按原生共享库方式发布，NSIS 仍然无法加载该插件。
 - **字符串长度限制**：写入栈或变量的字符串受 NSIS `string_size` 约束（由 `NsPlugin.StringSize` 反映）。超出长度时内容将被截断，不会抛出异常。
 - **类型转换失败**：泛型扩展方法（`Pop<T>`、`Get<T>` 等）在转换失败时返回 `false` 而非抛出异常，调用方需检查返回值。
-- **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](#to-variable-attribute) 时结果写入指定变量，不再压栈。两者不可同时生效。
+- **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 时结果写入指定变量，不再压栈。两者不可同时生效。
 - **手动初始化**：当 `AutoGenerateNsisPluginInitializer` 设为 `false` 时，必须在插件加载时手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
 - **Visual Studio中生成器诊断不实时**：
   - 2026 （若高级配置未迁移，需要打开旧的选项框）
