@@ -10,6 +10,17 @@
 [NsisPlugin](https://github.com/dotnetbundler/NsisPlugin) 是一个面向 C# 的现代化 [NSIS](https://nsis.sourceforge.io/)（Nullsoft Scriptable Install System）插件开发框架。  
 它通过特性标注（Attribute）和 Roslyn 源生成器，将繁琐的非托管互操作样板代码完全自动化，让开发者专注于业务逻辑本身。
 
+## 文档导航
+
+- [API 参考](docs/api-reference.md)
+  - [特性（Attributes）](docs/api-reference.md#特性attributes)
+  - [核心类型](docs/api-reference.md#核心类型)
+- 示例与实战
+  - [使用 NsisPlugin 的示例项目](samples/Plugins/UseNsisPlugin)
+  - [插件开发、发布、打包全流程](samples/nsisplugin-usage-sample-release-and-packaging.md)
+  - [Native AOT 发布体积分析](samples/aot-publish-volume-analysis.md)
+- [源生成器约束与诊断](docs/source-generator-diagnostics.md)
+
 ## 特性
 
 - **特性驱动**：使用 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute) 声明导出函数，源生成器自动生成非托管导出包装代码，无需手动编写样板
@@ -17,20 +28,6 @@
 - **变量绑定**：通过 [`[FromVariable]`](docs/api-reference.md#fromvariableattribute) / [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 直接读写 NSIS 变量
 - **ANSI / Unicode 双编码支持**：全局与方法级编码均可独立控制
 - **编译期诊断**：不满足导出规则的方法会在编译时产生诊断信息，快速定位配置错误
-
-## [API 文档](docs/api-reference.md)
-
-- [特性（Attributes）](docs/api-reference.md#特性attributes)
-- [核心类型](docs/api-reference.md#核心类型)
-- [扩展方法](docs/api-reference.md#扩展方法)
-- [枚举与委托](docs/api-reference.md#枚举与委托)
-- [底层互操作类型](docs/api-reference.md#底层互操作类型高级)
-
-## 样品与示例
-
-- [使用 NsisPlugin 的示例项目](samples/Plugins/UseNsisPlugin)
-- [插件开发、发布、打包全流程](samples/nsisplugin-usage-sample-release-and-packaging.md)
-- [Native AOT 发布体积分析](samples/aot-publish-volume-analysis.md)
 
 ## 前提条件
 
@@ -196,26 +193,6 @@ private static IntPtr OnMessage(Nspim message)
     <NSISUnicode>true</NSISUnicode>
 </PropertyGroup>
 ```
-
-## 导出函数约束与诊断
-
-### 初始化器诊断
-
-| 诊断 ID     | 级别    | 说明                                                        |
-| ----------- | ------- | ----------------------------------------------------------- |
-| `NSPGEN001` | Warning | C# 语言版本低于 9.0，无法生成模块初始化器                   |
-| `NSPGEN002` | Warning | 找不到 `ModuleInitializerAttribute`，无法生成模块初始化器   |
-| `NSPGEN003` | Info    | `AutoGenerateNsisPluginInitializer` 未设为 `true`，跳过生成 |
-
-### 导出函数诊断
-
-| 诊断 ID     | 级别    | 说明                                                                                                                                                                       |
-| ----------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NSPGEN101` | Warning | 方法不满足导出条件，例如：不是 `static`、是 `abstract`、是泛型方法、方法或其包含类型不是 `public/internal` 可访问、参数包含 `ref/out/in`、不在命名类型中、或包含类型是泛型 |
-| `NSPGEN102` | Warning | 带 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 的方法不能返回 `void`                                                                                       |
-| `NSPGEN121` | Error   | 入口点与其他导出冲突                                                                                                                                                       |
-| `NSPGEN122` | Error   | 入口点格式字符串无效                                                                                                                                                       |
-| `NSPGEN123` | Error   | 入口点名称无效，不是合法标识符或包含不支持导出的字符                                                                                                                       |
 
 ## 注意事项
 

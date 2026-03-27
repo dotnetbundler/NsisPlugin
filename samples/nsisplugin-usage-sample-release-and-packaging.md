@@ -1,8 +1,8 @@
-# NsisPlugin 使用样品、发布及打包
+# NsisPlugin 使用示例、发布及打包
 
 本文档主要介绍以下内容：
 
-- NsisPlugin 的[使用样品](./Plugins/UseNsisPlugin/)
+- NsisPlugin 的[使用示例](./Plugins/UseNsisPlugin/)
 - 如何发布 NSIS 插件
 - 如何在 NSIS 脚本中使用发布后的插件
 
@@ -11,12 +11,12 @@
 - Windows 操作系统
 - 已安装 .NET SDK 10
 
-## 样品介绍
+## 示例介绍
 
-样品位于 [Plugins](./Plugins/) 目录下，包含以下内容：
+示例位于 [Plugins](./Plugins/) 目录下，包含以下内容：
 
-- [UseNsisPlugin](./Plugins/UseNsisPlugin/)：使用 NsisPlugin 开发插件样品。（学习只看这个）
-- [UseLocalNsisPlugin](./Plugins/UseLocalNsisPlugin/)：使用本地 NsisPlugin 开发插件样品。(用于验证本地 NsisPlugin)
+- [UseNsisPlugin](./Plugins/UseNsisPlugin/)：使用 NsisPlugin 开发插件示例。（学习只看这个）
+- [UseLocalNsisPlugin](./Plugins/UseLocalNsisPlugin/)：使用本地 NsisPlugin 开发插件示例。(用于验证本地 NsisPlugin)
 - [NotUseNsisPlugin](./Plugins/NotUseNsisPlugin/)：手写 NSIS 交互的方式开发插件。
 
 ## 发布及打包
