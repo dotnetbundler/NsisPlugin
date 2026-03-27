@@ -1,6 +1,6 @@
 # NsisPlugin 使用示例、发布及打包
 
-本文档说明示例项目的使用方式，以及插件发布和 NSIS 打包流程。
+本文档说明示例项目的使用方式，以及插件发布与 NSIS 打包的标准流程。
 
 - NsisPlugin 的[使用示例](./Plugins/UseNsisPlugin/)
 - 如何发布 NSIS 插件
@@ -13,11 +13,11 @@
 
 ## 示例介绍
 
-示例位于 [Plugins](./Plugins/) 目录下，包含以下内容：
+示例位于 [Plugins](./Plugins/) 目录下，包含以下项目：
 
-- [UseNsisPlugin](./Plugins/UseNsisPlugin/)：使用 NsisPlugin 开发插件示例。（学习只看这个）
-- [UseLocalNsisPlugin](./Plugins/UseLocalNsisPlugin/)：使用本地 NsisPlugin 开发插件示例。(用于验证本地 NsisPlugin)
-- [NotUseNsisPlugin](./Plugins/NotUseNsisPlugin/)：手写 NSIS 交互的方式开发插件。
+- [UseNsisPlugin](./Plugins/UseNsisPlugin/)：使用 NsisPlugin 开发插件的标准示例，建议优先阅读。
+- [UseLocalNsisPlugin](./Plugins/UseLocalNsisPlugin/)：引用本地源码版本的示例，用于验证仓库中的本地改动。
+- [NotUseNsisPlugin](./Plugins/NotUseNsisPlugin/)：手写 NSIS 互操作逻辑的对照实现。
 
 ## 发布及打包
 
@@ -48,7 +48,8 @@
 #### 命令说明
 
 命令：`dotnet publish <项目> -c Release -o <输出目录> /p:GenerateDocumentationFile=false /p:DebugType=none /p:DebugSymbols=false`
-这里使用这个命令是为了让发布结果保持干净，避免生成不必要的 XML 文档文件和 PDB 调试文件。参数说明如下：
+
+该命令用于保持发布结果尽可能精简，避免生成不必要的 XML 文档文件和 PDB 调试文件。参数说明如下：
 
 - `-o`：输出到指定目录
 - `/p:GenerateDocumentationFile`：避免生成 XML 文档文件
@@ -56,7 +57,7 @@
 
 ### 打包 NSIS 可执行程序
 
-说明：打包对象为 [NsisScripts](./NsisScripts/) 目录下脚本，输出文件位于 `NsisScripts` 且与脚本同名。
+说明：打包对象为 [NsisScripts](./NsisScripts/) 目录下的脚本，输出文件位于 `NsisScripts`，且与脚本同名。
 
 ```bash
 # 打包所有 NSIS 脚本
@@ -71,3 +72,4 @@
 - [示例总览](./README.md)
 - [项目主页](../README.md)
 - [API 参考](../docs/api-reference.md)
+- [源生成器约束与诊断](../docs/source-generator-diagnostics.md)

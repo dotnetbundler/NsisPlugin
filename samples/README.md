@@ -1,6 +1,6 @@
 # NsisPlugin 示例
 
-本目录包含 NsisPlugin 的可运行示例与配套文档。
+本目录包含 NsisPlugin 的可运行示例、发布脚本以及配套说明文档。
 
 - [NsisPlugin 使用示例、发布及打包](./nsisplugin-usage-sample-release-and-packaging.md)
 - [.NET Native AOT 发布体积分析](./aot-publish-volume-analysis.md)

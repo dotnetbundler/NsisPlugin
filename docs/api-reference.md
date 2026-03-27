@@ -1,6 +1,6 @@
 # NsisPlugin API 参考
 
-本文档为 NsisPlugin 的 API 参考手册。
+本文档描述 NsisPlugin 的公开 API，包括类型职责、成员签名、线程语义、返回值约定以及与 NSIS 主机的互操作边界。
 
 ## 目录
 
@@ -13,10 +13,10 @@
 
 ## 文档约定
 
-- 命名空间：主 API 在 `NsisPlugin`，互操作结构在 `NsisPlugin.NsisApi`
-- 返回值：`bool` 表示是否成功；失败通常不会抛异常
-- 编码策略：由 `NsPluginEnc`（全局）与 `NsPluginEnc.ScopeUseUnicode`（线程作用域）共同决定
-- 线程语义：`NsPlugin` 的上下文字段使用 `[ThreadStatic]`，必须在当前线程先初始化再访问
+- 命名空间：主 API 位于 `NsisPlugin`，底层互操作结构位于 `NsisPlugin.NsisApi`。
+- 返回值：`bool` 一般表示操作是否成功；失败通常不会抛出异常。
+- 编码策略：由 `NsPluginEnc` 的全局配置与线程作用域配置共同决定。
+- 线程语义：`NsPlugin` 的上下文字段基于 `[ThreadStatic]` 实现，必须在当前线程完成初始化后再访问。
 
 ## 特性（Attributes）
 
@@ -37,10 +37,10 @@ public class NsisActionAttribute(string entryPointFormat = "{0}") : Attribute
 | `entryPointFormat` | `string`     | 导出入口格式，默认 `"{0}"`（方法名）。例如 `"Plugin_{0}"`。 |
 | `Encoding`         | `NsEncoding` | 当前入口编码。`Undefined` 时跟随全局编码。                  |
 
-使用要点：
+使用说明：
 
-- 可重复标注同一方法（`AllowMultiple = true`），用于导出多个入口名。
-- 仅描述导出元数据，不负责调用时参数处理。
+- 可重复标注同一方法（`AllowMultiple = true`），用于生成多个导出入口名。
+- 该特性仅描述导出元数据，不直接处理运行时参数绑定。
 
 ### FromVariableAttribute
 
@@ -91,8 +91,8 @@ public static class NsPlugin
 
 线程与生命周期：
 
-- `Init` 应在每个调用线程进入插件逻辑前执行。
-- 未初始化时访问线程静态上下文会导致行为未定义或失败。
+- `Init` 应在每个调用线程进入插件逻辑之前执行。
+- 未初始化时访问线程静态上下文可能导致失败或未定义行为。
 
 ### Variables
 
@@ -152,8 +152,8 @@ public unsafe class ExtraParameters(IntPtr extraPtr)
 
 行为约定：
 
-- 回调注册后会持有委托引用，防止被 GC 回收。
-- 当前实现为单次注册模型，重复注册直接返回 `1`。
+- 回调注册成功后会持有委托引用，以防止被 GC 回收。
+- 当前实现为单次注册模型，重复注册会直接返回 `1`。
 
 ### NsPluginEnc
 
@@ -223,7 +223,7 @@ public struct ExecFlags
 
 ## 扩展方法
 
-`NsPluginExtensions` 提供基于字符串转换的泛型便捷 API。
+`NsPluginExtensions` 提供基于字符串转换的泛型便捷 API，用于减少手动解析与格式化逻辑。
 
 | 扩展目标    | 成员                                      | 返回值 | 说明                          |
 | ----------- | ----------------------------------------- | ------ | ----------------------------- |
@@ -235,7 +235,7 @@ public struct ExecFlags
 转换规则：
 
 - 基于 `Convert.ChangeType`，支持可空类型的基础转换。
-- 任何转换失败都会返回 `false`，不会抛异常。
+- 任一转换失败均返回 `false`，不会抛出异常。
 
 ## 枚举与委托
 
@@ -282,11 +282,11 @@ NSIS 变量索引枚举。
 public delegate IntPtr NsPluginCallback(Nspim message);
 ```
 
-该委托通过 `ExtraParameters.RegisterPluginCallback` 注册，由 NSIS 主机在卸载阶段调用。
+该委托通过 `ExtraParameters.RegisterPluginCallback` 注册，并由 NSIS 主机在卸载阶段调用。
 
 ## 底层互操作类型（高级）
 
-以下类型用于与 NSIS 原生 ABI 对齐。一般通过 `Raw` 指针间接使用，不建议在业务层直接操作。
+以下类型用于与 NSIS 原生 ABI 对齐。通常通过 `Raw` 指针间接访问，不建议在业务代码中直接操作。
 
 ### NsisPlugin.NsisApi.stack_t
 

@@ -1,17 +1,15 @@
 # .NET Native AOT 发布体积分析
 
 由于 .NET Native AOT 会将运行时与应用编译为原生代码，发布体积通常较大。
-本文档通过示例项目对比不同配置下的输出体积，帮助评估与优化 AOT 发布成本。
+本文档通过示例项目对比不同配置下的输出体积，用于评估不同实现方式与优化选项的体积成本。
 
-## 目录
-
-主要关注以下场景的输出体积：
+本文档主要关注以下场景：
 
 - 手写 NSIS 交互时的输出体积
 - 使用 NsisPlugin 包时的输出体积
 - 常见 AOT 优化参数对输出体积的影响，详情可见[.NET AOT 体积优化指南](https://linlccc.com/posts/dotnetaotconfig/)
 
-这里只使用以下几种 AOT 优化参数来分析：
+本文档使用以下 AOT 优化参数进行对比分析：
 
 - `OptimizationPreference`
   - `size`：优先优化体积
@@ -29,8 +27,8 @@
 
 ## 项目说明
 
-- `Empty`：空项目基线，用来观察 AOT 最小体积
-- `Hello`：最小导出函数样例，导出 `SayHi`
+- `Empty`：空项目基线，用于观察 AOT 最小体积。
+- `Hello`：最小导出函数示例，导出 `SayHi`。
 - `NotUseNsisPlugin`：手写 NSIS 栈交互逻辑，依赖 `unsafe` 和 `Marshal`
 - `UseNsisPlugin`：引用 `NsisPlugin` 包，通过属性标注导出插件动作
 
@@ -69,7 +67,7 @@
 
 ## 实测结果
 
-### 1. Base 与 Full 数据分析（仅体积）
+### 1. Base 与 Full 数据对比（仅体积）
 
 | Project          | Base (Bytes) | Full (Bytes) | 减少 (Bytes) |  降幅 |
 | ---------------- | -----------: | -----------: | -----------: | ----: |
@@ -78,7 +76,7 @@
 | NotUseNsisPlugin |       890880 |       607744 |       283136 | 31.8% |
 | UseNsisPlugin    |      1577472 |      1112576 |       464896 | 29.5% |
 
-### 2. 原运行输出结果
+### 2. 原始运行输出
 
 #### Empty
 
@@ -169,3 +167,4 @@ Full Optimizations             | 1112576         | 4.09
 - [示例总览](./README.md)
 - [插件开发、发布、打包](./nsisplugin-usage-sample-release-and-packaging.md)
 - [项目主页](../README.md)
+- [API 参考](../docs/api-reference.md)
