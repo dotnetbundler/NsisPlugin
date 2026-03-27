@@ -179,20 +179,69 @@ private static IntPtr OnMessage(Nspim message)
 
 ## 配置
 
-| 属性                                | 默认值  | 说明                                                                                                                                               |
-| ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NSISUnicode`                       | `false` | 设置默认编码，`false` 为 ANSI，`true` 为 Unicode。方法级 `Encoding` 可覆盖此设置。                                                                 |
-| `AutoGenerateNsisPluginInitializer` | `true`  | 自动生成模块初始化器，负责设置 `NsPluginEnc.UseUnicode` 和 `NsPlugin.ModuleHandle`。为 `false` 时 `NSISUnicode` 配置无效。大多数场景保持默认即可。 |
+安装 `NsisPlugin` 后，包会自动为消费项目注入一组适合 NSIS 插件的默认构建配置。  
+大多数场景下，无需额外配置即可直接通过 `dotnet publish <项目路径>` 发布插件。
 
-> **编码说明**：`NSISUnicode=true` 会在编译时定义 `NSIS_UNICODE` 预处理符号，源生成器生成的初始化器在编译时以此来设置默认编码。
+| 属性                                | 默认值    | 说明                                                      |
+| ----------------------------------- | --------- | --------------------------------------------------------- |
+| `IsAotCompatible`                   | `true`    | 声明项目与 AOT 场景兼容。                                 |
+| `PublishAot`                        | `true`    | 默认以 Native AOT 方式发布。                              |
+| `NativeLib`                         | `Shared`  | 将发布结果生成为原生共享库。                              |
+| `RuntimeIdentifier`                 | `win-x86` | 默认发布目标为 `win-x86`，以匹配 NSIS 32 位插件加载要求。 |
+| `NSISUnicode`                       | `false`   | 默认使用 ANSI 编码。                                      |
+| `AutoGenerateNsisPluginInitializer` | `true`    | 默认生成模块初始化器，用于设置模块句柄和默认编码。        |
 
-消费项目在使用 ANSI 作为默认编码时通常无需额外配置；如需使用 Unicode 作为默认编码，可在 `csproj` 中添加以下配置：
+这意味着消费项目默认会以 Native AOT 方式发布为 `win-x86` 原生共享库，从而满足 NSIS 插件的基本交付要求。
+
+### 常用配置
+
+#### NSISUnicode
+
+用于设置插件默认编码。`false` 为 ANSI，`true` 为 Unicode；方法级 `Encoding` 可覆盖该设置。
+
+如需将默认编码改为 Unicode，可在消费项目中添加：
 
 ```xml
 <PropertyGroup>
     <NSISUnicode>true</NSISUnicode>
 </PropertyGroup>
 ```
+
+#### AutoGenerateNsisPluginInitializer
+
+用于控制是否自动生成模块初始化器。默认值为 `true`。
+
+编译时，源生成器会生成初始化逻辑，用于设置 `NsPlugin.ModuleHandle` 和默认编码。关闭后，`NSISUnicode` 将不再自动生效，需要由消费项目自行完成初始化。
+
+只有在你需要完全接管模块初始化流程时，才建议关闭该配置：
+
+```xml
+<PropertyGroup>
+    <AutoGenerateNsisPluginInitializer>false</AutoGenerateNsisPluginInitializer>
+</PropertyGroup>
+```
+
+### 可选的体积优化配置
+
+如果你希望进一步缩小发布产物体积，可以根据实际情况启用以下 AOT 优化选项：
+
+```xml
+<PropertyGroup>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DebuggerSupport>false</DebuggerSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <UseSizeOptimizedLinq>true</UseSizeOptimizedLinq>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+</PropertyGroup>
+```
+
+说明：启用这些优化后，应对插件进行完整测试。某些 AOT 优化可能会移除未直接引用的代码路径，进而导致运行时行为变化。
+
+更多背景与对比数据可参考：
+
+- [Native AOT 发布体积分析](samples/aot-publish-volume-analysis.md)
+- [.NET AOT 体积优化指南](https://linlccc.com/posts/dotnetaotconfig/)
 
 ## 注意事项
 
