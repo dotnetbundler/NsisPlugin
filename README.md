@@ -26,6 +26,12 @@
 - [枚举与委托](docs/api-reference.md#枚举与委托)
 - [底层互操作类型](docs/api-reference.md#底层互操作类型高级)
 
+## 样品与示例
+
+- [使用 NsisPlugin 的示例项目](samples/Plugins/UseNsisPlugin)
+- [插件开发、发布、打包全流程](samples/nsisplugin-usage-sample-release-and-packaging.md)
+- [Native AOT 发布体积分析](samples/aot-publish-volume-analysis.md)
+
 ## 前提条件
 
 - **.NET 9.0+**
