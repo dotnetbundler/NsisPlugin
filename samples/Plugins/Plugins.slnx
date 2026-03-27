@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/NsisPlugin/">
+    <Project Path="../../gen/NsisPlugin.SourceGeneration.csproj" />
+    <Project Path="../../src/NsisPlugin.csproj" />
+  </Folder>
+  <Project Path="NotUseNsisPlugin/NotUseNsisPlugin.csproj" />
+  <Project Path="UseLocalNsisPlugin/UseLocalNsisPlugin.csproj" />
+  <Project Path="UseNsisPlugin/UseNsisPlugin.csproj" />
+</Solution>
