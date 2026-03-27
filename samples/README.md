@@ -2,7 +2,6 @@
 
 主要包含以下内容
 
-- NsisPlugin 的使用示例 [Plugins](./Plugins/)
 - [NsisPlugin 使用样品、发布及打包](./nsisplugin-usage-sample-release-and-packaging.md)
 - [.NET Native AOT 发布体积分析](./aot-publish-volume-analysis.md)
 
