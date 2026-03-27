@@ -17,12 +17,7 @@
         <File Path=".github/workflows/push-nuget.yml"/>
         <File Path=".github/workflows/release.yml"/>
     </Folder>
-	
-    <Folder Name="/samples/">
-        <Project Path="samples/NotUseNsisPlugin/NotUseNsisPlugin.csproj"/>
-        <Project Path="samples/UseLocalNsisPlugin/UseLocalNsisPlugin.csproj"/>
-        <Project Path="samples/UseNsisPlugin/UseNsisPlugin.csproj"/>
-    </Folder>
+
     <Folder Name="/tests/">
         <Project Path="tests/NsisPlugin.SourceGeneration.Tests/NsisPlugin.SourceGeneration.Tests.csproj"/>
         <Project Path="tests/NsisPlugin.Test/NsisPlugin.Test.csproj"/>
