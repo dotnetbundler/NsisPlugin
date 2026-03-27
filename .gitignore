@@ -401,7 +401,7 @@ FodyWeavers.xsd
 # mac file
 .DS_Store
 
-# 样品
+# 示例
 samples/NsisScripts/addplugin
 samples/NsisScripts/*.exe
 # 强制不忽略NSIS文件夹下的所有文件

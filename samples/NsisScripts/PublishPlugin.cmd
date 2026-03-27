@@ -11,7 +11,7 @@ set "PLUGIN_DIR=%~dp0..\Plugins\"
 set "DEST_DIR=%~dp0addplugin"
 if not exist "%DEST_DIR%" mkdir "%DEST_DIR%"
 
-:: 发布指定样品项目
+:: 发布指定示例项目
 set "TARGET_PROJECT=%~1"
 if not "%TARGET_PROJECT%" == "" (
 	:: 检查项目是否存在
@@ -25,7 +25,7 @@ if not "%TARGET_PROJECT%" == "" (
 	goto :end
 )
 
-:: 遍历所有样品项目
+:: 遍历所有示例项目
 echo [遍历模式]
 for /d %%i in ("%PLUGIN_DIR%*") do (
 	if exist "%%i\*.csproj" (
