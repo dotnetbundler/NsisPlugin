@@ -1,13 +1,27 @@
-# 打印 AOT 发布体积
+# .NET Native AOT 发布体积分析
 
-该文档介绍了如果使用 [AotOutputSize](./AotOutputSize/) 中的脚本去打印其中几个项目的 AOT 发布体积。  
-主要对比了以下两种情况下的输出体积：
+本文档介绍 .NET Native AOT 发布体积分析的样品项目。
+主要关注以下几种情况下的输出体积：
 
-- 手写 NSIS 交互逻辑时的输出体积
+- 手写 NSIS 交互时的输出体积
 - 使用 NsisPlugin 包时的输出体积
+- 常见 AOT 优化参数对输出体积的影响，详情可见[.NET AOT 体积优化指南](https://linlccc.com/posts/dotnetaotconfig/)
 
-同时，脚本也会对常见的 AOT 优化参数做逐项测试，便于观察不同配置对体积的影响。  
-查看[.NET AOT 体积优化指南](https://linlccc.com/posts/dotnetaotconfig/)
+这里只使用以下几种 AOT 优化参数来分析：
+
+- `OptimizationPreference`
+  - `size`：优先优化体积
+  - `speed`：优先优化速度
+- `InvariantGlobalization`
+  - `true`：使用不变文化特性，减少全球化相关代码
+- `DebuggerSupport`:
+  - `false`：禁用调试器支持，减少调试相关代码
+- `StackTraceSupport`:
+  - `false`：禁用堆栈跟踪支持，减少堆栈跟踪相关代码
+- `UseSizeOptimizedLinq`:
+  - `true`：使用体积优化的 LINQ 实现
+- `UseSystemResourceKeys`:
+  - `true`：使用系统资源键，减少资源相关代码
 
 ## 项目说明
 
@@ -19,30 +33,29 @@
 ## 运行前提
 
 - Windows 操作系统
-- 已安装 .NET SDK（当前项目目标框架为 `net10.0`）
-- 终端进入 `samples` 目录
+- 已安装 .NET SDK 10
 
-## 快速开始
+## 打印项目 aot 发布体积
+>
+> ps. 以下命令默认在 `AotOutputSize` 目录下执行
 
 ```bash
-# Empty
-.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\Empty\Empty.csproj win-x86 y
+# 打印 Empty 项目 aot 发布体积
+.\AotOutputSize.cmd .\Empty\Empty.csproj win-x86 n
 
-# Hello
-.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\Hello\Hello.csproj win-x86 n
+# 打印 Hello 项目 aot 发布体积
+.\AotOutputSize.cmd .\Hello\Hello.csproj win-x86 n
 
-# NotUseNsisPlugin
-.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\NotUseNsisPlugin\NotUseNsisPlugin.csproj win-x86 n
+# 打印 NotUseNsisPlugin 项目 aot 发布体积
+.\AotOutputSize.cmd .\NotUseNsisPlugin\NotUseNsisPlugin.csproj win-x86 n
 
-# UseNsisPlugin
-.\AotOutputSize\AotOutputSize.cmd .\AotOutputSize\UseNsisPlugin\UseNsisPlugin.csproj win-x86 n
+# 打印 UseNsisPlugin 项目 aot 发布体积
+.\AotOutputSize.cmd .\UseNsisPlugin\UseNsisPlugin.csproj win-x86 n
 ```
 
-## 脚本参数
+### 脚本说明
 
-```text
-AotOutputSize.cmd <项目路径.csproj> [RID] [是否保留日志:y/n]
-```
+命令：`AotOutputSize.cmd <项目路径.csproj> [RID] [是否保留日志:y/n]`
 
 - `<项目路径.csproj>`：必填，例如 `./UseNsisPlugin/UseNsisPlugin.csproj`
 - `[RID]`：可选，默认 `win-x64`
