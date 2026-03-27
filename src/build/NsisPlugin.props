@@ -1,10 +1,5 @@
 <Project>
   <PropertyGroup>
-    <IsAotCompatible>true</IsAotCompatible>
-    <PublishAot>true</PublishAot>
-    <NativeLib>Shared</NativeLib>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-
     <!-- Nsis 插件是否使用 Unicode 编码 -->
     <NSISUnicode>false</NSISUnicode>
     <!-- 是否自动生成 Nsis 插件初始化器 -->
