@@ -22,7 +22,9 @@
 
 - **.NET 9.0+**
   - **源生成器**： 项目依赖 Roslyn 源生成器生成模块初始化器与导出包装代码。（.NET 5.0+）
-  - **Native AOT**：NSIS 插件需以原生共享库（Windows 下为 `.dll`）交付，消费项目需采用 Native AOT 发布流程。（.NET 7.0+，win-x86 支持从 .NET 9.0 开始提供）
+  - **支持 win-x86 Native AOT**
+    - NSIS 插件需以原生共享库（Windows 下为 `.dll`）交付
+    - NSIS 只支持 32 位插件，因此在通过 AOT 发布时需指定 `win-x86` 作为运行时标识符。
   - 参考文档：
     - [Native AOT 平台与架构限制（.NET 9+）](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=windows%2Cnet9plus#platformarchitecture-restrictions)
     - [Native AOT class library 发布](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/libraries)
