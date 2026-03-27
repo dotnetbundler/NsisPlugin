@@ -179,25 +179,10 @@ private static IntPtr OnMessage(Nspim message)
 
 ## 配置
 
-安装 `NsisPlugin` 后，包会自动为消费项目注入一组适合 NSIS 插件的默认构建配置。  
-大多数场景下，无需额外配置即可直接通过 `dotnet publish <项目路径>` 发布插件。
+### `NSISUnicode`
 
-| 属性                                | 默认值    | 说明                                                      |
-| ----------------------------------- | --------- | --------------------------------------------------------- |
-| `IsAotCompatible`                   | `true`    | 声明项目与 AOT 场景兼容。                                 |
-| `PublishAot`                        | `true`    | 默认以 Native AOT 方式发布。                              |
-| `NativeLib`                         | `Shared`  | 将发布结果生成为原生共享库。                              |
-| `RuntimeIdentifier`                 | `win-x86` | 默认发布目标为 `win-x86`，以匹配 NSIS 32 位插件加载要求。 |
-| `NSISUnicode`                       | `false`   | 默认使用 ANSI 编码。                                      |
-| `AutoGenerateNsisPluginInitializer` | `true`    | 默认生成模块初始化器，用于设置模块句柄和默认编码。        |
-
-这意味着消费项目默认会以 Native AOT 方式发布为 `win-x86` 原生共享库，从而满足 NSIS 插件的基本交付要求。
-
-### 常用配置
-
-#### NSISUnicode
-
-用于设置插件默认编码。`false` 为 ANSI，`true` 为 Unicode；方法级 `Encoding` 可覆盖该设置。
+- 用于设置插件默认编码；方法级 `Encoding` 可覆盖该设置。
+- `false` 为 ANSI（默认），`true` 为 Unicode。
 
 如需将默认编码改为 Unicode，可在消费项目中添加：
 
@@ -207,11 +192,10 @@ private static IntPtr OnMessage(Nspim message)
 </PropertyGroup>
 ```
 
-#### AutoGenerateNsisPluginInitializer
+### `AutoGenerateNsisPluginInitializer`
 
-用于控制是否自动生成模块初始化器。默认值为 `true`。
-
-编译时，源生成器会生成初始化逻辑，用于设置 `NsPlugin.ModuleHandle` 和默认编码。关闭后，`NSISUnicode` 将不再自动生效，需要由消费项目自行完成初始化。
+- 用于控制是否自动生成模块初始化器。
+- 默认为 `true`，为 `false` 不会生成初始化器并且 `NSISUnicode` 无效，需要消费项目自行完成初始化。
 
 只有在你需要完全接管模块初始化流程时，才建议关闭该配置：
 
@@ -221,7 +205,29 @@ private static IntPtr OnMessage(Nspim message)
 </PropertyGroup>
 ```
 
-### 可选的体积优化配置
+## 发布
+
+要使 NSIS 能够加载插件，消费项目必须发布成 32 位原生共享库（Windows 下为 `.dll`）。
+
+### 方法1：直接使用命令
+
+```bash
+dotnet publish <PROJECT_PATH> -r win-x86 /p:PublishAot=true
+```
+
+### 方法2：将配置写入项目文件
+
+将下面的配置添加到消费项目的 `.csproj` 文件中：  
+现在发布就只需要 `dotnet publish <PROJECT_PATH>` 就行了。
+
+```xml
+<PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+</PropertyGroup>
+```
+
+### AOT 发布体积优化
 
 如果你希望进一步缩小发布产物体积，可以根据实际情况启用以下 AOT 优化选项：
 
