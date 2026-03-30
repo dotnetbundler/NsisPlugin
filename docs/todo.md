@@ -10,10 +10,11 @@
   - NativeLib=Shared
   - RuntimeIdentifier=win-x86
 - [x] 在 README 中指出默认配置并说明为什么（移除）
-- [ ] 代码：将多目标兼容写道公共目录中去
+- [x] 代码：将多目标兼容写道公共目录中去
+- [x] bug：方法级的编码应该在 try 外部，否者 catch 中的是未知编码
+- [x] 看导出函数（UnmanagedCallersOnlyAttribute）是否支持多标注(不支持)
+- [ ] 代码：处理.net framework 下的测试
 - [ ] 代码：解决范围编码释放可能无序的问题
 - [ ] 代码：解决范围编码跨线程释放的问题
 - [ ] 代码：使用 AsyncLocal 来替换 ThreadStatic 来存储当前插件上下文，避免在异步方法中丢失上下文
 - [ ] 代码：导出函数的公共部分提取出来，通过调用执行
-- [ ] 看导出函数是否支持多标注
-- [ ] bug：方法级的编码应该在 try 外部，否者 catch 中的是未知编码
