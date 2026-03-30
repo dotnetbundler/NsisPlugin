@@ -98,17 +98,16 @@ internal sealed class Emitter(SourceProductionContext context)
             writer.Indentation++;
             // 方法内部
             {
+                // 编码和初始化
+                writer.WriteLine($"using {DisposableRef} _ = {NsPluginEncRef}.CreateEncScope({NsEncodingRef}.{actionSpec.Encoding});");
+                writer.WriteLine($"{NsPluginRef}.Init(hwndParent, string_size, variables, stacktop, extra);");
+
                 writer.WriteLine("try");
                 writer.WriteLine('{');
                 writer.Indentation++;
                 // try 内部
                 {
-                    // 编码和初始化
-                    writer.WriteLine($"using {DisposableRef} _ = {NsPluginEncRef}.CreateEncScope({NsEncodingRef}.{actionSpec.Encoding});");
-                    writer.WriteLine($"{NsPluginRef}.Init(hwndParent, string_size, variables, stacktop, extra);");
-
                     // 参数
-                    if (methodSpec.Parameters.Count > 0) writer.WriteLine();
                     List<string> arguments = new(methodSpec.Parameters.Count);
                     for (var i = 0; i < methodSpec.Parameters.Count; i++)
                     {
@@ -132,9 +131,9 @@ internal sealed class Emitter(SourceProductionContext context)
                         }
                         arguments.Add(uniqueLocalName);
                     }
+                    if (methodSpec.Parameters.Count > 0) writer.WriteLine();
 
                     // 调用原方法
-                    writer.WriteLine();
                     var invocation = $"{containingType.FullyQualifiedName}.{methodSpec.Name}({string.Join(", ", arguments)});";
                     if (methodSpec.Return.Type.SpecialType == SpecialType.System_Void) writer.WriteLine(invocation);
                     else
