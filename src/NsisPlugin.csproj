@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Common\**\*.cs" Link="Common\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\Common\NsisPlugin\**\*.cs" Link="Common\NsisPlugin\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\Common\System.Diagnostics.CodeAnalysis\NullableAttributes.cs" Link="Common\System.Diagnostics.CodeAnalysis\NullableAttributes.cs"/>
+    <Compile Include="..\Common\System.Runtime.InteropServices\NativeMemory.cs" Link="Common\System.Runtime.InteropServices\NativeMemory.cs"/>
   </ItemGroup>
+
 </Project>
