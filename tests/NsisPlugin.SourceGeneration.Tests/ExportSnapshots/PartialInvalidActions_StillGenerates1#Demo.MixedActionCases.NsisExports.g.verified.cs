@@ -8,11 +8,10 @@ namespace Demo
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "ok", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void ok_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
+            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
+            global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
-                global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
-
                 global::Demo.MixedActionCases.Work();
             }
             catch (global::System.Exception ex)

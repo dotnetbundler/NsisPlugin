@@ -8,11 +8,10 @@ namespace Demo
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "sum_Add", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void sum_Add_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
+            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
+            global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Undefined);
-                global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
-
                 if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
                 if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
@@ -28,11 +27,10 @@ namespace Demo
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "sum_AddA", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void sum_AddA_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
+            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Ansi);
+            global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Ansi);
-                global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
-
                 if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
                 if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
@@ -48,11 +46,10 @@ namespace Demo
         [global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute(EntryPoint = "sum_AddU", CallConvs = new[] { typeof(global::System.Runtime.CompilerServices.CallConvCdecl) })]
         public static void sum_AddU_Gen(global::System.IntPtr hwndParent, int string_size, global::System.IntPtr variables, global::System.IntPtr stacktop, global::System.IntPtr extra)
         {
+            using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Unicode);
+            global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
             try
             {
-                using global::System.IDisposable _ = global::NsisPlugin.NsPluginEnc.CreateEncScope(global::NsisPlugin.NsEncoding.Unicode);
-                global::NsisPlugin.NsPlugin.Init(hwndParent, string_size, variables, stacktop, extra);
-
                 if (!global::NsisPlugin.NsPluginExtensions.Get(global::NsisPlugin.NsPlugin.Variables, global::NsisPlugin.NsVariable.Inst2, out int fromVar_p0)) throw new global::System.Exception("Failed to get 'fromVar'(int) from the variable");
                 if (!global::NsisPlugin.NsPluginExtensions.Pop(global::NsisPlugin.NsPlugin.StackTop, out int fromStack_p1)) throw new global::System.Exception("Failed to get 'fromStack'(int) from the stack");
 
