@@ -122,7 +122,7 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
 
 ### 5. 同一方法多个入口点
 
-同一方法可附加任意数量的 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute)，分别定义不同的入口点名称和编码。不指定 `Encoding` 时，将使用项目级默认编码（由 `NSISUnicode` 属性决定）：
+同一方法可附加任意数量的 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute)，分别定义不同的入口点名称和编码。不指定 `Encoding` 时，将使用项目级默认编码（由 [`NSISUnicode`](#nsisunicode) 属性决定）：
 
 ```csharp
 [NsisAction("ToUpper")]                                  // 使用全局编码（由 NSISUnicode 决定）
