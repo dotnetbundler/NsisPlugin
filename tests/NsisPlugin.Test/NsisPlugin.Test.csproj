@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Compatibility\MemoryManager.cs" Link="Compatibility\MemoryManager.cs"/>
+    <Compile Include="..\..\Common\System.Runtime.InteropServices\NativeMemory.cs" Link="Common\NativeMemory.cs"/>
   </ItemGroup>
 
 </Project>

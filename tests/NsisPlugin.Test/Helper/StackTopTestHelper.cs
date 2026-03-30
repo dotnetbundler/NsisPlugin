@@ -1,10 +1,10 @@
-using NsisPlugin.Compatibility;
+using System.Runtime.InteropServices;
 
 namespace NsisPlugin.Test.Helper;
 
 public static unsafe class StackTopTestHelper
 {
-    public static IntPtr Create() => (IntPtr)MemoryManager.AllocZeroed((nuint)sizeof(IntPtr));
+    public static IntPtr Create() => (IntPtr)NativeMemory.AllocZeroed((nuint)sizeof(IntPtr));
 
     public static void DrainAndFree(StackT? stack)
     {
@@ -12,6 +12,6 @@ public static unsafe class StackTopTestHelper
 
         while (stack.Pop(out _)) { }
 
-        MemoryManager.Free(stack.Raw);
+        NativeMemory.Free(stack.Raw);
     }
 }

@@ -28,4 +28,13 @@
     <ProjectReference Include="..\..\src\NsisPlugin.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\Common\System.Diagnostics.CodeAnalysis\NullableAttributes.cs" Link="Common\System.Diagnostics.CodeAnalysis\NullableAttributes.cs"/>
+
+    <Compile Include="..\..\Common\System.Runtime.CompilerServices\ModuleInitializerAttribute.cs" Link="Common\System.Runtime.CompilerServices\ModuleInitializerAttribute.cs"/>
+    <Compile Include="..\..\Common\System.Runtime.CompilerServices\IsExternalInit.cs" Link="Common\System.Runtime.CompilerServices\IsExternalInit.cs"/>
+
+    <Compile Include="..\..\Common\System.Runtime.InteropServices\UnmanagedCallersOnlyAttribute.cs" Link="Common\System.Runtime.InteropServices\UnmanagedCallersOnlyAttribute.cs"/>
+  </ItemGroup>
+
 </Project>

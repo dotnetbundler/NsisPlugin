@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using NsisPlugin.Compatibility;
 using NsisPlugin.NsisApi;
 
 namespace NsisPlugin.Test.Helper;
@@ -29,10 +28,10 @@ public static unsafe class ExtraParametersTestHelper
 
     public static extra_parameters* Create()
     {
-        var extraPtr = MemoryManager.AllocZeroed((nuint)sizeof(extra_parameters));
+        var extraPtr = NativeMemory.AllocZeroed((nuint)sizeof(extra_parameters));
 
         var extra = (extra_parameters*)extraPtr;
-        extra->exec_flags = (ExecFlags*)MemoryManager.AllocZeroed((nuint)sizeof(ExecFlags));
+        extra->exec_flags = (ExecFlags*)NativeMemory.AllocZeroed((nuint)sizeof(ExecFlags));
 
         _executeCodeSegmentDelegate = ExecuteCodeSegmentStub;
         _validateFilenameDelegate = ValidateFilenameStub;
@@ -78,8 +77,8 @@ public static unsafe class ExtraParametersTestHelper
     {
         if (extra is not null)
         {
-            if (extra->exec_flags != null) MemoryManager.Free(extra->exec_flags);
-            MemoryManager.Free(extra);
+            if (extra->exec_flags != null) NativeMemory.Free(extra->exec_flags);
+            NativeMemory.Free(extra);
         }
 
         _executeCodeSegmentDelegate = null;

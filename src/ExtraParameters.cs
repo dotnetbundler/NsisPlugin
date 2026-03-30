@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using NsisPlugin.Compatibility;
 using NsisPlugin.NsisApi;
 
 namespace NsisPlugin;
@@ -35,7 +34,7 @@ public unsafe class ExtraParameters(IntPtr extraPtr)
     /// <param name="filename">文件名</param>
     public void ValidateFilename(ref string filename)
     {
-        var buffer = MemoryManager.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
+        var buffer = NativeMemory.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
         try
         {
             var bufferPtr = (IntPtr)buffer;
@@ -46,7 +45,7 @@ public unsafe class ExtraParameters(IntPtr extraPtr)
         }
         finally
         {
-            MemoryManager.Free(buffer);
+            NativeMemory.Free(buffer);
         }
     }
 
