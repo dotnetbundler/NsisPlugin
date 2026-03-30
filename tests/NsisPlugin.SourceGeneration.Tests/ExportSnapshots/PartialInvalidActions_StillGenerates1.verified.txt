@@ -8,12 +8,12 @@
         public static void Work() { }
 */
  : (7,9)-(7,27),
-      Message: The entry point format string 'ok{0' is invalid. Input string was not in a correct format. Failure to parse near offset 4. Format item ends prematurely.,
+      Message: The entry point format string 'ok{0' is invalid.,
       Severity: Error,
       Descriptor: {
         Id: NSPGEN122,
         Title: Invalid entry point format string,
-        MessageFormat: The entry point format string '{0}' is invalid. {1},
+        MessageFormat: The entry point format string '{0}' is invalid.,
         Category: NsisPlugin.SourceGeneration,
         DefaultSeverity: Error,
         IsEnabledByDefault: true

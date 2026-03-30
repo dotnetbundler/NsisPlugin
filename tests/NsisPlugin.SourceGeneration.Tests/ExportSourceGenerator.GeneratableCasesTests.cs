@@ -250,12 +250,7 @@ public class ExportSourceGeneratorGeneratableCasesTests
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-#if NET
         return VerifySnapshot(driver, SnapshotsDirectory);
-#else
-        // .net framework 不验证 NSPGEN122 的快照，因为诊断输出不完全一致
-        return Task.CompletedTask;
-#endif
     }
 
     [Fact]
@@ -309,11 +304,6 @@ public class ExportSourceGeneratorGeneratableCasesTests
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123", "NSPGEN121", "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-#if NET
         return VerifySnapshot(driver, SnapshotsDirectory);
-#else
-        // .net framework 不验证 NSPGEN122 的快照，因为诊断输出不完全一致
-        return Task.CompletedTask;
-#endif
     }
 }
