@@ -91,9 +91,9 @@ internal class Parser
         // 格式化入口名称
         string entryPoint;
         try { entryPoint = string.Format(entryPointFormat, methodName); }
-        catch (Exception ex)
+        catch (Exception )
         {
-            Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.InvalidEntryPointFormat, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPointFormat, ex.Message));
+            Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.InvalidEntryPointFormat, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPointFormat));
             return null;
         }
 
