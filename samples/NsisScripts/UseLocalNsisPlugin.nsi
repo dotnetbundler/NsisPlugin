@@ -10,4 +10,7 @@ Section
 	DetailPrint $0
 	
     MessageBox MB_OK "完成"
+	
+	; 将窗口移动到顶部居中
+	UseLocalNsisPlugin::MoveWindow ct
 SectionEnd
