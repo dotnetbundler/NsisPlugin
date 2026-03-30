@@ -8,5 +8,5 @@ namespace System.Runtime.CompilerServices;
 /// <seealso href="https://github.com/dotnet/dotnet/blob/d70206844a95b337601237466bfc6cbb7d52d6d4/src/runtime/src/libraries/System.Private.CoreLib/src/System/Runtime/CompilerServices/NullableAttribute.cs">to source</seealso>
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
-internal class ModuleInitializerAttribute : Attribute { }
+public class ModuleInitializerAttribute : Attribute { }
 #endif
