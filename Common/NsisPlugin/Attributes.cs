@@ -1,4 +1,4 @@
-#pragma warning disable CS9113
+#pragma warning disable CS9113 // 参数未读。
 
 namespace NsisPlugin;
 
