@@ -6,8 +6,12 @@ namespace NsisPlugin.SourceGeneration.Tests;
 
 public class ExportSourceGeneratorNonGeneratableCasesTests
 {
-    [Fact]
-    public void NoNsisActionAttribute()
+    private static readonly string[] _useSharedEntryInitProperties = ["NsisUseSharedExportEntryInit=true"];
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void NoNsisActionAttribute(bool useSharedEntryInit)
     {
         const string source = """
                               namespace Demo
@@ -19,7 +23,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
@@ -32,8 +36,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void NonStatic_Method()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void NonStatic_Method(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -48,7 +54,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
@@ -57,8 +63,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Abstract_Method()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Abstract_Method(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -73,7 +81,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, CreateParseOptions(LanguageVersion.CSharp11));
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, CreateParseOptions(LanguageVersion.CSharp11), useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
 #if NET
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
@@ -88,8 +96,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Generic_Method()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Generic_Method(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -104,7 +114,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
@@ -113,8 +123,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Generic_ContainingType()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Generic_ContainingType(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -138,7 +150,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
@@ -147,8 +159,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Private_Method()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Private_Method(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -163,7 +177,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
@@ -172,8 +186,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Private_ContainingType()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Private_ContainingType(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -203,7 +219,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101");
@@ -212,8 +228,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void Not_In_ContainingType()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Not_In_ContainingType(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -225,7 +243,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken), "CS0116");
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
@@ -234,8 +252,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void RefOutInParameter()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RefOutInParameter(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -256,7 +276,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101", "NSPGEN101", "NSPGEN101");
@@ -265,8 +285,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void ActionEntryPointConflict()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ActionEntryPointConflict(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -293,18 +315,21 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121", "NSPGEN121", "NSPGEN121");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        Assert.Equal(sourceCompilation.SyntaxTrees.Count() + 1, outputCompilation.SyntaxTrees.Count());
-        Assert.Contains("WorkOk", outputCompilation.SyntaxTrees.Last().ToString());
+        var generatedTreeCount = useSharedEntryInit ? 2 : 1;
+        Assert.Equal(sourceCompilation.SyntaxTrees.Count() + generatedTreeCount, outputCompilation.SyntaxTrees.Count());
+        Assert.Contains(outputCompilation.SyntaxTrees, syntaxTree => syntaxTree.ToString().Contains("WorkOk"));
     }
 
-    [Fact]
-    public void InvalidEntryPointFormat()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void InvalidEntryPointFormat(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -319,7 +344,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN122");
@@ -328,8 +353,10 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
-    [Fact]
-    public void InvalidEntryPoint()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void InvalidEntryPoint(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -353,7 +380,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123", "NSPGEN123", "NSPGEN123", "NSPGEN123");

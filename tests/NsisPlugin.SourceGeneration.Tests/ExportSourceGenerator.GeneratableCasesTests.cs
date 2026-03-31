@@ -5,11 +5,17 @@ namespace NsisPlugin.SourceGeneration.Tests;
 
 public class ExportSourceGeneratorGeneratableCasesTests
 {
-    // 快照目录
-    private const string SnapshotsDirectory = "ExportSnapshots";
+    // 独立模式和共享入口初始化模式的快照分开存储，避免相互干扰
+    private const string IndependentSnapshotsDirectory = "IndependentExportSnapshots";
+    private const string SharedEntryInitSnapshotsDirectory = "SharedEntryInitExportSnapshots";
 
-    [Fact]
-    public Task DefaultEntryPoint()
+    private static readonly string[] _useSharedEntryInitProperties = ["NsisUseSharedExportEntryInit=true"];
+
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task DefaultEntryPoint(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -24,7 +30,7 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
@@ -33,12 +39,15 @@ public class ExportSourceGeneratorGeneratableCasesTests
         // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        // 生成源快照验证
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task WithParameters_Return_ToVariable_AndEncoding()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task WithParameters_Return_ToVariable_AndEncoding(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -52,21 +61,29 @@ public class ExportSourceGeneratorGeneratableCasesTests
                                       [NsisAction("sum_{0}U", Encoding = NsEncoding.Unicode)]
                                       [return: ToVariable(NsVariable.Inst0)]
                                       public static int Add([FromVariable(NsVariable.Inst2)] int fromVar, int fromStack, StackT stack, Variables vars, ExtraParameters extra) => fromVar + fromStack;
+
+                                      [NsisAction(Encoding = NsEncoding.Ansi)]
+                                      [return: ToVariable(NsVariable.Inst0)]
+                                      public static int Work(StackT stack, Variables vars, ExtraParameters extra) => 123;
                                   }
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task ExportClassName_For_GlobalNamespace_NestedType()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task ExportClassName_For_GlobalNamespace_NestedType(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -81,17 +98,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task NullFormat_FallbackToMethodName()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task NullFormat_FallbackToMethodName(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -106,17 +128,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task PartialInvalidMethod_StillGenerates()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task PartialInvalidMethod_StillGenerates(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -134,17 +161,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task VoidReturnWithToVariable_ReportWarning()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task VoidReturnWithToVariable_ReportWarning(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -160,17 +192,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN102");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task EntryPointConflicts_PreserveUniqueActions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task EntryPointConflicts_PreserveUniqueActions(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -187,17 +224,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task Entry_Point_Conflicts_Between_Types_Retain_The_First_One()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task Entry_Point_Conflicts_Between_Types_Retain_The_First_One(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -218,17 +260,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task PartialInvalidActions_StillGenerates1()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task PartialInvalidActions_StillGenerates1(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -244,17 +291,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task PartialInvalidActions_StillGenerates2()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task PartialInvalidActions_StillGenerates2(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -270,17 +322,22 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 
-    [Fact]
-    public Task Order_Stability_In_Case_Of_Invalidity_And_Conflicts()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task Order_Stability_In_Case_Of_Invalidity_And_Conflicts(bool useSharedEntryInit)
     {
         const string source = """
                               using NsisPlugin;
@@ -298,12 +355,15 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation);
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123", "NSPGEN121", "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return VerifySnapshot(driver, SnapshotsDirectory);
+        return useSharedEntryInit ?
+            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
+            VerifySnapshot(driver, IndependentSnapshotsDirectory);
     }
 }

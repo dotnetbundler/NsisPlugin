@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -107,15 +106,15 @@ internal static class CompilationHelper
     /// <param name="generatorDiagnostics">源生成器诊断</param>
     /// <param name="outputCompilation">生成源编译</param>
     /// <param name="parseOptions">解析选项，如果为 null 则使用默认解析选项</param>
+    /// <param name="properties">生成器配置属性字符串数组，每个字符串应为 "key=value" 格式</param>
     /// <returns>生成器驱动</returns>
-    public static GeneratorDriver RunGeneratorsAndCompilation<TSourceGenerator>(string source, out Compilation sourceCompilation, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation, CSharpParseOptions? parseOptions = null)
-        where TSourceGenerator : IIncrementalGenerator, new()
+    public static GeneratorDriver RunGeneratorsAndCompilation<TSourceGenerator>(string source, out Compilation sourceCompilation, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation, CSharpParseOptions? parseOptions = null, params IEnumerable<string> properties) where TSourceGenerator : IIncrementalGenerator, new()
     {
         // 编译源
         sourceCompilation = CreateCompilation(source, additionalReferences: GetReferences(typeof(NsPlugin)), parseOptions: parseOptions);
 
         // 运行源生成器
-        GeneratorDriver driver = CreateGeneratorDriver<TSourceGenerator>(sourceCompilation);
+        GeneratorDriver driver = CreateGeneratorDriver<TSourceGenerator>(sourceCompilation, properties: properties);
         return driver.RunGeneratorsAndUpdateCompilation(sourceCompilation, out outputCompilation, out generatorDiagnostics, TestContext.Current.CancellationToken);
     }
 }

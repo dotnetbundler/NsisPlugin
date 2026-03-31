@@ -25,14 +25,41 @@ public static class AssertHelper
             snapshotsDirectory = Path.Combine(directory, snapshotsDirectory);
         }
 
-        // 配置 Verify 以使用特定的目录和文件名存储快照
-        var settings = new VerifySettings();
-        settings.UseDirectory(snapshotsDirectory);
-        settings.UseFileName(methodName);
-        settings.DisableRequireUniquePrefix();
-
         // 验证生成了代码快照
-        return Verify(target, settings);
+        return Verify(target)
+            .UseDirectory(snapshotsDirectory)
+            .UseFileName(methodName)
+            .DisableRequireUniquePrefix();
+    }
+
+    /// <summary>
+    /// 验证共享入口初始化快照
+    /// </summary>
+    public static async Task VerifySharedEntryInitExportSnapshot(GeneratorDriver driver, string snapshotsDirectory, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "")
+    {
+        if (!Path.IsPathRooted(snapshotsDirectory))
+        {
+            var directory = Path.GetDirectoryName(filePath);
+            Assert.True(Directory.Exists(directory), $"{directory} does not exist");
+            snapshotsDirectory = Path.Combine(directory, snapshotsDirectory);
+        }
+
+        // 验证入口初始化快照
+        const string entryInitHintName = "NsisPlugin.EntryInit.g.cs";
+        await Verify(driver)
+            .UseDirectory(snapshotsDirectory)
+            .UseFileName("_") // 确保 entryInit 只验证一个文件
+            .DisableRequireUniquePrefix() // 允许多个测试方法验证同一个 entryInit 快照
+            .IgnoreMember("Diagnostics") // 忽略诊断
+            .IgnoreGeneratedResult(r => r.HintName != entryInitHintName);
+
+
+        // 验证导出快照
+        await Verify(driver)
+            .UseDirectory(snapshotsDirectory)
+            .UseFileName(methodName)
+            .DisableRequireUniquePrefix()
+            .IgnoreGeneratedResult(r => r.HintName == entryInitHintName);
     }
 
     /// <summary>
