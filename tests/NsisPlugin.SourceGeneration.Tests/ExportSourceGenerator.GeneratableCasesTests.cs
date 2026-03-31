@@ -30,7 +30,11 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        // 根据使用的生成器模式来计算需要的值
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        // 生成源并编译
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
         // 验证源编译诊断
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
@@ -39,9 +43,8 @@ public class ExportSourceGeneratorGeneratableCasesTests
         // 验证生成源编译诊断
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        // 验证快照
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -69,15 +72,15 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -98,16 +101,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -128,16 +131,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics);
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -161,16 +164,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN101");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -192,16 +195,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN102");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -224,16 +227,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -260,16 +263,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN121");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -291,16 +294,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -322,16 +325,16 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 
     [Theory]
@@ -355,15 +358,15 @@ public class ExportSourceGeneratorGeneratableCasesTests
                               }
                               """;
 
-        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+        var properties = useSharedEntryInit ? _useSharedEntryInitProperties : [];
+        var snapshotsDirectory = useSharedEntryInit ? SharedEntryInitSnapshotsDirectory : IndependentSnapshotsDirectory;
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: properties);
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
         AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN123", "NSPGEN121", "NSPGEN122");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        return useSharedEntryInit ?
-            VerifySharedEntryInitExportSnapshot(driver, SharedEntryInitSnapshotsDirectory) :
-            VerifySnapshot(driver, IndependentSnapshotsDirectory);
+        return VerifySnapshot(driver, snapshotsDirectory);
     }
 }
