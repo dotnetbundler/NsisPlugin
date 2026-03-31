@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
@@ -10,9 +11,16 @@ internal class Parser
     public const string NsisActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
     private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
     private const string ToVariableAttributeName = "NsisPlugin.ToVariableAttribute";
+    private const string UseSharedEntryInitBuildPropertyName = "build_property.NsisUseSharedExportEntryInit";
 
     private readonly HashSet<string> _entryPoints = [];
     public List<Diagnostic> Diagnostics { get; } = [];
+
+    public static bool UseSharedEntryInit(AnalyzerConfigOptionsProvider optionsProvider, CancellationToken _)
+    {
+        if (optionsProvider.GlobalOptions.TryGetValue(UseSharedEntryInitBuildPropertyName, out var useSharedEntryInit) && bool.TryParse(useSharedEntryInit, out var useShared)) return useShared;
+        return false;
+    }
 
     /// <summary>
     /// 解析方法语法上下文，生成类型规范列表
@@ -91,7 +99,7 @@ internal class Parser
         // 格式化入口名称
         string entryPoint;
         try { entryPoint = string.Format(entryPointFormat, methodName); }
-        catch (Exception )
+        catch (Exception)
         {
             Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.InvalidEntryPointFormat, attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(), entryPointFormat));
             return null;

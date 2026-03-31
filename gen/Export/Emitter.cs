@@ -1,47 +1,82 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
 
-internal sealed class Emitter(SourceProductionContext context)
+internal abstract class Emitter(SourceProductionContext context)
 {
+    protected SourceProductionContext Context { get; } = context;
+
     // 源生成用到的字面量
-    private const string StackTopName = "StackTop";
-    private const string VariablesName = "Variables";
-    private const string ExtraParametersName = "ExtraParameters";
+    protected const string StackTopName = "StackTop";
+    protected const string VariablesName = "Variables";
+    protected const string ExtraParametersName = "ExtraParameters";
 
     // 引用类的 global::fully.qualified.name
-    private const string IntRef = "int";
-    private const string IntPtrRef = "global::System.IntPtr";
-    private const string ExceptionRef = "global::System.Exception";
-    private const string DisposableRef = "global::System.IDisposable";
-    private const string CallConvCdeclRef = "global::System.Runtime.CompilerServices.CallConvCdecl";
-    private const string UnmanagedCallersOnlyAttributeRef = "global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute";
+    protected const string IntRef = "int";
+    protected const string IntPtrRef = "global::System.IntPtr";
+    protected const string ExceptionRef = "global::System.Exception";
+    protected const string DisposableRef = "global::System.IDisposable";
+    protected const string CallConvCdeclRef = "global::System.Runtime.CompilerServices.CallConvCdecl";
+    protected const string UnmanagedCallersOnlyAttributeRef = "global::System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute";
 
-    private const string NsEncodingRef = "global::NsisPlugin.NsEncoding";
-    private const string NsVariableRef = "global::NsisPlugin.NsVariable";
+    protected const string NsEncodingRef = "global::NsisPlugin.NsEncoding";
+    protected const string NsVariableRef = "global::NsisPlugin.NsVariable";
 
-    private const string NsPluginEncRef = "global::NsisPlugin.NsPluginEnc";
-    private const string NsPluginRef = "global::NsisPlugin.NsPlugin";
-    private const string NsPluginExtensionsRef = "global::NsisPlugin.NsPluginExtensions";
+    protected const string NsPluginEncRef = "global::NsisPlugin.NsPluginEnc";
+    protected const string NsPluginRef = "global::NsisPlugin.NsPlugin";
+    protected const string NsPluginExtensionsRef = "global::NsisPlugin.NsPluginExtensions";
 
-    private const string StackTRef = "global::NsisPlugin.StackT";
-    private const string VariablesRef = "global::NsisPlugin.Variables";
-    private const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
+    protected const string StackTRef = "global::NsisPlugin.StackT";
+    protected const string VariablesRef = "global::NsisPlugin.Variables";
+    protected const string ExtraParametersRef = "global::NsisPlugin.ExtraParameters";
 
-    public void Emit(ImmutableEquatableArray<TypeGenerationSpec> types)
+    // 成员访问表达式
+    protected static string StackTop => $"{NsPluginRef}.{StackTopName}";
+    protected static string Variables => $"{NsPluginRef}.{VariablesName}";
+    protected static string ExtraParameters => $"{NsPluginRef}.{ExtraParametersName}";
+
+    /// <summary>
+    /// 获取导出类名
+    /// </summary>
+    protected static string GetExportClassName(TypeGenerationSpec typeSpec)
     {
-        foreach (var type in types)
-        {
-            var hintName = $"{type.Type.FullyQualifiedName.Replace("global::", "")}.NsisExports.g.cs";
-            var sourceText = Emit(type);
-            context.AddSource(hintName, sourceText);
-        }
+        var prefix = typeSpec.Namespace is null ? "global::" : $"global::{typeSpec.Namespace}.";
+        var typePath = typeSpec.Type.FullyQualifiedName.Replace(prefix, string.Empty);
+        return typePath.Replace('.', '_');
     }
 
-    private static SourceText Emit(TypeGenerationSpec typeSpec)
+    /// <summary>
+    /// 获取导出文件名（包含命名空间路径，避免同名类冲突）
+    /// </summary>
+    protected static string GetExportFileName(TypeGenerationSpec typeSpec) => $"{typeSpec.Type.FullyQualifiedName.Replace("global::", "")}.NsisExports.g.cs";
+
+    /// <summary>
+    /// 尝试获取特殊参数（如 StackTop、Variables、ExtraParameters）
+    /// </summary>
+    /// <param name="parameterTypeFullyQualifiedName">参数类型完全限定名</param>
+    /// <param name="argument">对应的参数表达式（如 global::NsisPlugin.NsPlugin.StackTop）</param>
+    /// <returns>是否是参数</returns>
+    protected static bool TryGetSpecialArgument(string parameterTypeFullyQualifiedName, out string? argument)
+    {
+        argument = parameterTypeFullyQualifiedName switch
+        {
+            StackTRef => StackTop,
+            VariablesRef => Variables,
+            ExtraParametersRef => ExtraParameters,
+            _ => null
+        };
+        return argument is not null;
+    }
+
+    /// <summary>
+    /// 生成导出类的源代码
+    /// </summary>
+    /// <param name="typeSpec">类生成规范</param>
+    /// <param name="writeMembers">写成员的方法</param>
+    /// <returns>源</returns>
+    protected static SourceText EmitExportTypeSource(TypeGenerationSpec typeSpec, Action<SourceWriter, TypeGenerationSpec> writeMembers)
     {
         var writer = new SourceWriter();
         writer.WriteLine("// <auto-generated />");
@@ -61,8 +96,7 @@ internal sealed class Emitter(SourceProductionContext context)
             writer.Indentation++;
 
             // 类内部
-            var isFirst = true;
-            foreach (var methodSpec in typeSpec.Methods) WriteMethod(writer, typeSpec.Type, methodSpec, ref isFirst);
+            writeMembers(writer, typeSpec);
 
             writer.Indentation--;
             writer.WriteLine("}");
@@ -73,105 +107,58 @@ internal sealed class Emitter(SourceProductionContext context)
             writer.Indentation--;
             writer.WriteLine('}');
         }
-        return writer.ToSourceText();
 
-        // 获取导出类名
-        static string GetExportClassName(TypeGenerationSpec typeSpec)
-        {
-            var prefix = typeSpec.Namespace is null ? "global::" : $"global::{typeSpec.Namespace}.";
-            var typePath = typeSpec.Type.FullyQualifiedName.Replace(prefix, string.Empty);
-            return typePath.Replace('.', '_');
-        }
+        return writer.ToSourceText();
     }
 
-    private static void WriteMethod(SourceWriter writer, TypeRef containingType, MethodGenerationSpec methodSpec, ref bool isFirst)
+    /// <summary>
+    /// 写入参数读取、调用和返回值处理代码
+    /// </summary>
+    protected static void WriteInvocationAndReturn(SourceWriter writer, TypeRef containingType, MethodGenerationSpec methodSpec)
     {
-        foreach (var actionSpec in methodSpec.Actions)
+        // 参数
+        List<string> arguments = new(methodSpec.Parameters.Count);
+        var hasParameterRead = false;
+        for (var i = 0; i < methodSpec.Parameters.Count; i++)
         {
-            // 方法间隔
-            if (!isFirst) writer.WriteLine();
-            else isFirst = false;
-
-            writer.WriteLine($"[{UnmanagedCallersOnlyAttributeRef}(EntryPoint = {SymbolDisplay.FormatLiteral(actionSpec.EntryPoint, true)}, CallConvs = new[] {{ typeof({CallConvCdeclRef}) }})]");
-            writer.WriteLine($"public static void {actionSpec.EntryPoint}_Gen({IntPtrRef} hwndParent, {IntRef} string_size, {IntPtrRef} variables, {IntPtrRef} stacktop, {IntPtrRef} extra)");
-            writer.WriteLine('{');
-            writer.Indentation++;
-            // 方法内部
+            // 特殊参数
+            var parameterSpec = methodSpec.Parameters[i];
+            if (TryGetSpecialArgument(parameterSpec.Type.FullyQualifiedName, out var specialArgument))
             {
-                // 编码和初始化
-                writer.WriteLine($"using {DisposableRef} _ = {NsPluginEncRef}.CreateEncScope({NsEncodingRef}.{actionSpec.Encoding});");
-                writer.WriteLine($"{NsPluginRef}.Init(hwndParent, string_size, variables, stacktop, extra);");
-
-                writer.WriteLine("try");
-                writer.WriteLine('{');
-                writer.Indentation++;
-                // try 内部
-                {
-                    // 参数
-                    List<string> arguments = new(methodSpec.Parameters.Count);
-                    for (var i = 0; i < methodSpec.Parameters.Count; i++)
-                    {
-                        var parameterSpec = methodSpec.Parameters[i];
-                        if (TryGetSpecialArgument(parameterSpec.Type.FullyQualifiedName, out var argument))
-                        {
-                            arguments.Add(argument!);
-                            continue;
-                        }
-
-                        var uniqueLocalName = $"{parameterSpec.Name}_p{i}";
-                        if (parameterSpec.FromVariable is not null)
-                        {
-                            var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the variable\");";
-                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({NsPluginRef}.{VariablesName}, {NsVariableRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
-                        }
-                        else
-                        {
-                            var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the stack\");";
-                            writer.WriteLine($"if (!{NsPluginExtensionsRef}.Pop({NsPluginRef}.{StackTopName}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
-                        }
-                        arguments.Add(uniqueLocalName);
-                    }
-                    if (methodSpec.Parameters.Count > 0) writer.WriteLine();
-
-                    // 调用原方法
-                    var invocation = $"{containingType.FullyQualifiedName}.{methodSpec.Name}({string.Join(", ", arguments)});";
-                    if (methodSpec.Return.Type.SpecialType == SpecialType.System_Void) writer.WriteLine(invocation);
-                    else
-                    {
-                        writer.WriteLine($"var result = {invocation}");
-                        // 推送结果
-                        writer.WriteLine(methodSpec.Return.ToVariable is not null ?
-                            $"{NsPluginExtensionsRef}.Set({NsPluginRef}.{VariablesName}, {NsVariableRef}.{methodSpec.Return.ToVariable}, result);" :
-                            $"{NsPluginExtensionsRef}.Push({NsPluginRef}.{StackTopName}, result);");
-                    }
-                }
-                writer.Indentation--;
-                writer.WriteLine('}');
-                writer.WriteLine($"catch ({ExceptionRef} ex)");
-                writer.WriteLine('{');
-                writer.Indentation++;
-                // catch 内部
-                {
-                    writer.WriteLine($"{NsPluginRef}.{StackTopName}.Push($\"Exception in {actionSpec.EntryPoint}: {{ex}}\");");
-                }
-                writer.Indentation--;
-                writer.WriteLine('}');
+                arguments.Add(specialArgument!);
+                continue;
             }
-            writer.Indentation--;
-            writer.WriteLine('}');
+
+            // 读取参数
+            var uniqueLocalName = $"{parameterSpec.Name}_p{i}";
+            if (parameterSpec.FromVariable is not null)
+            {
+                var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the variable\");";
+                writer.WriteLine($"if (!{NsPluginExtensionsRef}.Get({Variables}, {NsVariableRef}.{parameterSpec.FromVariable}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
+            }
+            else
+            {
+                var throwCode = $"throw new {ExceptionRef}(\"Failed to get '{parameterSpec.Name}'({parameterSpec.Type.FullyQualifiedName}) from the stack\");";
+                writer.WriteLine($"if (!{NsPluginExtensionsRef}.Pop({StackTop}, out {parameterSpec.Type.FullyQualifiedName} {uniqueLocalName})) {throwCode}");
+            }
+
+            hasParameterRead = true;
+            arguments.Add(uniqueLocalName);
+        }
+        if (hasParameterRead) writer.WriteLine();
+
+        // 调用方法
+        var invocation = $"{containingType.FullyQualifiedName}.{methodSpec.Name}({string.Join(", ", arguments)});";
+        if (methodSpec.Return.Type.SpecialType == SpecialType.System_Void)
+        {
+            writer.WriteLine(invocation);
+            return;
         }
 
-        // 获取特殊参数
-        static bool TryGetSpecialArgument(string parameterFullyQualifiedName, out string? argument)
-        {
-            argument = parameterFullyQualifiedName switch
-            {
-                StackTRef => $"{NsPluginRef}.{StackTopName}",
-                VariablesRef => $"{NsPluginRef}.{VariablesName}",
-                ExtraParametersRef => $"{NsPluginRef}.{ExtraParametersName}",
-                _ => null
-            };
-            return argument is not null;
-        }
+        // 推送结果
+        writer.WriteLine($"var result = {invocation}");
+        writer.WriteLine(methodSpec.Return.ToVariable is not null ?
+            $"{NsPluginExtensionsRef}.Set({Variables}, {NsVariableRef}.{methodSpec.Return.ToVariable}, result);" :
+            $"{NsPluginExtensionsRef}.Push({StackTop}, result);");
     }
 }
