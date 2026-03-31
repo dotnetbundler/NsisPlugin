@@ -63,7 +63,7 @@ internal static class CompilationHelper
 #if NET
             references.Add(MetadataReference.CreateFromFile(Assembly.Load(new AssemblyName("System.Runtime")).Location));
 #else
-            references.AddRange(GetReferences(typeof(UnmanagedCallersOnlyAttribute)));
+            references.AddRange(GetReferences(typeof(System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute)));
             references.Add(MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.Unsafe).Assembly.Location));
             references.Add(MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51").Location));
 #endif
