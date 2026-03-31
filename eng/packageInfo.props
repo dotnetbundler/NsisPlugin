@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="package info">
-    <version>1.0.0-preview.5</version>
+    <version>1.0.0</version>
     <PackageTags>nsis plugin csharp aot</PackageTags>
     <PackageProjectUrl>https://github.com/dotnetbundler/NsisPlugin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dotnetbundler/NsisPlugin</RepositoryUrl>
