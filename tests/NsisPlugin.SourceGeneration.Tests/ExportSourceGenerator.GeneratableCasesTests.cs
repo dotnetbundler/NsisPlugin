@@ -9,7 +9,7 @@ public class ExportSourceGeneratorGeneratableCasesTests
     private const string IndependentSnapshotsDirectory = "IndependentExportSnapshots";
     private const string SharedEntryInitSnapshotsDirectory = "SharedEntryInitExportSnapshots";
 
-    private static readonly string[] _useSharedEntryInitProperties = ["NsisUseSharedExportEntryInit=true"];
+    private static readonly string[] _useSharedEntryInitProperties = ["NsisPluginUseSharedEntryInit=true"];
 
 
     [Theory]

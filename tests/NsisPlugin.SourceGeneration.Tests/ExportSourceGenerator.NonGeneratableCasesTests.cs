@@ -6,7 +6,7 @@ namespace NsisPlugin.SourceGeneration.Tests;
 
 public class ExportSourceGeneratorNonGeneratableCasesTests
 {
-    private static readonly string[] _useSharedEntryInitProperties = ["NsisUseSharedExportEntryInit=true"];
+    private static readonly string[] _useSharedEntryInitProperties = ["NsisPluginUseSharedEntryInit=true"];
 
     [Theory]
     [InlineData(false)]

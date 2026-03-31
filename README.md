@@ -122,10 +122,10 @@ public static string NormalizePath([FromVariable(NsVariable.InstR0)] string path
 
 ### 5. 同一方法多个入口点
 
-同一方法可附加任意数量的 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute)，分别定义不同的入口点名称和编码。不指定 `Encoding` 时，将使用项目级默认编码（由 [`NSISUnicode`](#nsisunicode) 属性决定）：
+同一方法可附加任意数量的 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute)，分别定义不同的入口点名称和编码。不指定 `Encoding` 时，将使用项目级默认编码（由 [`NsisPluginUseUnicode`](#nsispluginuseunicode) 属性决定）：
 
 ```csharp
-[NsisAction("ToUpper")]                                  // 使用全局编码（由 NSISUnicode 决定）
+[NsisAction("ToUpper")]                                  // 使用全局编码（由 NsisPluginUseUnicode 决定）
 [NsisAction("ToUpper_A", Encoding = NsEncoding.Ansi)]    // 使用 ANSI 编码
 [NsisAction("ToUpper_U", Encoding = NsEncoding.Unicode)] // 使用 Unicode 编码
 public static string ToUpper(string input) => input.ToUpper();
@@ -179,7 +179,7 @@ private static IntPtr OnMessage(Nspim message)
 
 ## 配置
 
-### `NSISUnicode`
+### `NsisPluginUseUnicode`
 
 - 用于设置插件默认编码；方法级 `Encoding` 可覆盖该设置。
 - `false` 为 ANSI（默认），`true` 为 Unicode。
@@ -188,22 +188,41 @@ private static IntPtr OnMessage(Nspim message)
 
 ```xml
 <PropertyGroup>
-    <NSISUnicode>true</NSISUnicode>
+    <NsisPluginUseUnicode>true</NsisPluginUseUnicode>
 </PropertyGroup>
 ```
 
-### `AutoGenerateNsisPluginInitializer`
+### `NsisPluginGenerateInitializer`
 
 - 用于控制是否自动生成模块初始化器。
-- 默认为 `true`，为 `false` 不会生成初始化器并且 `NSISUnicode` 无效，需要消费项目自行完成初始化。
+- 默认为 `true`，为 `false` 不会生成初始化器并且 `NsisPluginUseUnicode` 无效，需要消费项目自行完成初始化。
 
 只有在你需要完全接管模块初始化流程时，才建议关闭该配置：
 
 ```xml
 <PropertyGroup>
-    <AutoGenerateNsisPluginInitializer>false</AutoGenerateNsisPluginInitializer>
+    <NsisPluginGenerateInitializer>false</NsisPluginGenerateInitializer>
 </PropertyGroup>
 ```
+
+### `NsisPluginUseSharedEntryInit`
+
+- 用于控制导出包装代码是否复用同一个共享入口初始化助手。
+- 默认为 `false`：每个导出入口各自完成编码切换、`NsPlugin.Init` 和异常处理。
+- 设为 `true`：生成一个共享的初始化帮助方法，各个导出入口只负责传入编码、入口点名称和实际调用逻辑。
+
+如果你希望导出的初始化逻辑更集中，可在消费项目中启用：
+
+```xml
+<PropertyGroup>
+    <NsisPluginUseSharedEntryInit>true</NsisPluginUseSharedEntryInit>
+</PropertyGroup>
+```
+
+### 命名约定
+
+- 这三个项目级属性统一使用 `NsisPlugin` 前缀，便于和普通 MSBuild 属性区分。
+- 三者分别对应：默认编码、初始化器生成、共享入口初始化模式。
 
 ## 发布
 
@@ -256,7 +275,7 @@ dotnet publish <PROJECT_PATH> -r win-x86 /p:PublishAot=true
 - **字符串长度限制**：写入栈或变量的字符串受 NSIS `string_size` 限制（由 `NsPlugin.StringSize` 反映）。超出长度时内容会被截断，且不会抛出异常。
 - **类型转换失败**：泛型扩展方法（`Pop<T>`、`Get<T>` 等）在转换失败时返回 `false`，调用方应显式检查结果。
 - **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 时，结果写入指定变量且不再压栈。
-- **手动初始化**：当 `AutoGenerateNsisPluginInitializer` 设为 `false` 时，必须在插件加载阶段手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
+- **手动初始化**：当 `NsisPluginGenerateInitializer` 设为 `false` 时，必须在插件加载阶段手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
 - **Visual Studio 中生成器诊断不实时**：
   - 2026 （若高级配置未迁移，需要打开旧的选项框）
     - 工具 -> 选项 -> 语言 -> C# -> 高级 -> 源生成器（执行） -> 修改为：自动。在任意更改后运行生成器

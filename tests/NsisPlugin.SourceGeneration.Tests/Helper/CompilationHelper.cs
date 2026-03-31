@@ -33,7 +33,7 @@ internal static class CompilationHelper
 
     /// <summary>
     /// 创建一个包含指定属性的测试分析器配置选项提供者<br/>
-    /// 属性格式为 "key=value"，例如 "AutoGenerateNsisPluginInitializer=true"。<br/>
+    /// 属性格式为 "key=value"，例如 "NsisPluginGenerateInitializer=true"。<br/>
     /// 只会处理格式正确的属性，其他格式的属性将被忽略。
     /// </summary>
     /// <param name="properties">属性字符串数组，每个字符串应为 "key=value" 格式</param>

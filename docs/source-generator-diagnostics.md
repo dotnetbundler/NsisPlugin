@@ -8,7 +8,7 @@
 | ----------- | ------- | ------------------------------------------------------------- |
 | `NSPGEN001` | Warning | C# 语言版本低于 9.0，无法生成模块初始化器。                   |
 | `NSPGEN002` | Warning | 找不到 `ModuleInitializerAttribute`，无法生成模块初始化器。   |
-| `NSPGEN003` | Info    | `AutoGenerateNsisPluginInitializer` 未设为 `true`，跳过生成。 |
+| `NSPGEN003` | Info    | `NsisPluginGenerateInitializer` 未设为 `true`，跳过生成。 |
 
 ## 导出函数约束
 

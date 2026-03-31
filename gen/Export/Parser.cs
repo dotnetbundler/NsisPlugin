@@ -11,7 +11,7 @@ internal class Parser
     public const string NsisActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
     private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
     private const string ToVariableAttributeName = "NsisPlugin.ToVariableAttribute";
-    private const string UseSharedEntryInitBuildPropertyName = "build_property.NsisUseSharedExportEntryInit";
+    private const string UseSharedEntryInitBuildPropertyName = "build_property.NsisPluginUseSharedEntryInit";
 
     private readonly HashSet<string> _entryPoints = [];
     public List<Diagnostic> Diagnostics { get; } = [];

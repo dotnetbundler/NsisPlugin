@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
-    <DefineConstants Condition="'$(NSISUnicode)' == 'true'">$(DefineConstants);NSIS_UNICODE</DefineConstants>
+    <DefineConstants Condition="'$(NsisPluginUseUnicode)' == 'true'">$(DefineConstants);NSIS_UNICODE</DefineConstants>
   </PropertyGroup>
 
   <!-- 将属性暴露给 Source Generator -->
   <ItemGroup>
-    <CompilerVisibleProperty Include="AutoGenerateNsisPluginInitializer"/>
-    <CompilerVisibleProperty Include="NsisUseSharedExportEntryInit"/>
+    <CompilerVisibleProperty Include="NsisPluginGenerateInitializer"/>
+    <CompilerVisibleProperty Include="NsisPluginUseSharedEntryInit"/>
   </ItemGroup>
 </Project>
