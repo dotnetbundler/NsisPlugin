@@ -32,6 +32,8 @@
   <!-- 在本地使用时得放在自定义属性前面 -->
   <Import Project="$(SlnDir)\src\build\NsisPlugin.props" />
   <PropertyGroup>
+    <!--<NsisPluginUseUnicode>true</NsisPluginUseUnicode>-->
+    <!--<NsisPluginGenerateInitializer>false</NsisPluginGenerateInitializer>-->
     <!--<NsisPluginUseSharedEntryInit>true</NsisPluginUseSharedEntryInit>-->
   </PropertyGroup>
   <!-- 放在自定义属性后面 -->

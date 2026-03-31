@@ -20,8 +20,14 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!--<NsisPluginUseUnicode>true</NsisPluginUseUnicode>-->
+    <!--<NsisPluginGenerateInitializer>false</NsisPluginGenerateInitializer>-->
+    <!--<NsisPluginUseSharedEntryInit>true</NsisPluginUseSharedEntryInit>-->
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="NsisPlugin" Version="1.0.0-preview.4" />
+    <PackageReference Include="NsisPlugin" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
