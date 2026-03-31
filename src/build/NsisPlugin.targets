@@ -6,5 +6,6 @@
   <!-- 将属性暴露给 Source Generator -->
   <ItemGroup>
     <CompilerVisibleProperty Include="AutoGenerateNsisPluginInitializer"/>
+    <CompilerVisibleProperty Include="NsisUseSharedExportEntryInit"/>
   </ItemGroup>
 </Project>

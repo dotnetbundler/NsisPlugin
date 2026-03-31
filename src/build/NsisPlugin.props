@@ -4,5 +4,7 @@
     <NSISUnicode>false</NSISUnicode>
     <!-- 是否自动生成 Nsis 插件初始化器 -->
     <AutoGenerateNsisPluginInitializer>true</AutoGenerateNsisPluginInitializer>
+    <!-- 导出入口是否共享同一个 EntryInit 帮助方法 -->
+    <NsisUseSharedExportEntryInit>false</NsisUseSharedExportEntryInit>
   </PropertyGroup>
 </Project>
