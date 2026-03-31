@@ -3,21 +3,18 @@ using NsisPlugin;
 
 namespace UseNsisPlugin;
 
-internal class Plugin
+internal class Plugin2
 {
-    [NsisAction(Encoding = NsEncoding.Unicode)]
-    public static int Add(int a, int b) => a + b;
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Rect
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
-    [NsisAction(Encoding = NsEncoding.Unicode)]
+    /// <summary>
+    /// 移动窗口
+    /// </summary>
+    /// <param name="location">
+    /// 窗口位置参数
+    /// 格式为"XY"，X表示水平位置，Y表示垂直位置。
+    ///     X: L（左），C（居中），R（右）
+    ///     Y: T（上），C（居中），B（下）
+    /// </param>
+    [NsisAction]
     public static void MoveWindow(string location)
     {
         if (location.Length != 2) return;
@@ -56,4 +53,12 @@ internal class Plugin
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
 }

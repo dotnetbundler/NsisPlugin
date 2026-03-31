@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!--<NsisPluginUseUnicode>true</NsisPluginUseUnicode>-->
+    <NsisPluginUseUnicode>true</NsisPluginUseUnicode>
     <!--<NsisPluginGenerateInitializer>false</NsisPluginGenerateInitializer>-->
     <!--<NsisPluginUseSharedEntryInit>true</NsisPluginUseSharedEntryInit>-->
   </PropertyGroup>
