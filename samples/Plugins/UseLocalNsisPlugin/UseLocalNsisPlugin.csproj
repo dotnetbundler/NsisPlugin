@@ -6,6 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\NsisPlugin.csproj" />
+    <ProjectReference Include="..\..\..\gen\NsisPlugin.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../UseNsisPlugin/**/*.cs" />
+  </ItemGroup>
+  
   <PropertyGroup>
     <PublishAot>true</PublishAot>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
@@ -20,16 +29,12 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="../UseNsisPlugin/**/*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\NsisPlugin.csproj" />
-    <ProjectReference Include="..\..\..\gen\NsisPlugin.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
+  <!-- 在本地使用时得放在自定义属性前面 -->
   <Import Project="$(SlnDir)\src\build\NsisPlugin.props" />
+  <PropertyGroup>
+    <!--<NsisPluginUseSharedEntryInit>true</NsisPluginUseSharedEntryInit>-->
+  </PropertyGroup>
+  <!-- 放在自定义属性后面 -->
   <Import Project="$(SlnDir)\src\build\NsisPlugin.targets" />
 
 </Project>
