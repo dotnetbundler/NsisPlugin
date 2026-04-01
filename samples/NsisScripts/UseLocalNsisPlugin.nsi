@@ -126,13 +126,23 @@ FunctionEnd
 
 Function Plugin6
 	DetailPrint ""
+	
+	MessageBox MB_YESNO|MB_ICONQUESTION "是否要在插件回调中显示弹窗" IDYES yes IDNO no
+	yes:
+		StrCpy $1 true
+		Goto next
+	no:
+		StrCpy $1 false
+	next:
+		DetailPrint "是否要在插件回调中显示弹窗：$1"
+	
 	DetailPrint "注册插件回调"
-	${PLUGIN_NAME}::RegisterCallback
+	${PLUGIN_NAME}::RegisterCallback $1
 	Pop $0
 	DetailPrint "注册插件回调结果：$0"
 	
 	DetailPrint "二次注册插件回调"
-	${PLUGIN_NAME}::RegisterCallback
+	${PLUGIN_NAME}::RegisterCallback $1
 	Pop $0
 	DetailPrint "二次注册插件回调结果：$0"
 FunctionEnd
