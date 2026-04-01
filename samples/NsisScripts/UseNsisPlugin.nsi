@@ -1,8 +1,16 @@
-﻿Name "插件测试程序"
-Unicode true ; 编码
-!define ENCODING_NAME "Unicode" ; 编码名称
+﻿!define ENCODING_NAME "Unicode" ; 编码名称
 !define PLUGIN_NAME "UseNsisPlugin" ; 定义插件名称
+!define SEPARATOR "------------------------------------" ; 分隔符
 
+; 使用编码
+!if "${ENCODING_NAME}" == "Unicode"
+  Unicode true ; Unicode
+!else
+  Unicode false ; Ansi
+!endif
+
+Name "${PLUGIN_NAME}_TEST" ; 测试程序名称
+OutFile "${PLUGIN_NAME}.exe" ; 可执行文件名称
 SetCompress off ; 不压缩
 RequestExecutionLevel user ; 普通权限
 !addplugindir ".\addplugin" ; 插件目录
@@ -15,19 +23,52 @@ RequestExecutionLevel user ; 普通权限
 !macroend
 
 Section
-	DetailPrint "${ENCODING_NAME} 编码"
+	DetailPrint "${ENCODING_NAME}"
+	DetailPrint ${SEPARATOR}
+	
+	; 插件1
+	Call Plugin1
+	
+	; 插件2
+	Call Plugin2
 
+	; 插件2
+	Call Plugin3
+SectionEnd
+
+# 定义函数：调用插件1的函数
+Function Plugin1
 	DetailPrint ""
 	DetailPrint "Add 200 99"
 	${PLUGIN_NAME}::Add 200 99
-	Pop $0
+	Pop $0 ; 299
 	DetailPrint $0
 	
 	DetailPrint ""
+	DetailPrint "StrAdd 200 99"
+	${PLUGIN_NAME}::StrAdd 200 99
+	Pop $0 ; 20099
+	DetailPrint $0
+	DetailPrint ${SEPARATOR}
+FunctionEnd
+
+# 调用插件2的函数
+Function Plugin2
+	DetailPrint ""
 	DetailPrint "MoveWindow ct"
-	MessageBox MB_OK "将窗口移动到顶部居中"
-	${PLUGIN_NAME}::MoveWindow ct
-	
+	MessageBox MB_YESNO|MB_ICONQUESTION "是否将窗口移动到顶部居中" IDYES yes IDNO no
+	yes:
+		DetailPrint "移动"
+		${PLUGIN_NAME}::MoveWindow ct
+		Goto next
+	no:
+		DetailPrint "不移动"
+	next:
+		DetailPrint ${SEPARATOR}
+FunctionEnd
+
+# 调用插件3的函数
+Function Plugin3
 	DetailPrint ""
 	DetailPrint "（测试边界）Boundary"
 	;栈推送 1024个1和我
@@ -38,17 +79,18 @@ Section
 	StrCpy $R1 "你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你你"
 	${PLUGIN_NAME}::Boundary
 	DetailPrint "打印栈信息"
-	Pop $0
+	Pop $0 ; 他...
 	!insertmacro PrintCharAndLen $0
-	Pop $0
+	Pop $0 ; 3...
 	!insertmacro PrintCharAndLen $0
-	Pop $0
+	Pop $0 ; 我（1023）
 	DetailPrint $0
-	Pop $0
+	Pop $0 ; 1（1023）
 	DetailPrint $0
 	DetailPrint "打印变量信息"
-	!insertmacro PrintCharAndLen $R9
-	!insertmacro PrintCharAndLen $9
-	DetailPrint $R8
-	DetailPrint $8
-SectionEnd
+	!insertmacro PrintCharAndLen $R9 ; 她...
+	!insertmacro PrintCharAndLen $9 ; 4...
+	DetailPrint $R8 ; 你（1023）
+	DetailPrint $8 ; 2（1023）
+	DetailPrint ${SEPARATOR}
+FunctionEnd
