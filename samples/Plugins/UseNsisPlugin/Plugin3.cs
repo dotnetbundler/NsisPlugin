@@ -4,6 +4,16 @@ namespace UseNsisPlugin;
 
 internal class Plugin3
 {
+    /// <summary>
+    /// 边界测试，测试输入和输出字符串的边界情况，包括长度和内容
+    /// 长度应该是1023，因为有一个结尾字符
+    /// </summary>
+    /// <param name="s1">来自第一栈顶</param>
+    /// <param name="s2">来自第二栈顶</param>
+    /// <param name="v1">来自$1</param>
+    /// <param name="vr1">来自$R1</param>
+    /// <param name="stackT">栈对象</param>
+    /// <param name="variables">变量对象</param>
     [NsisAction]
     public static void Boundary(string s1, string s2, [FromVariable(NsVariable.Inst1)] string v1, [FromVariable(NsVariable.InstR1)] string vr1, StackT stackT, Variables variables)
     {
