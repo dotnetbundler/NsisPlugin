@@ -26,14 +26,12 @@ Section
 	DetailPrint "${ENCODING_NAME}"
 	DetailPrint ${SEPARATOR}
 	
-	; 插件1
 	Call Plugin1
-	
-	; 插件2
 	Call Plugin2
-
-	; 插件2
 	Call Plugin3
+	Call Plugin4
+	Call Plugin5
+	Call Plugin6
 SectionEnd
 
 # 定义函数：调用插件1的函数
@@ -52,7 +50,6 @@ Function Plugin1
 	DetailPrint ${SEPARATOR}
 FunctionEnd
 
-# 调用插件2的函数
 Function Plugin2
 	DetailPrint ""
 	DetailPrint "MoveWindow ct"
@@ -67,7 +64,6 @@ Function Plugin2
 		DetailPrint ${SEPARATOR}
 FunctionEnd
 
-# 调用插件3的函数
 Function Plugin3
 	DetailPrint ""
 	DetailPrint "（测试边界）Boundary"
@@ -93,4 +89,50 @@ Function Plugin3
 	DetailPrint $R8 ; 你（1023）
 	DetailPrint $8 ; 2（1023）
 	DetailPrint ${SEPARATOR}
+FunctionEnd
+
+Function Plugin4
+	DetailPrint ""
+	MessageBox MB_YESNO|MB_ICONQUESTION "完成后是否自动关闭" /SD IDYES IDNO no ; 默认 yes
+		DetailPrint "AutoClose 1"
+		${PLUGIN_NAME}::AutoClose 1
+		Goto next
+	no:
+		DetailPrint "AutoClose 0"
+		${PLUGIN_NAME}::AutoClose 0
+	next:
+		DetailPrint ${SEPARATOR}
+FunctionEnd
+
+Function Plugin5
+	DetailPrint ""
+	MessageBox MB_YESNO|MB_ICONQUESTION "是否要通过插件调用NSIS函数" /SD IDNO IDYES yes ; 默认 no
+		DetailPrint "不通过插件调用NSIS函数"
+		Goto next
+	yes:
+		GetFunctionAddress $0 "CalledByPlugin5" ; 获取函数地址
+		${PLUGIN_NAME}::CallNsisFunction "Hello" $0 ; 调用插件传入消息和函数地址
+		Pop $0
+		DetailPrint "调用插件函数 -> 插件调用NSIS函数结果：$0"
+	next:
+		DetailPrint ${SEPARATOR}
+FunctionEnd
+; 被插件调用的函数
+Function CalledByPlugin5
+	Pop $0
+	DetailPrint "被插件调用：$0"
+	MessageBox MB_OK "被插件调用：$0"
+FunctionEnd
+
+Function Plugin6
+	DetailPrint ""
+	DetailPrint "注册插件回调"
+	${PLUGIN_NAME}::RegisterCallback
+	Pop $0
+	DetailPrint "注册插件回调结果：$0"
+	
+	DetailPrint "二次注册插件回调"
+	${PLUGIN_NAME}::RegisterCallback
+	Pop $0
+	DetailPrint "二次注册插件回调结果：$0"
 FunctionEnd
