@@ -82,4 +82,30 @@ public class VariablesTest
             VariablesTestHelper.Free(variablesPtr);
         }
     }
+
+#if NET7_0_OR_GREATER
+    [Theory]
+    [InlineData(NsEncoding.Ansi)]
+    [InlineData(NsEncoding.Unicode)]
+    public void Variables_GenericRoundTrip_ShouldSupportCustomParsable(NsEncoding encoding)
+    {
+        const int stringSize = 64;
+        var variablesPtr = VariablesTestHelper.Create(encoding, stringSize);
+
+        try
+        {
+            using var _ = NsPluginEnc.CreateEncScope(encoding);
+            NsPlugin.Init(IntPtr.Zero, stringSize, variablesPtr, IntPtr.Zero, IntPtr.Zero);
+
+            var expected = new HexValue(0x2A);
+            Assert.True(NsPlugin.Variables.Set(NsVariable.Inst0, expected));
+            Assert.True(NsPlugin.Variables.Get(NsVariable.Inst0, out HexValue actual));
+            Assert.Equal(expected, actual);
+        }
+        finally
+        {
+            VariablesTestHelper.Free(variablesPtr);
+        }
+    }
+#endif
 }

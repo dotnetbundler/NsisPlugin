@@ -84,4 +84,30 @@ public class StackTest
             StackTopTestHelper.DrainAndFree(NsPlugin.StackTop);
         }
     }
+
+#if NET7_0_OR_GREATER
+    [Theory]
+    [InlineData(NsEncoding.Ansi)]
+    [InlineData(NsEncoding.Unicode)]
+    public void StackT_GenericRoundTrip_ShouldSupportCustomParsable(NsEncoding encoding)
+    {
+        const int stringSize = 64;
+        var stackTopPtr = StackTopTestHelper.Create();
+
+        try
+        {
+            using var _ = NsPluginEnc.CreateEncScope(encoding);
+            NsPlugin.Init(IntPtr.Zero, stringSize, IntPtr.Zero, stackTopPtr, IntPtr.Zero);
+
+            var expected = new HexValue(0x2A);
+            Assert.True(NsPlugin.StackTop.Push(expected));
+            Assert.True(NsPlugin.StackTop.Pop(out HexValue actual));
+            Assert.Equal(expected, actual);
+        }
+        finally
+        {
+            StackTopTestHelper.DrainAndFree(NsPlugin.StackTop);
+        }
+    }
+#endif
 }
