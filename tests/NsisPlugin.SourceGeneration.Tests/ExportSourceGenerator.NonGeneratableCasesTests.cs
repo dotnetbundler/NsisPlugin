@@ -145,7 +145,7 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
                                       public static void Work2(int? i) { }
 
                                       [NsisAction]
-                                      public static void Work2(object i) { }
+                                      public static void Work3(object i) { }
                                   }
                               }
                               """;
