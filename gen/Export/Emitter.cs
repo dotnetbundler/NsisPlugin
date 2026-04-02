@@ -58,7 +58,7 @@ internal abstract class Emitter(SourceProductionContext context)
     /// <param name="parameterTypeFullyQualifiedName">参数类型完全限定名</param>
     /// <param name="argument">对应的参数表达式（如 global::NsisPlugin.NsPlugin.StackTop）</param>
     /// <returns>是否是参数</returns>
-    protected static bool TryGetSpecialArgument(string parameterTypeFullyQualifiedName, out string? argument)
+    public static bool TryGetSpecialArgument(string parameterTypeFullyQualifiedName, out string? argument)
     {
         argument = parameterTypeFullyQualifiedName switch
         {

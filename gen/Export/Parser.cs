@@ -12,14 +12,22 @@ internal class Parser
     private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
     private const string ToVariableAttributeName = "NsisPlugin.ToVariableAttribute";
     private const string UseSharedEntryInitBuildPropertyName = "build_property.NsisPluginUseSharedEntryInit";
+    private const string ISpanParsableFullName = "System.ISpanParsable`1";
 
+    private readonly Compilation _compilation;
+    private readonly INamedTypeSymbol? _iSpanParsableSymbol;
     private readonly HashSet<string> _entryPoints = [];
     public List<Diagnostic> Diagnostics { get; } = [];
 
+    public Parser(Compilation compilation)
+    {
+        _compilation = compilation;
+        _iSpanParsableSymbol = _compilation.GetTypeByMetadataName(ISpanParsableFullName);
+    }
+
     public static bool UseSharedEntryInit(AnalyzerConfigOptionsProvider optionsProvider, CancellationToken _)
     {
-        if (optionsProvider.GlobalOptions.TryGetValue(UseSharedEntryInitBuildPropertyName, out var useSharedEntryInit) && bool.TryParse(useSharedEntryInit, out var useShared)) return useShared;
-        return false;
+        return optionsProvider.GlobalOptions.TryGetValue(UseSharedEntryInitBuildPropertyName, out var useSharedEntryInit) && bool.TryParse(useSharedEntryInit, out var useShared) && useShared;
     }
 
     /// <summary>
@@ -40,7 +48,7 @@ internal class Parser
             }
 
             var methodSpec = ParseMethod(method, methodSyntaxContext.Attributes);
-            if (methodSpec.Actions.Count == 0) continue;
+            if (methodSpec is null || methodSpec.Actions.Count == 0) continue;
 
             if (!typeDict.TryGetValue(method.ContainingType, out var methodList)) typeDict[method.ContainingType] = methodList = [];
             methodList.Add(methodSpec);
@@ -57,13 +65,16 @@ internal class Parser
     /// <summary>
     /// 解析方法，生成 MethodGenerationSpec
     /// </summary>
-    private MethodGenerationSpec ParseMethod(IMethodSymbol method, ImmutableArray<AttributeData> attributes)
+    private MethodGenerationSpec? ParseMethod(IMethodSymbol method, ImmutableArray<AttributeData> attributes)
     {
-        var returnSpec = ParseReturn();
-        var parameterSpecs = method.Parameters.Select(ParseParameter).ToImmutableEquatableArray();
-        var actionSpecs = attributes.Where(ad => ad.AttributeClass?.ToDisplayString() == NsisActionAttributeMetadataName)
-            .Select(ad => ParseAction(ad, method.Name)).Where(ags => ags is not null).Select(ags => ags!).ToImmutableEquatableArray();
-        return new(method.Name, returnSpec, parameterSpecs, actionSpecs);
+        List<ParameterGenerationSpec> parameterSpecs = new(method.Parameters.Length);
+        foreach (var parameter in method.Parameters)
+        {
+            if (ParseParameter(parameter) is not ParameterGenerationSpec generationSpec) return null;
+            parameterSpecs.Add(generationSpec);
+        }
+        var actionSpecs = attributes.Where(ad => ad.AttributeClass?.ToDisplayString() == NsisActionAttributeMetadataName).Select(ad => ParseAction(ad, method.Name)).Where(ags => ags is not null).Select(ags => ags!).ToImmutableEquatableArray();
+        return new(method.Name, ParseReturn(), parameterSpecs.ToImmutableEquatableArray(), actionSpecs);
 
         // 解析方法的返回值
         ReturnGenerationSpec ParseReturn()
@@ -80,8 +91,18 @@ internal class Parser
         }
 
         // 解析方法的参数
-        static ParameterGenerationSpec ParseParameter(IParameterSymbol parameter)
+        ParameterGenerationSpec? ParseParameter(IParameterSymbol parameter)
         {
+            // 参数类型是否支持解析 (runtime不支持ISpanParsable || 实现了ISpanParsable接口)
+            var canParse = _iSpanParsableSymbol is null || parameter.Type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _iSpanParsableSymbol) && SymbolEqualityComparer.Default.Equals(i.TypeArguments[0], parameter.Type));
+            // 参数类型不支持解析且不是特殊参数
+            if (!canParse && !Emitter.TryGetSpecialArgument(parameter.Type.GetFullyQualifiedName(), out _))
+            {
+                Diagnostics.Add(Diagnostic.Create(DiagnosticDescriptors.ParameterTypeNotSupported, parameter.Locations.FirstOrDefault(), parameter.Type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+                return null;
+            }
+
+            // 参数不是从变量获取
             if (parameter.GetAttributes().FirstOrDefault(ad => ad.AttributeClass?.ToDisplayString() == FromVariableAttributeName) is not AttributeData fromVariableAttr) return new(new TypeRef(parameter.Type), parameter.Name, null);
 
             NsVariable? fromVariable = fromVariableAttr.ConstructorArguments.FirstOrDefault().Value is int value ? (NsVariable)value : null;

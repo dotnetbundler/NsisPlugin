@@ -12,12 +12,20 @@ internal static class DiagnosticDescriptors
         DiagnosticSeverity.Warning,
         true);
 
-    public static DiagnosticDescriptor MissingReturnTypeWithToVariable { get; } = new(
+    public static DiagnosticDescriptor ParameterTypeNotSupported { get; } = new(
         "NSPGEN102",
+        "Parameter type is not supported for export",
+        "The Parameter type '{0}' is not supported, ensure the type has implemented 'System.ISpanParsable<TSelf>'.",
+        Constants.NsisPluginSourceGenerationName,
+        DiagnosticSeverity.Warning,
+        true);
+
+    public static DiagnosticDescriptor MissingReturnTypeWithToVariable { get; } = new(
+        "NSPGEN103",
         "Method with ToVariableAttribute must have a return value",
         "The method '{0}' is decorated with [ToVariable], but it returns void. Methods must return a value to be assigned to a variable.",
         Constants.NsisPluginSourceGenerationName,
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Info,
         true);
 
     public static DiagnosticDescriptor ActionEntryPointConflict { get; } = new(
@@ -25,7 +33,7 @@ internal static class DiagnosticDescriptors
         "Entry point conflicts with another export",
         "Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint",
         Constants.NsisPluginSourceGenerationName,
-        DiagnosticSeverity.Error,
+        DiagnosticSeverity.Warning,
         true);
 
     public static DiagnosticDescriptor InvalidEntryPointFormat { get; } = new(
@@ -33,7 +41,7 @@ internal static class DiagnosticDescriptors
         "Invalid entry point format string",
         "The entry point format string '{0}' is invalid.",
         Constants.NsisPluginSourceGenerationName,
-        DiagnosticSeverity.Error,
+        DiagnosticSeverity.Warning,
         true);
 
     public static DiagnosticDescriptor InvalidEntryPointName { get; } = new(
@@ -41,7 +49,7 @@ internal static class DiagnosticDescriptors
         "Invalid entry point name",
         "The entry point name '{0}' is not a valid C# identifier or contains characters not supported for export.",
         Constants.NsisPluginSourceGenerationName,
-        DiagnosticSeverity.Error,
+        DiagnosticSeverity.Warning,
         true);
 
     /// <summary>

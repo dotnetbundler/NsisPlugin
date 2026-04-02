@@ -15,7 +15,7 @@ public class ExportSourceGenerator : IIncrementalGenerator
     {
         // 解析使用 [NsisAction] 的方法
         var nsisActionMethodSyntaxContexts = context.SyntaxProvider.ForAttributeWithMetadataName(Parser.NsisActionAttributeMetadataName, static (node, _) => node is MethodDeclarationSyntax, (syntaxContext, _) => syntaxContext);
-        var parseResult = nsisActionMethodSyntaxContexts.Collect().Select(MethodParse);
+        var parseResult = nsisActionMethodSyntaxContexts.Collect().Combine(context.CompilationProvider).Select(MethodParse);
 
         // 解析是否使用共享入口初始化
         var useSharedEntryInit = context.AnalyzerConfigOptionsProvider.Select(Parser.UseSharedEntryInit);
@@ -32,8 +32,9 @@ public class ExportSourceGenerator : IIncrementalGenerator
 
         // 解析方法
         [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1035:不要使用禁用于分析器的 API")]
-        static (ImmutableEquatableArray<TypeGenerationSpec> Types, ImmutableEquatableArray<Diagnostic> Diagnostics) MethodParse(ImmutableArray<GeneratorAttributeSyntaxContext> methodSyntaxContexts, CancellationToken token)
+        static (ImmutableEquatableArray<TypeGenerationSpec> Types, ImmutableEquatableArray<Diagnostic> Diagnostics) MethodParse((ImmutableArray<GeneratorAttributeSyntaxContext>, Compilation) input, CancellationToken token)
         {
+            var (methodSyntaxContexts, compilation) = input;
             // 确保源生成器使用不变文化进行解析。
             // 这可以防止诸如本地化特定的负号（例如，fi-FI 中的 U+2212）等问题
             // 写入生成的源文件中。
@@ -41,7 +42,7 @@ public class ExportSourceGenerator : IIncrementalGenerator
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             try
             {
-                Parser parser = new();
+                Parser parser = new(compilation);
                 var typeSpecs = parser.Parse(methodSyntaxContexts, token).ToImmutableEquatableArray();
                 var diagnostics = parser.Diagnostics.ToImmutableEquatableArray();
                 return (typeSpecs, diagnostics);
