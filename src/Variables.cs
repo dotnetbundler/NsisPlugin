@@ -44,8 +44,12 @@ public class Variables(IntPtr variables)
         if (variables == IntPtr.Zero || variable is < NsVariable.Inst0 or >= NsVariable.InstLast) return false;
 
         var bytes = NsPluginEnc.Encoding.GetBytes(value);
+        // 拷贝
         var variablePtr = variables + ((int)variable * NsPlugin.MaxStringBytes);
-        Marshal.Copy(bytes, 0, variablePtr, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
+        var copyLength = Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize);
+        Marshal.Copy(bytes, 0, variablePtr, copyLength);
+        // 确保字符串以 null 结尾
+        for (var i = 0; i < NsPluginEnc.CharSize; i++) Marshal.WriteByte(variablePtr, copyLength + i, 0);
         return true;
     }
 }
