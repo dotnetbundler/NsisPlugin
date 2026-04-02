@@ -123,6 +123,52 @@ public class ExportSourceGeneratorNonGeneratableCasesTests
         Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
     }
 
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Unsupported_ParameterType(bool useSharedEntryInit)
+    {
+        const string source = """
+                              using NsisPlugin;
+
+                              namespace Demo
+                              {
+                                  public struct UnsupportedValue { }
+
+                                  public static class UnsupportedParameterCases
+                                  {
+                                      [NsisAction]
+                                      public static void Work(UnsupportedValue value) { }
+
+                                      [NsisAction]
+                                      public static void Work2(int? i) { }
+
+                                      [NsisAction]
+                                      public static void Work2(object i) { }
+                                  }
+                              }
+                              """;
+
+        var driver = RunGeneratorsAndCompilation<ExportSourceGenerator>(source, out var sourceCompilation, out var generatorDiagnostics, out var outputCompilation, properties: useSharedEntryInit ? _useSharedEntryInitProperties : []);
+
+        // 支持 IParsable（net7.0+）
+        if (sourceCompilation.GetTypeByMetadataName("System.IParsable`1") is not null)
+        {
+            AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+            AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN102", "NSPGEN102", "NSPGEN102");
+            AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+            Assert.Equal(sourceCompilation.SyntaxTrees.Count(), outputCompilation.SyntaxTrees.Count());
+            return;
+        }
+
+        AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        AssertDiagnosticIdsInOrder(generatorDiagnostics);
+        AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
+        var generatedTreeCount = useSharedEntryInit ? 2 : 1;
+        Assert.Equal(sourceCompilation.SyntaxTrees.Count() + generatedTreeCount, outputCompilation.SyntaxTrees.Count());
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

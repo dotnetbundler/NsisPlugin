@@ -9,13 +9,14 @@
 */
  : (12,9)-(12,26),
       Message: Source generation found duplicate entry point 'Dup', specify unique entry points by setting NsisActionAttribute.EntryPoint,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: NSPGEN121,
         Title: Entry point conflicts with another export,
         MessageFormat: Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint,
         Category: NsisPlugin.SourceGeneration,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     }

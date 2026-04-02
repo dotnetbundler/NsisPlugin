@@ -9,13 +9,14 @@
 */
  : (7,9)-(7,31),
       Message: The entry point name 'bad-name' is not a valid C# identifier or contains characters not supported for export.,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: NSPGEN123,
         Title: Invalid entry point name,
         MessageFormat: The entry point name '{0}' is not a valid C# identifier or contains characters not supported for export.,
         Category: NsisPlugin.SourceGeneration,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     },
@@ -28,13 +29,14 @@
 */
  : (8,9)-(8,27),
       Message: Source generation found duplicate entry point 'Same', specify unique entry points by setting NsisActionAttribute.EntryPoint,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: NSPGEN121,
         Title: Entry point conflicts with another export,
         MessageFormat: Source generation found duplicate entry point '{0}', specify unique entry points by setting NsisActionAttribute.EntryPoint,
         Category: NsisPlugin.SourceGeneration,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     },
@@ -47,13 +49,14 @@
 */
  : (9,9)-(9,28),
       Message: The entry point format string 'bad{0' is invalid.,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: NSPGEN122,
         Title: Invalid entry point format string,
         MessageFormat: The entry point format string '{0}' is invalid.,
         Category: NsisPlugin.SourceGeneration,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     }

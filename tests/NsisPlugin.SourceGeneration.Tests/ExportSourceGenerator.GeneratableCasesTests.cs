@@ -201,7 +201,7 @@ public class ExportSourceGeneratorGeneratableCasesTests
 
 
         AssertDiagnosticIdsInOrder(sourceCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
-        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN102");
+        AssertDiagnosticIdsInOrder(generatorDiagnostics, "NSPGEN103");
         AssertDiagnosticIdsInOrder(outputCompilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
         return VerifySnapshot(driver, snapshotsDirectory);
