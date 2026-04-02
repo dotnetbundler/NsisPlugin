@@ -17,8 +17,8 @@ public static partial class NsPluginExtensions
             try
             {
                 // 获取 T 的非空类型
-                var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-                val = (T)Convert.ChangeType(self, type);
+                // var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+                val = (T)Convert.ChangeType(self, typeof(T));
                 return true;
             }
             catch
