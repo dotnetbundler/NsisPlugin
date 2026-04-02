@@ -47,6 +47,13 @@ Function Plugin1
 	${PLUGIN_NAME}::StrAdd 200 99
 	Pop $0 ; 20099
 	DetailPrint $0
+	
+	DetailPrint ""
+	DetailPrint "HexAdd 0x11 0x09"
+	${PLUGIN_NAME}::HexAdd 0x11 0x09
+	DetailPrint $0 ; 0x1a
+	Pop $0 ; 26
+	DetailPrint $0
 	DetailPrint ${SEPARATOR}
 FunctionEnd
 

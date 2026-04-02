@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NsisPlugin" Version="1.0.0" />
+    <PackageReference Include="NsisPlugin" Version="1.0.2" />
   </ItemGroup>
 
 </Project>
