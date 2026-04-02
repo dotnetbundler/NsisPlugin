@@ -62,14 +62,17 @@ public sealed class NsPluginEncScope : IDisposable
     /// 构造函数，根据指定的编码设置当前线程的编码设置
     /// </summary>
     /// <param name="encoding">编码</param>
-    /// <exception cref="ArgumentOutOfRangeException">未知编码</exception>
-    public NsPluginEncScope(NsEncoding encoding) => NsPluginEnc.ScopeUseUnicode = encoding switch
+    /// <exception cref="Exception">未知编码</exception>
+    public NsPluginEncScope(NsEncoding encoding)
     {
-        NsEncoding.Undefined => null,
-        NsEncoding.Ansi => false,
-        NsEncoding.Unicode => true,
-        _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
-    };
+        switch (encoding)
+        {
+            case NsEncoding.Undefined: NsPluginEnc.ScopeUseUnicode = null; return;
+            case NsEncoding.Ansi: NsPluginEnc.ScopeUseUnicode = false; return;
+            case NsEncoding.Unicode: NsPluginEnc.ScopeUseUnicode = true; return;
+            default: throw new Exception("Unknown encoding");
+        }
+    }
 
     /// <summary>
     /// 释放函数，恢复之前的编码设置
