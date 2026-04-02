@@ -51,8 +51,8 @@ Function Plugin1
 	DetailPrint ""
 	DetailPrint "HexAdd 0x11 0x09"
 	${PLUGIN_NAME}::HexAdd 0x11 0x09
-	DetailPrint $0 ; 0x1a
-	Pop $0 ; 26
+	DetailPrint $0 ; 26
+	Pop $0 ; 0x1A
 	DetailPrint $0
 	DetailPrint ${SEPARATOR}
 FunctionEnd

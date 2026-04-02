@@ -9,14 +9,15 @@ internal class Plugin1
     [NsisAction]
     public static int Add(int a, int b) => a + b;
 
-    [NsisAction]
-    public static string StrAdd(string a, string b) => a + b;
+    [NsisAction("Str{0}")]
+    public static string Add(string a, string b) => a + b;
 
-    [NsisAction]
-    public static int HexAdd(HexValue a, HexValue b)
+    [NsisAction("Hex{0}")]
+    [return: ToVariable(NsVariable.Inst0)]
+    public static int Add(HexValue a, HexValue b)
     {
         var res = new HexValue(a.Value + b.Value);
-        NsPlugin.Variables.Set(NsVariable.Inst0, res);
+        NsPlugin.StackTop.Push(res);
         return res.Value;
     }
 }
