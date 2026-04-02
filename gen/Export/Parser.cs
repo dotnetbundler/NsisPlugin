@@ -6,29 +6,19 @@ using SourceGenerators;
 
 namespace NsisPlugin.SourceGeneration.Export;
 
-internal class Parser
+internal class Parser(Compilation compilation)
 {
     public const string NsisActionAttributeMetadataName = "NsisPlugin.NsisActionAttribute";
     private const string FromVariableAttributeName = "NsisPlugin.FromVariableAttribute";
     private const string ToVariableAttributeName = "NsisPlugin.ToVariableAttribute";
     private const string UseSharedEntryInitBuildPropertyName = "build_property.NsisPluginUseSharedEntryInit";
-    private const string ISpanParsableFullName = "System.ISpanParsable`1";
+    private const string ParsableFullName = "System.IParsable`1";
 
-    private readonly Compilation _compilation;
-    private readonly INamedTypeSymbol? _iSpanParsableSymbol;
+    private readonly INamedTypeSymbol? _iParsableSymbol = compilation.GetTypeByMetadataName(ParsableFullName);
     private readonly HashSet<string> _entryPoints = [];
     public List<Diagnostic> Diagnostics { get; } = [];
 
-    public Parser(Compilation compilation)
-    {
-        _compilation = compilation;
-        _iSpanParsableSymbol = _compilation.GetTypeByMetadataName(ISpanParsableFullName);
-    }
-
-    public static bool UseSharedEntryInit(AnalyzerConfigOptionsProvider optionsProvider, CancellationToken _)
-    {
-        return optionsProvider.GlobalOptions.TryGetValue(UseSharedEntryInitBuildPropertyName, out var useSharedEntryInit) && bool.TryParse(useSharedEntryInit, out var useShared) && useShared;
-    }
+    public static bool UseSharedEntryInit(AnalyzerConfigOptionsProvider optionsProvider, CancellationToken _) => optionsProvider.GlobalOptions.TryGetValue(UseSharedEntryInitBuildPropertyName, out var useSharedEntryInit) && bool.TryParse(useSharedEntryInit, out var useShared) && useShared;
 
     /// <summary>
     /// 解析方法语法上下文，生成类型规范列表
@@ -93,8 +83,8 @@ internal class Parser
         // 解析方法的参数
         ParameterGenerationSpec? ParseParameter(IParameterSymbol parameter)
         {
-            // 参数类型是否支持解析 (runtime不支持ISpanParsable || 实现了ISpanParsable接口)
-            var canParse = _iSpanParsableSymbol is null || parameter.Type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _iSpanParsableSymbol) && SymbolEqualityComparer.Default.Equals(i.TypeArguments[0], parameter.Type));
+            // 参数类型是否支持解析 (runtime不支持IParsable || 实现了IParsable接口)
+            var canParse = _iParsableSymbol is null || parameter.Type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _iParsableSymbol) && SymbolEqualityComparer.Default.Equals(i.TypeArguments[0], parameter.Type));
             // 参数类型不支持解析且不是特殊参数
             if (!canParse && !Emitter.TryGetSpecialArgument(parameter.Type.GetFullyQualifiedName(), out _))
             {

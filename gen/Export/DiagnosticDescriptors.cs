@@ -15,7 +15,7 @@ internal static class DiagnosticDescriptors
     public static DiagnosticDescriptor ParameterTypeNotSupported { get; } = new(
         "NSPGEN102",
         "Parameter type is not supported for export",
-        "The Parameter type '{0}' is not supported, ensure the type has implemented 'System.ISpanParsable<TSelf>'.",
+        "The Parameter type '{0}' is not supported, ensure the type has implemented 'System.IParsable<TSelf>'.",
         Constants.NsisPluginSourceGenerationName,
         DiagnosticSeverity.Warning,
         true);
