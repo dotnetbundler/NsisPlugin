@@ -24,7 +24,7 @@
 ## 特性
 
 - **特性驱动导出**：使用 [`[NsisAction]`](docs/api-reference.md#nsisactionattribute) 声明插件入口，由源生成器自动生成导出包装代码。
-- **自动参数绑定**：自动从 NSIS 栈弹出参数并转换为目标类型，同时将返回值压回栈。
+- **自动参数绑定**：自动从 NSIS 栈弹出参数并转换为目标类型，同时将返回值压回栈；对于不支持解析的参数类型，会在编译期给出诊断。
 - **变量绑定**：通过 [`[FromVariable]`](docs/api-reference.md#fromvariableattribute) / [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 直接读取和写入 NSIS 变量。
 - **ANSI / Unicode 双编码支持**：支持全局编码配置以及方法级编码覆盖。
 - **编译期诊断**：在不满足导出约束时提供诊断信息，便于尽早发现配置与声明错误。
@@ -83,7 +83,9 @@ Pop $0 ; $0 = "8"
 
 ### 2. 多种参数类型
 
-NSIS 传递的参数均为字符串，源生成器会自动将栈中的字符串转换为方法声明的参数类型。支持 `string`、`int`、`double`、`bool` 等所有可由 `Convert.ChangeType` 转换的类型：
+NSIS 传递的参数均为字符串。  
+NsisPlugin 会自动按照 [`IParsable<TSelf>`](https://learn.microsoft.com/en-us/dotnet/api/system.iparsable-1) 规则进行转换；如果需要转换为自定义类型，需要实现该接口。  
+ps. `string`、`int`、`double`、`bool`、`Guid`、`DateTime` 等常用类型都已内置支持。
 
 ```csharp
 [NsisAction]
@@ -274,6 +276,7 @@ dotnet publish <PROJECT_PATH> -r win-x86 /p:PublishAot=true
 - **发布方式**：源生成器仅负责生成导出包装代码；若消费项目未以原生共享库方式发布，NSIS 仍无法加载该插件。
 - **字符串长度限制**：写入栈或变量的字符串受 NSIS `string_size` 限制（由 `NsPlugin.StringSize` 反映）。超出长度时内容会被截断，且不会抛出异常。
 - **类型转换失败**：泛型扩展方法（`Pop<T>`、`Get<T>` 等）在转换失败时返回 `false`，调用方应显式检查结果。
+- **参数类型约束**：导出方法的参数类型需要确保已实现 `IParsable<TSelf>`；不满足时源生成器会报告 `NSPGEN102`。特殊参数 `StackT`、`Variables`、`ExtraParameters` 不受此限制。
 - **返回值与变量**：普通返回值会压回 NSIS 栈；使用 [`[ToVariable]`](docs/api-reference.md#tovariableattribute) 时，结果写入指定变量且不再压栈。
 - **手动初始化**：当 `NsisPluginGenerateInitializer` 设为 `false` 时，必须在插件加载阶段手动设置 `NsPlugin.ModuleHandle` 与 `NsPluginEnc.UseUnicode`。
 - **Visual Studio 中生成器诊断不实时**：

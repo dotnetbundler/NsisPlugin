@@ -234,7 +234,8 @@ public struct ExecFlags
 
 转换规则：
 
-- 基于 `Convert.ChangeType`，支持可空类型的基础转换。
+- 在 .NET 7+ 目标框架上，要求 `T : IParsable<T>`，并通过 `T.TryParse(...)` 完成转换。
+- 在较旧目标框架上，运行时会退回到 `Convert.ChangeType`。
 - 任一转换失败均返回 `false`，不会抛出异常。
 
 ## 枚举与委托
