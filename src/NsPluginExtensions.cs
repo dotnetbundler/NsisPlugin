@@ -10,20 +10,14 @@ public static partial class NsPluginExtensions
     extension(string self)
     {
         internal bool TryTo<T>([NotNullWhen(true)] out T? val)
+#if NET7_0_OR_GREATER
+            where T : ISpanParsable<T> => T.TryParse(self, null, out val);
+#else
         {
             try
             {
                 // 获取 T 的非空类型
                 var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-                // TypeConverter 比 ChangeType 更强大，但是 aot 后比较大
-                // var converter = TypeDescriptor.GetConverter(type);
-                // if (converter.CanConvertFrom(typeof(string)))
-                // {
-                //     val = (T)converter.ConvertFromString(self)!;
-                //     return true;
-                // }
-
-                // 备用方案
                 val = (T)Convert.ChangeType(self, type);
                 return true;
             }
@@ -33,6 +27,7 @@ public static partial class NsPluginExtensions
                 return false;
             }
         }
+#endif
     }
 }
 
@@ -47,6 +42,9 @@ public static partial class NsPluginExtensions
         /// <typeparam name="T">值类型</typeparam>
         /// <returns>是否成功</returns>
         public bool Pop<T>([NotNullWhen(true)] out T? val)
+#if NET7_0_OR_GREATER
+            where T : ISpanParsable<T>
+#endif
         {
             if (self.Pop(out var str) && str.TryTo(out T? res))
             {
@@ -79,6 +77,9 @@ public static partial class NsPluginExtensions
         /// <typeparam name="T">值类型</typeparam>
         /// <returns>是否成功</returns>
         public bool Get<T>(NsVariable variable, [NotNullWhen(true)] out T? val)
+#if NET7_0_OR_GREATER
+            where T : ISpanParsable<T>
+#endif
         {
             if (self.Get(variable, out var str) && str.TryTo(out T? res))
             {
