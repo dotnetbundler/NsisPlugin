@@ -69,12 +69,13 @@
 
 ### 1. Base 与 Full 数据对比（仅体积）
 
-| Project          | Base (Bytes) | Full (Bytes) | 减少 (Bytes) |  降幅 |
-| ---------------- | -----------: | -----------: | -----------: | ----: |
-| Empty            |       868352 |       590336 |       278016 | 32.0% |
-| Hello            |       927232 |       634368 |       292864 | 31.6% |
-| NotUseNsisPlugin |       890880 |       607744 |       283136 | 31.8% |
-| UseNsisPlugin    |      1577472 |      1112576 |       464896 | 29.5% |
+| Project              | Base (Bytes) | Full (Bytes) | 减少 (Bytes) |  降幅 |
+| -------------------- | -----------: | -----------: | -----------: | ----: |
+| Empty                |       868352 |       590336 |       278016 | 32.0% |
+| Hello                |       927232 |       634368 |       292864 | 31.6% |
+| NotUseNsisPlugin     |       890880 |       607744 |       283136 | 31.8% |
+| UseNsisPlugin v1.0.0 |      1577472 |      1112576 |       464896 | 29.5% |
+| UseNsisPlugin v1.0.1 |       894464 |       609792 |      284,672 | 31.8% |
 
 ### 2. 原始运行输出
 
@@ -143,6 +144,8 @@ Full Optimizations             | 607744          | 3.28
 
 #### UseNsisPlugin
 
+NsisPlugin 版本 <= 1.0.0
+
 ```text
 ==============================================================================
  Project: [.\UseNsisPlugin\UseNsisPlugin.csproj] | RID: win-x86
@@ -158,6 +161,27 @@ StackTraceSupport=false        | 1430016         | 3.66
 UseSizeOptimizedLinq=true      | 1577472         | 4.07
 UseSystemResourceKeys=true     | 1568256         | 3.79
 Full Optimizations             | 1112576         | 4.09
+------------------------------------------------------------------------------
+完成。
+```
+
+NsisPlugin 版本 >= 1.0.1
+
+```text
+==============================================================================
+ Project: [.\UseNsisPlugin\UseNsisPlugin.csproj] | RID: win-x86
+==============================================================================
+Description                    | Size (Bytes)    | Duration (s)
+------------------------------------------------------------------------------
+Base AOT Publish               | 894464          | 3.44
+OptimizationPreference=size    | 845824          | 3.21
+OptimizationPreference=speed   | 901120          | 3.19
+InvariantGlobalization=true    | 740352          | 3.19
+DebuggerSupport=false          | 894464          | 3.31
+StackTraceSupport=false        | 802304          | 3.27
+UseSizeOptimizedLinq=true      | 894464          | 3.22
+UseSystemResourceKeys=true     | 885248          | 3.20
+Full Optimizations             | 609792          | 3.10
 ------------------------------------------------------------------------------
 完成。
 ```
