@@ -11,7 +11,7 @@ public static partial class NsPluginExtensions
     {
         internal bool TryTo<T>([NotNullWhen(true)] out T? val)
 #if NET7_0_OR_GREATER
-            where T : ISpanParsable<T> => T.TryParse(self, null, out val);
+            where T : IParsable<T> => T.TryParse(self, null, out val);
 #else
         {
             try
@@ -43,7 +43,7 @@ public static partial class NsPluginExtensions
         /// <returns>是否成功</returns>
         public bool Pop<T>([NotNullWhen(true)] out T? val)
 #if NET7_0_OR_GREATER
-            where T : ISpanParsable<T>
+            where T : IParsable<T>
 #endif
         {
             if (self.Pop(out var str) && str.TryTo(out T? res))
@@ -78,7 +78,7 @@ public static partial class NsPluginExtensions
         /// <returns>是否成功</returns>
         public bool Get<T>(NsVariable variable, [NotNullWhen(true)] out T? val)
 #if NET7_0_OR_GREATER
-            where T : ISpanParsable<T>
+            where T : IParsable<T>
 #endif
         {
             if (self.Get(variable, out var str) && str.TryTo(out T? res))
