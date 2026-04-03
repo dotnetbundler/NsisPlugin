@@ -43,6 +43,21 @@ public static class NsPluginEnc
     public static string? PtrToString(IntPtr ptr) => IsUnicode ? Marshal.PtrToStringUni(ptr) : Marshal.PtrToStringAnsi(ptr);
 
     /// <summary>
+    /// 将字符串写入指定缓冲区，并保证以 null 结尾。
+    /// </summary>
+    /// <param name="value">要写入的字符串</param>
+    /// <param name="buffer">目标缓冲区</param>
+    /// <param name="bufferSize">缓冲区大小（字节）</param>
+    public static void CopyStringToBuffer(string value, IntPtr buffer, int bufferSize)
+    {
+        var bytes = Encoding.GetBytes(value);
+        var copyLength = Math.Min(bytes.Length, bufferSize - CharSize);
+        Marshal.Copy(bytes, 0, buffer, copyLength);
+        // 确保字符串以 null 结尾
+        for (var i = 0; i < CharSize; i++) Marshal.WriteByte(buffer, copyLength + i, 0);
+    }
+
+    /// <summary>
     /// 创建编码作用域，在 using 块内临时切换编码设置，离开块后恢复之前的设置
     /// </summary>
     /// <param name="encoding">要使用的编码，为 <see cref="NsEncoding.Undefined">Undefined</see> 时使用全局设置</param>

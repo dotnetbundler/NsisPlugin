@@ -38,8 +38,7 @@ public unsafe class ExtraParameters(IntPtr extraPtr)
         try
         {
             var bufferPtr = (IntPtr)buffer;
-            var bytes = NsPluginEnc.Encoding.GetBytes(filename);
-            Marshal.Copy(bytes, 0, bufferPtr, Math.Min(bytes.Length, NsPlugin.MaxStringBytes - NsPluginEnc.CharSize));
+            NsPluginEnc.CopyStringToBuffer(filename, bufferPtr, NsPlugin.MaxStringBytes);
             Raw->validate_filename(bufferPtr);
             filename = NsPluginEnc.PtrToString(bufferPtr)!;
         }
