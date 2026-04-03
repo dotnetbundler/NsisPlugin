@@ -44,7 +44,7 @@ public unsafe class StackT(IntPtr stackTop)
     {
         if (Raw is null) return false;
 
-        var stackNode = (stack_t*)NativeMemory.AllocZeroed((nuint)(sizeof(IntPtr) + NsPlugin.MaxStringBytes));
+        var stackNode = (stack_t*)NativeMemory.Alloc((nuint)(sizeof(IntPtr) + NsPlugin.MaxStringBytes));
         NsPluginEnc.CopyStringToBuffer(str, (IntPtr)(&stackNode->text), NsPlugin.MaxStringBytes);
         stackNode->next = *Raw;
         *Raw = stackNode;

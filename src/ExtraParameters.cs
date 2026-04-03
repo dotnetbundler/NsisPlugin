@@ -34,7 +34,7 @@ public unsafe class ExtraParameters(IntPtr extraPtr)
     /// <param name="filename">文件名</param>
     public void ValidateFilename(ref string filename)
     {
-        var buffer = NativeMemory.AllocZeroed((nuint)NsPlugin.MaxStringBytes);
+        var buffer = NativeMemory.Alloc((nuint)NsPlugin.MaxStringBytes);
         try
         {
             var bufferPtr = (IntPtr)buffer;
